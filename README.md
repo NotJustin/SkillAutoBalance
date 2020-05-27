@@ -28,6 +28,8 @@ You can see old changelog(s) at the alliedmodders thread.
 
 ### Installation
 Extract this repository into your ./csgo/addons/sourcemod/ directory.
+Compile it.
+Put the compiled plugin in your plugins directory.
 
 ### ConVars
 ```
