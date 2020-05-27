@@ -57,8 +57,7 @@ ConVar
 
 int
 	g_iClients[MAXPLAYERS + 1],
-	g_iClientTeam[MAXPLAYERS + 1],
-	g_iClientRank[MAXPLAYERS + 1]
+	g_iClientTeam[MAXPLAYERS + 1]
 ;
 
 char
@@ -236,7 +235,7 @@ public void OnLibraryRemoved(const char[] name)
 		g_UsingRankME = false;
 	}
 }
-public void InitColorStringMap()
+void InitColorStringMap()
 {
 	colors = new StringMap();
 	colors.SetString("red", "\x07");
@@ -497,27 +496,23 @@ void PacifyPlayer(int client)
 }
 void UpdateScores()
 {
-	if (g_UsingGameME || g_UsingRankME)
-	{
-		UpdateRanks();
-	}
 	int client, team;
 	for (int i = 0; i < sizeof(g_iClients); i++)
 	{
 		if (client != 0 && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
 		{
-			g_iClientScore[client] = GetScore(client);
+			GetScore(client);
 		}
 	}
 }
-float GetScore(int client)
+void GetScore(int client)
 {
 	int scoreType = cvar_ScoreType.IntValue;
 	if (scoreType == TYPE_RANKME)
 	{
 		if (g_UsingRankME)
 		{
-			return float(g_iClientRank[client]);
+			g_iClientScore[client] = float(RankMe_GetPoints(client));
 		}
 		else
 		{
@@ -528,7 +523,7 @@ float GetScore(int client)
 	{
 		if (g_UsingGameME)
 		{
-			return float(g_iClientRank[client]);
+			QueryGameMEStats("playerinfo", client, GameMEStatsCallback, 1);
 		}
 		else
 		{
@@ -541,17 +536,25 @@ float GetScore(int client)
 	deaths = deaths < 1.0 ? 1.0 : deaths;
 	if(scoreType == 0)
 	{
-		return kills / deaths;
+		g_iClientScore[client] = kills / deaths;
 	}
 	else if(scoreType == 1)
 	{
-		return 2 * kills / deaths;
+		g_iClientScore[client] = 2 * kills / deaths;
 	}
 	else if(scoreType == 2)
 	{
-		return kills * kills / deaths;
+		g_iClientScore[client] = kills * kills / deaths;
 	}
-	return -1.0;
+	g_iClientScore[client] = -1.0;
+}
+Action PutOnRandomTeam(Handle timer, int userId)
+{
+	int client = GetClientOfUserId(userId);
+	if(client != 0 && !IsFakeClient(client) && IsClientInGame(client) && GetClientTeam(client) == TEAM_SPEC)
+	{
+		SwapPlayer(client, GetSmallestTeam(), "Auto Join");
+	}
 }
 
 /* Internal Team-Related Functions */
@@ -619,31 +622,26 @@ bool BalanceSkillNeeded()
 	}
 	return false;
 }
-Action PutOnRandomTeam(Handle timer, int userId)
-{
-	int client = GetClientOfUserId(userId);
-	if(client != 0 && !IsFakeClient(client) && IsClientInGame(client) && GetClientTeam(client) == TEAM_SPEC)
-	{
-		SwapPlayer(client, GetSmallestTeam(), "Auto Join");
-	}
-}
 int Sort_Scores(int client1, int client2, const int[] array, Handle hndl)
 {
 	float client1Score = g_iClientScore[client1];
 	float client2Score = g_iClientScore[client2];
-	int scoreType = cvar_ScoreType.IntValue;
 	if(client1Score == client2Score)
 	{
 		return 0;
 	}
-	if ((scoreType == TYPE_GAMEME && g_UsingGameME) || (scoreType == TYPE_RANKME && g_UsingRankME))
-	{
-		return client1Score < client2Score ? -1 : 1;
-	}
 	return client1Score > client2Score ? -1 : 1;
 }
-void SortByRank()
+void BalanceSkill()
 {
+	if (cvar_Scramble.BoolValue)
+	{
+		SortIntegers(g_iClients, sizeof(g_iClients), Sort_Random);
+	}
+	else
+	{
+		SortCustom1D(g_iClients, sizeof(g_iClients), Sort_Scores);
+	}
 	int client = 0;
 	int i = 0;
 	int size = (GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT)) / 2;
@@ -702,54 +700,11 @@ void SortByRank()
 		++i;
 	}
 }
-void SortByScoreboard()
-{
-	int i = 0;
-	int client;
-	int lastTeam = GetRandomInt(TEAM_T, TEAM_CT);
-	int team;
-	while(i < sizeof(g_iClients))
-	{
-		client = g_iClients[i];
-		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
-		{
-			if(lastTeam == TEAM_T && g_iClientTeam[client] == TEAM_T)
-			{
-				SwapPlayer(client, TEAM_CT, "Client Skill Balance");
-			}
-			else if	(lastTeam == TEAM_CT && g_iClientTeam[client] == TEAM_CT)
-			{
-				SwapPlayer(client, TEAM_T, "Client Skill Balance");
-			}
-			lastTeam = (lastTeam == TEAM_T) ? TEAM_CT : TEAM_T;
-		}
-		++i;
-	}
-}
-void BalanceSkill()
-{
-	int scoreType = cvar_ScoreType.IntValue;
-	if (cvar_Scramble.BoolValue)
-	{
-		SortIntegers(g_iClients, sizeof(g_iClients), Sort_Random);
-	}
-	else
-	{
-		SortCustom1D(g_iClients, sizeof(g_iClients), Sort_Scores);
-	}
-	if (scoreType == TYPE_GAMEME || scoreType == TYPE_RANKME)
-	{
-		SortByRank();
-	}
-	else
-	{
-		SortByScoreboard();
-	}
-}
 
 /* Public Client-Related Functions */
 public void OnClientPostAdminCheck(int client)
 {
+	g_iClientScore[client] = -1.0;
 	g_iFrozenClients[client] = false;
 	if (client != 0 && !IsFakeClient(client) && IsClientInGame(client))
 	{
@@ -763,11 +718,6 @@ public void OnClientPostAdminCheck(int client)
 		}
 	}
 }
-public void OnClientDisconnect(int client)
-{
-	g_iClientRank[client] = 999999;
-	g_iClientScore[client] = -1.0;
-}
 public Action OnPlayerRunCmd(int client, int &buttons)
 {
 	if (g_iFrozenClients[client])
@@ -780,14 +730,10 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 }
 
 /* Other Plugin Callbacks */
-Action RankMEGetRankCallback(int client, int rank, any data)
-{
-	g_iClientRank[client] = rank;
-}
 Action GameMEStatsCallback(int command, int payload, int client, Handle datapack)
 {
 	int argument_count = GetCmdArgs();
-	g_iClientRank[client] = get_param(4, argument_count);
+	g_iClientScore[client] = float(get_param(6, argument_count));
 }
 int get_param(int index, int argument_count) 
 {
@@ -798,25 +744,6 @@ int get_param(int index, int argument_count)
 		return StringToInt(param);
 	}
 	return -1;
-}
-void UpdateRanks()
-{
-	int client, team;
-	for (int i = 0; i < sizeof(g_iClients); i++)
-	{
-		client = g_iClients[i];
-		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
-		{
-			if (g_UsingGameME)
-			{
-				QueryGameMEStats("playerinfo", client, GameMEStatsCallback, 1);
-			}
-			else if(g_UsingRankME)
-			{
-				RankMe_GetRank(client, RankMEGetRankCallback);
-			}
-		}
-	}
 }
 
 /* Command Listeners */
@@ -997,7 +924,7 @@ void SetTeamFromMenu(int client, const char[] team)
 	}
 	SwapPlayer(client, TEAM_SPEC, "Admin Join");
 }
-public void AdminMenu_ForceBalance(TopMenu topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
+void AdminMenu_ForceBalance(TopMenu topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
 {
 	if (action == TopMenuAction_DisplayOption)
 	{
@@ -1014,7 +941,7 @@ public void AdminMenu_ForceBalance(TopMenu topmenu, TopMenuAction action, TopMen
 }
 
 /* Color-Related Functions */
-public void UpdateMessageType(ConVar convar, char [] oldValue, char [] newValue)
+void UpdateMessageType(ConVar convar, char [] oldValue, char [] newValue)
 {
 	char str[20];
 	GetConVarString(cvar_MessageColor, str, sizeof(str));
@@ -1023,7 +950,7 @@ public void UpdateMessageType(ConVar convar, char [] oldValue, char [] newValue)
 	GetConVarString(cvar_PrefixColor, str, sizeof(str));
 	UpdatePrefixColor(cvar_PrefixColor, str, str);
 }
-public void UpdateMessageColor(ConVar convar, char [] oldValue, char [] newValue)
+void UpdateMessageColor(ConVar convar, char [] oldValue, char [] newValue)
 {
 	char sMessageColor[20];
 	GetConVarString(convar, sMessageColor, sizeof(sMessageColor));
@@ -1037,7 +964,7 @@ public void UpdateMessageColor(ConVar convar, char [] oldValue, char [] newValue
 		SetColor(g_MessageColor, sMessageColor);
 	}
 }
-public void UpdatePrefixColor(ConVar convar, char [] oldValue, char [] newValue)
+void UpdatePrefixColor(ConVar convar, char [] oldValue, char [] newValue)
 {
 	char sPrefixColor[20];
 	GetConVarString(convar, sPrefixColor, sizeof(sPrefixColor));
@@ -1051,7 +978,7 @@ public void UpdatePrefixColor(ConVar convar, char [] oldValue, char [] newValue)
 		SetColor(g_PrefixColor, sPrefixColor);
 	}
 }
-public void UpdatePrefix(ConVar convar, char [] oldValue, char [] newValue)
+void UpdatePrefix(ConVar convar, char [] oldValue, char [] newValue)
 {
 	GetConVarString(convar, g_Prefix, sizeof(g_Prefix));
 }
