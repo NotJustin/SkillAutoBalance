@@ -1,8 +1,15 @@
 # SkillAutoBalance
-A configurable automated team manager.
+A configurable automated team manager.<br>
 [Thread on Alliedmods](https://forums.alliedmods.net/showthread.php?t=316478)
 
 #### Table of Contents
+[Credits/Inspiration](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#credits--inspiration)<br>
+[Changelog](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#changelog)<br>
+[Installation](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#installation)
+[ConVars](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#convars)<br>
+[Dependencies](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#dependencies)<br>
+[Compatible Plugins](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#compatible-plugins)<br>
+[Bugs](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#bugs)<br>
 
 ### Credits / Inspiration
 [Admin Player Team Switch and Scramble Menu by r5053](https://forums.alliedmods.net/showthread.php?p=549446)<br>
@@ -13,6 +20,14 @@ A configurable automated team manager.
 [Team Join Manager by GetRektByNoob](https://forums.alliedmods.net/showthread.php?p=2658904)<br>
 [Block Team Changes by sdz](https://forums.alliedmods.net/showpost.php?p=2422410&postcount=2)<br>
 [TeamChange Unlimited by Sheepdude](https://forums.alliedmods.net/showthread.php?p=1877187)<br>
+
+### Changelog
+3.0.0 - I've been making lots of minor changes to this plugin over the last month. In general, it consists of function optimization, improving code readability, adding some features and trying out various solutions to the bug I've been trying to fix for awhile now (see Bugs section).
+
+You can see old changelog(s) at the alliedmodders thread.
+
+### Installation
+Extract this repository into your ./csgo/addons/sourcemod/ directory.
 
 ### ConVars
 ```
@@ -70,14 +85,6 @@ sab_teammenu (boolean | default 1)
 sab_usedecay (boolean | default 1)
 "If 1, subtract sab_decayamount from a team's streak when they lose instead of setting their streak to 0"
  ```
- 
-### Changelog
-3.0.0 - I've been making lots of minor changes to this plugin over the last month. In general, it consists of function optimization, improving code readability, adding some features and trying out various solutions to the bug I've been trying to fix for awhile now (see Bugs section).
-
-You can see old changelog(s) at the alliedmodders thread.
-
-### Installation
-Extract this repository into your ./csgo/addons/sourcemod/ directory.
 
 ### Dependencies
 Third party include files you need in order to compile are:
@@ -85,7 +92,7 @@ Third party include files you need in order to compile are:
  * kento_rankme.inc
  
 ### Compatible Plugins
-[gameME](https://www.gameme.com/)
+[gameME](https://www.gameme.com/)<br>
 [RankMe Kento Edition](https://forums.alliedmods.net/showthread.php?t=290063) currently untested, need confirmation that this works
 
 ### Bugs
