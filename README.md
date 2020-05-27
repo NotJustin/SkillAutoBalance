@@ -89,7 +89,7 @@ sab_usedecay (boolean | default 1)
 ### Dependencies
 Third party include files you need in order to compile are:
  * gameme.inc
- * kento_rankme.inc
+ * kento_rankme/rankme.inc
  
 ### Compatible Plugins
 [gameME](https://www.gameme.com/)<br>
