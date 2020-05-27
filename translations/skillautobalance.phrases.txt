@@ -1,0 +1,83 @@
+"Phrases"
+{
+	"Admin Client Swapped"
+	{
+		"en"			"Successfully changed player's team."
+	}
+	"Admin Join"
+	{
+		"en"			"Team changed by admin."
+	}
+	"Admin Force Balance"
+	{
+		"en"			"Team balance will occur at round end."
+	}
+	"Auto Join"
+	{
+		"en"			"You have been placed on a team."
+	}
+	"Delay Join"
+	{
+		"en"			"You will automatically be placed on a team."
+	}
+	"Pacified Client"
+	{
+		"en"			"You are out of combat until next round."
+	}
+	"Incorrect SetTeam Usage"
+	{
+		"en"			"Usage: sm_setteam player spec/t/ct/1/2/3."
+	}
+	"Client Not Found"
+	{
+		"en"			"Client was not found."
+	}
+	"Team Count Balance"
+	{
+		"en"			"Balancing uneven teams."
+	}
+	"Client Skill Balance"
+	{
+		"en"			"Swapped to balance average skill of each team."
+	}
+	"Global Skill Balance"
+	{
+		"en"			"Balancing skill of each team."
+	}
+	"Team Has More Players"
+	{
+		"en"			"Cannot join team that has more players."
+	}
+	"Team Menu Disabled"
+	{
+		"en"			"Team Menu Disabled, !j to play, !s to spectate"
+	}
+	"Must Join Previous Team"
+	{
+		"en"			"Must join previous team."
+	}
+	"Cannot Target Player"
+	{
+		"en"			"Player cannot be targetted."
+	}
+	"Set Player's Team"
+	{
+		"en"			"Set player's team."
+	}
+	"Select Team"
+	{
+		"en"			"Select a team."
+	}
+	"Spectator"
+	{
+		"en"			"Spectator"
+	}
+	"Terrorists"
+	{
+		"en"			"Terrorists"
+	}
+	"Counter-Terrorists"
+	{
+		"en"			"Counter-Terrorists"
+	}
+}
