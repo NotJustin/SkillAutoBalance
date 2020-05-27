@@ -5,7 +5,7 @@ A configurable automated team manager.<br>
 #### Table of Contents
 [Credits/Inspiration](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#credits--inspiration)<br>
 [Changelog](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#changelog)<br>
-[Installation](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#installation)
+[Installation](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#installation)<br>
 [ConVars](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#convars)<br>
 [Dependencies](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#dependencies)<br>
 [Compatible Plugins](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#compatible-plugins)<br>
