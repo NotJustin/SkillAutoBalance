@@ -102,7 +102,7 @@ Third party include files you need in order to compile are:
 [gameME](https://www.gameme.com/)<br>
 [RankMe Kento Edition](https://forums.alliedmods.net/showthread.php?t=290063) currently untested, need confirmation that this works<br>
 NCRPG currently untested, need confirmation that this works<br>
-LVL Ranks currently untested, need confirmation that this works
+[LVL Ranks](https://github.com/levelsranks/levels-ranks-core) currently untested, need confirmation that this works
 
 ### Bugs
 
