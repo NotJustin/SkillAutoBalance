@@ -521,6 +521,7 @@ void UpdateScores()
 	int client, team;
 	for (int i = 0; i < sizeof(g_iClients); i++)
 	{
+		client = g_iClients[i];
 		if (client != 0 && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
 		{
 			GetScore(client);
