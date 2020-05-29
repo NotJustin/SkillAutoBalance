@@ -3,81 +3,101 @@
 	"Admin Client Swapped"
 	{
 		"en"			"Successfully changed player's team."
+		"ru"			"Успешное изменение команды игрока."
 	}
 	"Admin Join"
 	{
 		"en"			"Team changed by admin."
+		"ru"			"Команда изменена администратором."
 	}
 	"Admin Force Balance"
 	{
 		"en"			"Team balance will occur at round end."
+		"ru"			"Баланс команды наступит в конце раунда."
 	}
 	"Auto Join"
 	{
 		"en"			"You have been placed on a team."
+		"ru"			"Ты попал в команду."
 	}
 	"Delay Join"
 	{
 		"en"			"You will automatically be placed on a team."
+		"ru"			"Вы автоматически будете помещены в команду."
 	}
 	"Pacified Client"
 	{
 		"en"			"You are out of combat until next round."
+		"ru"			"Ты вне игры до следующего раунда."
 	}
 	"Incorrect SetTeam Usage"
 	{
 		"en"			"Usage: sm_setteam player spec/t/ct/1/2/3."
+		"ru"			"Используйте: sm_setteam player spec/t/ct/1/2/3."
 	}
 	"Client Not Found"
 	{
 		"en"			"Client was not found."
+		"ru"			"Клиент не найден."
 	}
 	"Team Count Balance"
 	{
 		"en"			"Balancing uneven teams."
+		"ru"			"Балансировка неравномерных команд."
 	}
 	"Client Skill Balance"
 	{
 		"en"			"Swapped to balance average skill of each team."
+		"ru"			"Перемещен для баланса скилла в каждой из команд."
 	}
 	"Global Skill Balance"
 	{
 		"en"			"Balancing skill of each team."
+		"ru"			"Балансировка для каждой из команд."
 	}
 	"Team Has More Players"
 	{
 		"en"			"Cannot join team that has more players."
+		"ru"			"Невозможно присоединиться к команде, в которой больше игроков."
 	}
 	"Team Menu Disabled"
 	{
 		"en"			"Team Menu Disabled, !j to play, !s to spectate"
+		"ru"			"Меню выбора команд Отключено, !j для играть, !s для наблюдения"
 	}
 	"Must Join Previous Team"
 	{
 		"en"			"Must join previous team."
+		"ru"			"Должен присоединиться к предыдущей команде."
 	}
 	"Cannot Target Player"
 	{
 		"en"			"Player cannot be targetted."
+		"ru"			"Игрок не может быть целью."
 	}
 	"Set Player's Team"
 	{
 		"en"			"Set player's team."
+		"ru"			"Установить команду игроку."
 	}
 	"Select Team"
 	{
 		"en"			"Select a team."
+		"ru"			"Выберите команду."
 	}
 	"Spectator"
 	{
 		"en"			"Spectator"
+		"ru"			"Наблюдатели"
 	}
 	"Terrorists"
 	{
 		"en"			"Terrorists"
+		"ru"			"Террористы"
 	}
 	"Counter-Terrorists"
 	{
 		"en"			"Counter-Terrorists"
+		"ru"			"Контер-Террористы"
 	}
 }
