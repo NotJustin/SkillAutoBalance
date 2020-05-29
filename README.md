@@ -23,7 +23,7 @@ A configurable automated team manager.<br>
 
 ### Changelog
 3.0.1 - Changed sorting method when sorting by gameME or RankMe.
-Using gameME or RankMe, get client's skill rather than their rank. This way, I can sort all of the score types in the same way.
+Using gameME, RankMe, LVL Ranks or NC RPG, get client's skill rather than their rank. This way, I can sort all of the score types in the same way.
 
 3.0.0 - I've been making lots of minor changes to this plugin over the last month. In general, it consists of function optimization, improving code readability, adding some features and trying out various solutions to the bug I've been trying to fix for awhile now (see Bugs section).
 
@@ -95,10 +95,14 @@ sab_usedecay (boolean | default 1)
 Third party include files you need in order to compile are:
  * gameme.inc
  * kento_rankme/rankme.inc
+ * nc_rpg.inc
+ * lvl_ranks.inc
  
 ### Compatible Plugins
 [gameME](https://www.gameme.com/)<br>
-[RankMe Kento Edition](https://forums.alliedmods.net/showthread.php?t=290063) currently untested, need confirmation that this works
+[RankMe Kento Edition](https://forums.alliedmods.net/showthread.php?t=290063) currently untested, need confirmation that this works<br>
+NCRPG currently untested, need confirmation that this works<br>
+LVL Ranks currently untested, need confirmation that this works
 
 ### Bugs
 
