@@ -80,7 +80,8 @@ bool
 	g_UsingLVLRanks,
 	g_SetTeamHooked = false,
 	g_ForceBalanceHooked = false,
-	g_LateLoad = false
+	g_LateLoad = false,
+	g_MapLoaded = false
 ;
 
 float
@@ -176,12 +177,15 @@ public void OnConfigsExecuted()
 }
 void UpdateTeamMenu(ConVar convar, char [] oldValue, char [] newValue)
 {
-	if (convar.BoolValue)
+	if (g_MapLoaded)
 	{
-		GameRules_SetProp("m_bIsQueuedMatchmaking", 0);
-		return;
+		if (convar.BoolValue)
+		{
+			GameRules_SetProp("m_bIsQueuedMatchmaking", 0);
+			return;
+		}
+		GameRules_SetProp("m_bIsQueuedMatchmaking", 1);
 	}
-	GameRules_SetProp("m_bIsQueuedMatchmaking", 1);
 }
 void UpdateSetTeam(ConVar convar, char [] oldValue, char [] newValue)
 {
@@ -280,6 +284,7 @@ void InitColorStringMap()
 /* Public Map-Related Functions */
 public void OnMapStart()
 {
+	g_MapLoaded = true;
 	if (cvar_TeamMenu.BoolValue)
 	{
 		GameRules_SetProp("m_bIsQueuedMatchmaking", 0);
@@ -294,6 +299,10 @@ public void OnMapStart()
 	{
 		g_iClients[i] = i;
 	}
+}
+public void OnMapEnd()
+{
+	g_MapLoaded = false;
 }
 public void Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast)
 {
