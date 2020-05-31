@@ -24,7 +24,7 @@ public Plugin myinfo =
 	name = "SABREMAKE",
 	author = "Justin (ff)",
 	description = "Balance teams when one side is stacked",
-	version = "2.1.5",
+	version = "3.0.2",
 	url = "https://steamcommunity.com/id/NameNotJustin/"
 }
 
@@ -58,6 +58,7 @@ ConVar
 ;
 
 int
+	g_Count = 0,
 	g_iClients[MAXPLAYERS + 1],
 	g_iClientTeam[MAXPLAYERS + 1]
 ;
@@ -70,7 +71,9 @@ char
 
 bool
 	g_ForceBalance,
+	g_Balancing,
 	g_iFrozenClients[MAXPLAYERS + 1],
+	g_iOutlierClients[MAXPLAYERS + 1],
 	g_UsingGameME,
 	g_UsingAdminmenu,
 	g_UsingRankME,
@@ -83,7 +86,12 @@ bool
 
 float
 	g_iClientScore[MAXPLAYERS + 1],
-	g_iStreak[2]
+	g_iStreak[2],
+	g_LastAverageScore
+;
+
+DataPack
+	g_hPlayerCount
 ;
 
 TopMenu hTopMenu = null;
@@ -102,6 +110,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
+	InitPlayerCountDataPack(0);
+
 	InitColorStringMap();
 
 	HookEvent("round_end", Event_RoundEnd);
@@ -151,8 +161,9 @@ public void OnPluginStart()
 
 	if (g_LateLoad)
 	{
+		//g_hPlayerCount
 		OnConfigsExecuted();
-		for (int i = 1; i < MaxClients; i++)
+		for (int i = 1; i <= MaxClients; ++i)
 		{
 			g_iClients[i] = i;
 			if (IsClientInGame(g_iClients[i]))
@@ -269,6 +280,14 @@ void InitColorStringMap()
 	colors.SetString("grey", "\x08");
 	colors.SetString("grey2", "\x0D");
 }
+void InitPlayerCountDataPack(int updatedPlayers)
+{
+	if (g_hPlayerCount == INVALID_HANDLE)
+	{
+		g_hPlayerCount = new DataPack();
+		WritePackCell(g_hPlayerCount, updatedPlayers);
+	}
+}
 
 /* Public Map-Related Functions */
 public void OnMapStart()
@@ -284,7 +303,7 @@ public void OnMapStart()
 	}
 	g_iStreak[0] = 0.0;
 	g_iStreak[1] = 0.0;
-	for (int i = 1; i < MaxClients; i++)
+	for (int i = 1; i <= MaxClients; ++i)
 	{
 		g_iClients[i] = i;
 	}
@@ -300,18 +319,26 @@ public void Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast)
 	BalanceTeamCount();
 	if(tSize + ctSize >= cvar_MinPlayers.IntValue)
 	{
-		int winningTeam = (GetEventInt(event, "winner") == TEAM_T) ? TEAM_CT : TEAM_T;
+		int winningTeam = (GetEventInt(event, "winner") == TEAM_T) ? TEAM_T : TEAM_CT;
 		SetStreak(winningTeam);
 		if(g_ForceBalance || BalanceSkillNeeded())
 		{
-			if (cvar_DisplayChatMessages.BoolValue)
+			g_Balancing = true;
+			if (cvar_Scramble.BoolValue)
 			{
-				ColorPrintToChatAll("Global Skill Balance");
+				if (cvar_DisplayChatMessages.BoolValue)
+				{
+					ColorPrintToChatAll("Global Scramble Teams");
+				}
+				ScrambleTeams();
 			}
-			UpdateScores();
-			BalanceSkill();
-			g_iStreak[0] = 0.0;
-			g_iStreak[1] = 0.0;
+			else
+			{
+				g_LastAverageScore = GetAverageScore();
+				UpdateScores();
+				g_iStreak[0] = 0.0;
+				g_iStreak[1] = 0.0;
+			}
 		}
 	}
 	g_ForceBalance = false;
@@ -347,7 +374,11 @@ Action Command_Spectate(int client, int args)
 	int team;
 	if (cvar_ChatChangeTeam.BoolValue && client != 0 && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
 	{
-		FakeClientCommand(client, "spectate");
+		if (IsPlayerAlive(client))
+		{
+			ForcePlayerSuicide(client);
+		}
+		ChangeClientTeam(client, TEAM_SPEC);
 	}
 	return Plugin_Handled;
 }
@@ -445,15 +476,57 @@ Action UnpacifyPlayer(Handle timer, int userID)
 		SetEntProp(client, Prop_Data, "m_takedamage", 2, 1);
 	}
 }
+Action PutOnRandomTeam(Handle timer, int userId)
+{
+	int client = GetClientOfUserId(userId);
+	if(client != 0 && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == TEAM_SPEC)
+	{
+		SwapPlayer(client, GetSmallestTeam(), "Auto Join");
+	}
+}
+Action CheckScore(Handle timer, int userId)
+{
+	int client = GetClientOfUserId(userId);
+	if (client != 0 && IsClientInGame(client))
+	{
+		if (g_iClientScore[client] == -1)
+		{
+			g_iClientScore[client] = g_LastAverageScore;
+		}
+		if (g_Balancing)
+		{
+			++g_Count;
+			if (g_Count == GetClientCountNoBots())
+			{
+				g_Balancing = false;
+				BalanceSkill();
+				g_Count = 0;
+			}
+		}
+	}
+	return Plugin_Handled;
+}
 
 /* Internal Client-Related Functions */
+int GetClientCountNoBots()
+{
+	int amount = 0;
+	for (int client = 1; client <= MaxClients; ++client)
+	{
+		if (IsClientInGame(client) && !IsFakeClient(client))
+		{
+			++amount;
+		}
+	}
+	return amount;
+}
 bool CanJoin(int client, int team, bool printMessage)
 {
 	int count[2];
 	count[0] = GetTeamClientCount(TEAM_T);
 	count[1] = GetTeamClientCount(TEAM_CT);
 	int newTeamCount = count[team - 2];
-	int otherTeamCount = count[(team - 1) % 2];
+	int otherTeamCount = count[(team + 1) % 2];
 	int currentTeam = GetClientTeam(client);
 	if (newTeamCount > otherTeamCount)
 	{
@@ -500,7 +573,11 @@ void SwapPlayer(int client, int team, char reason[50])
 		ChangeClientTeam(client, team);
 		return;
 	}
-	FakeClientCommand(client, "spectate");
+	if (IsPlayerAlive(client))
+	{
+		ForcePlayerSuicide(client);
+	}
+	ChangeClientTeam(client, TEAM_SPEC);
 }
 void PacifyPlayer(int client)
 {
@@ -516,76 +593,84 @@ void PacifyPlayer(int client)
 }
 void UpdateScores()
 {
-	int client, team;
-	for (int i = 0; i < sizeof(g_iClients); i++)
+	int client;
+	for (int i = 0; i < sizeof(g_iClients); ++i)
 	{
 		client = g_iClients[i];
-		if (client != 0 && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
+		if (client != 0 && IsClientInGame(client))
 		{
 			GetScore(client);
 		}
 	}
+	if (cvar_ScoreType.IntValue != TYPE_GAMEME)
+	{
+		BalanceSkill();
+	}
 }
 void GetScore(int client)
 {
+	g_iClientScore[client] = -1.0;
 	int scoreType = cvar_ScoreType.IntValue;
-	if (scoreType == TYPE_RANKME)
-	{
-		if (g_UsingRankME)
-		{
-			g_iClientScore[client] = float(RankMe_GetPoints(client));
-		}
-		else
-		{
-			LogError("kento_rankme not found. Use other score type");
-		}
-	}
 	if (scoreType == TYPE_GAMEME)
 	{
 		if (g_UsingGameME)
 		{
 			QueryGameMEStats("playerinfo", client, GameMEStatsCallback, 1);
+			CreateTimer(0.5, CheckScore, GetClientUserId(client));
 		}
 		else
 		{
 			LogError("GameME not found. Use other score type");
 		}
 	}
-	if (scoreType == TYPE_LVLRanks)
+	else if (scoreType == TYPE_RANKME)
+	{
+		if (g_UsingRankME)
+		{
+			g_iClientScore[client] = float(RankMe_GetPoints(client));
+			CreateTimer(0.5, CheckScore, GetClientUserId(client));
+		}
+		else
+		{
+			LogError("kento_rankme not found. Use other score type");
+		}
+	}
+	else if (scoreType == TYPE_LVLRanks)
 	{
 		if (g_UsingLVLRanks)
 		{
 			g_iClientScore[client] = float(LR_GetClientInfo(client, ST_EXP));
+			CreateTimer(0.5, CheckScore, GetClientUserId(client));
 		}
 		else
 		{
 			LogError("LVL Ranks not found. Use other score type");
 		}
 	}
-	float kills, deaths;
-	kills = float(GetClientFrags(client));
-	deaths = float(GetClientDeaths(client));
-	deaths = deaths < 1.0 ? 1.0 : deaths;
-	if(scoreType == 0)
+	else
 	{
-		g_iClientScore[client] = kills / deaths;
-	}
-	else if(scoreType == 1)
-	{
-		g_iClientScore[client] = 2 * kills / deaths;
-	}
-	else if(scoreType == 2)
-	{
-		g_iClientScore[client] = kills * kills / deaths;
-	}
-	g_iClientScore[client] = -1.0;
-}
-Action PutOnRandomTeam(Handle timer, int userId)
-{
-	int client = GetClientOfUserId(userId);
-	if(client != 0 && !IsFakeClient(client) && IsClientInGame(client) && GetClientTeam(client) == TEAM_SPEC)
-	{
-		SwapPlayer(client, GetSmallestTeam(), "Auto Join");
+		++g_Count;
+		float kills, deaths;
+		kills = float(GetClientFrags(client));
+		deaths = float(GetClientDeaths(client));
+		deaths = deaths < 1.0 ? 1.0 : deaths;
+		if(scoreType == 0)
+		{
+			g_iClientScore[client] = kills / deaths;
+		}
+		else if(scoreType == 1)
+		{
+			g_iClientScore[client] = 2 * kills / deaths;
+		}
+		else if(scoreType == 2)
+		{
+			g_iClientScore[client] = kills * kills / deaths;
+		}
+		if (g_Count == GetClientCountNoBots())
+		{
+			BalanceSkill();
+			g_Count = 0;
+		}
 	}
 }
 
@@ -596,7 +681,7 @@ void SetStreak(int winningTeam)
 	{
 		float decayAmount = cvar_DecayAmount.FloatValue;
 		int winnerIndex = winningTeam - 2;
-		int loserIndex 	= (winningTeam - 1) % 2;
+		int loserIndex 	= (winningTeam + 1) % 2;
 		++g_iStreak[winnerIndex];
 		if (cvar_UseDecay.BoolValue)
 		{
@@ -620,25 +705,18 @@ int GetSmallestTeam()
 }
 void BalanceTeamCount()
 {
+	int teams[2] = {2, 3};
+	int smallIndex = GetSmallestTeam() - 2;
+	int bigIndex = (smallIndex + 1) % 2;
 	int client;
 	int i = 0;
 	SortIntegers(g_iClients, sizeof(g_iClients), Sort_Random);
-	while(i < sizeof(g_iClients) && (GetTeamClientCount(TEAM_T) - GetTeamClientCount(TEAM_CT) > 1))
+	while(i < sizeof(g_iClients) && (GetTeamClientCount(teams[bigIndex]) - GetTeamClientCount(teams[smallIndex]) > 1))
 	{
 		client = g_iClients[i];
-		if (client != 0 && IsClientInGame(client) && GetClientTeam(client) == TEAM_T)
+		if (client != 0 && IsClientInGame(client) && GetClientTeam(client) == teams[bigIndex])
 		{
-			SwapPlayer(client, TEAM_CT, "Team Count Balance");
-		}
-		++i;
-	}
-	i = 0;
-	while(i < sizeof(g_iClients) && (GetTeamClientCount(TEAM_CT) - GetTeamClientCount(TEAM_T) > 1))
-	{
-		client = g_iClients[i];
-		if (client != 0 && IsClientInGame(client) && GetClientTeam(client) == TEAM_CT)
-		{
-			SwapPlayer(client, TEAM_T, "Team Count Balance");
+			SwapPlayer(client, teams[smallIndex], "Team Count Balance");
 		}
 		++i;
 	}
@@ -664,47 +742,157 @@ int Sort_Scores(int client1, int client2, const int[] array, Handle hndl)
 	}
 	return client1Score > client2Score ? -1 : 1;
 }
-void BalanceSkill()
+float GetAverageScore()
 {
-	if (cvar_Scramble.BoolValue)
+	int count = GetClientCountNoBots();
+	float sum = 0.0;
+	int client;
+	for (int i = 0; i < count; ++i)
 	{
-		SortIntegers(g_iClients, sizeof(g_iClients), Sort_Random);
+		client = g_iClients[i];
+		sum += g_iClientScore[client];
+	}
+	return sum / count;
+}
+void ScrambleTeams()
+{
+	SortIntegers(g_iClients, sizeof(g_iClients), Sort_Random);
+	int teams[2] = {2, 3};
+	int nextTeam = GetSmallestTeam() - 2;
+	int client, team;
+	for (int i = 0; i < sizeof(g_iClients); ++i)
+	{
+		client = g_iClients[i];
+		if (client == 0 || !IsClientInGame(client) || IsFakeClient(client) || (team = GetClientTeam(client)) == TEAM_SPEC || team == UNASSIGNED)
+		{
+			continue;
+		}
+		if (g_iClientTeam[client] != teams[nextTeam])
+		{
+			SwapPlayer(client, teams[nextTeam], "Client Scramble Team");
+		}
+		nextTeam = (nextTeam + 1) % 2;
+	}
+}
+int RemoveOutliers()
+{
+	int outliers = 0;
+	int size = GetClientCountNoBots();
+	int q1Start = 0;
+	int q3End = size - 1;
+	float q1Med, q3Med, IQR;
+	int q1End, q1Size, q3Start, q3Size;
+	if (size % 2 == 0)
+	{
+		q1End = size / 2 - 1;
+		q1Size = q1End - q1Start + 1;
+		q3Start = size / 2;
+		q3Size = q3End - q3Start + 1;
+		if (q1Size % 2 == 0)
+		{
+			q1Med = (g_iClientScore[q1Size / 2 - 1 + q1Start] + g_iClientScore[q1Size / 2 + q1Start]) / 2;
+		}
+		else
+		{
+			q1Med = g_iClientScore[q1Size / 2 + q1Start];
+		}
+		if (q3Size % 2 == 0)
+		{
+			q3Med = (g_iClientScore[q3Size / 2 - 1 + q3Start] + g_iClientScore[q3Size / 2 + q3Start]) / 2;
+		}
+		else
+		{
+			q3Med = g_iClientScore[q3Size / 2 + q3Start];
+		}
 	}
 	else
 	{
-		SortCustom1D(g_iClients, sizeof(g_iClients), Sort_Scores);
+		q1End = size / 2 - 1;
+		q1Size = q1End - q1Start + 1;
+		q3Start = size / 2 + 1;
+		q3Size = q3End - q3Start + 1;
+		if (q1Size % 2 == 0)
+		{
+			q1Med = (g_iClientScore[q1Size / 2 - 1 + q1Start] + g_iClientScore[q1Size / 2 + q1Start]) / 2;
+		}
+		else
+		{
+			q1Med = g_iClientScore[q1Size / 2 + q1Start];
+		}
+		if (q3Size % 2 == 0)
+		{
+			q3Med = (g_iClientScore[q3Size / 2 - 1 + q3Start] + g_iClientScore[q3Size / 2 + q3Start]) / 2;
+		}
+		else
+		{
+			q3Med = g_iClientScore[q3Size / 2 + q3Start];
+		}
 	}
-	int client = 0;
+	IQR = q3Med - q1Med;
+	float upperBound = q3Med + 1.5 * IQR;
+	float lowerBound = q1Med - 1.5 * IQR;
+	int client;
+	for (int i = 0; i < size; ++i)
+	{
+		client = g_iClients[i];
+		if (g_iClientScore[client] > upperBound || g_iClientScore[client] < lowerBound)
+		{
+			g_iOutlierClients[client] = true;
+			outliers++;
+		}
+	}
+	return outliers;
+}
+void AddOutliers()
+{
+	int client, team;
+	int teams[2] = {2, 3};
+	int nextTeam = GetSmallestTeam() - 2;
+	for (int i = 0; i < sizeof(g_iClients); ++i)
+	{
+		client = g_iClients[i];
+		if (g_iOutlierClients[client] && client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
+		{
+			g_iOutlierClients[client] = false;
+			if (g_iClientTeam[client] != teams[nextTeam])
+			{
+				SwapPlayer(client, teams[nextTeam], "Client Skill Balance");
+			}
+			nextTeam = (nextTeam + 1) % 2;
+		}
+	}
+}
+void SortCloseSums(int outliers)
+{
+	int client, team;
 	int i = 0;
-	int size = (GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT)) / 2;
+	int size = GetClientCountNoBots() / 2 - outliers;
 	float tSum = 0.0;
 	float ctSum = 0.0;
 	int tCount = 0;
 	int ctCount = 0;
-	int team;
 	while(tCount < size && ctCount < size)
 	{
 		client = g_iClients[i];
-		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
+		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_iOutlierClients[client])
 		{
-			float clientScore = g_iClientScore[client];
 			if (tSum < ctSum)
 			{
+				tSum += g_iClientScore[client];
+				++tCount;
 				if (g_iClientTeam[client] == TEAM_CT)
 				{
 					SwapPlayer(client, TEAM_T, "Client Skill Balance");
 				}
-				tSum += clientScore;
-				++tCount;
 			}
 			else
 			{
+				ctSum += g_iClientScore[client];
+				++ctCount;
 				if (g_iClientTeam[client] == TEAM_T)
 				{
 					SwapPlayer(client, TEAM_CT, "Client Skill Balance");
 				}
-				ctSum += clientScore;
-				++ctCount;
 			}
 		}
 		++i;
@@ -732,22 +920,31 @@ void BalanceSkill()
 		++i;
 	}
 }
+void BalanceSkill()
+{
+	if (cvar_DisplayChatMessages.BoolValue)
+	{
+		ColorPrintToChatAll("Global Skill Balance");
+	}
+	SortCustom1D(g_iClients, sizeof(g_iClients), Sort_Scores);
+	int outliers = RemoveOutliers();
+	SortCloseSums(outliers);
+	AddOutliers();
+}
 
 /* Public Client-Related Functions */
 public void OnClientPostAdminCheck(int client)
 {
 	g_iClientScore[client] = -1.0;
 	g_iFrozenClients[client] = false;
-	if (client != 0 && !IsFakeClient(client) && IsClientInGame(client))
+	g_iOutlierClients[client] = false;
+	if (client != 0 && IsClientInGame(client) && !IsFakeClient(client))
 	{
 		if (cvar_ForceJoinTeam.BoolValue || (!cvar_TeamMenu.BoolValue && !cvar_ChatChangeTeam.BoolValue))
 		{
 			CreateTimer(1.0, ForceSpectate, GetClientUserId(client));
 		}
-		if (g_UsingGameME)
-		{
-			QueryGameMEStats("playerinfo", client, GameMEStatsCallback, 1);
-		}
+		GetScore(client);
 	}
 }
 public Action OnPlayerRunCmd(int client, int &buttons)
@@ -867,9 +1064,9 @@ int MenuHandler_SetTeamList(Menu menu, MenuAction action, int param1, int param2
 	}
 	else if (action == MenuAction_Select)
 	{
-		char info[32], name[32];
+		char info[32];
 		int userid, target;
-		menu.GetItem(param2, info, sizeof(info), _, name, sizeof(name));
+		menu.GetItem(param2, info, sizeof(info));
 		userid = StringToInt(info);
 		if ((target = GetClientOfUserId(userid)) == 0)
 		{
