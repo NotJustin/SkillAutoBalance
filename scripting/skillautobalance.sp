@@ -8,7 +8,6 @@
 #include <gameme>
 #include <kento_rankme/rankme>
 #include <lvl_ranks>
-#include <nc_rpg>
 #pragma newdecls required
 #pragma semicolon 1
 
@@ -19,7 +18,6 @@
 #define TYPE_GAMEME 3
 #define TYPE_RANKME 4
 #define TYPE_LVLRanks 5
-#define TYPE_NCRPG 6
 
 public Plugin myinfo =
 {
@@ -76,7 +74,6 @@ bool
 	g_UsingGameME,
 	g_UsingAdminmenu,
 	g_UsingRankME,
-	g_UsingNCRPG,
 	g_UsingLVLRanks,
 	g_SetTeamHooked = false,
 	g_ForceBalanceHooked = false,
@@ -126,7 +123,7 @@ public void OnPluginStart()
 	cvar_PrefixColor = CreateConVar("sab_prefixcolor", "white", "See sab_messagetype for info");
 	cvar_RoundRestartDelay = FindConVar("mp_round_restart_delay");
 	cvar_RoundTime = FindConVar("mp_roundtime");
-	cvar_ScoreType = CreateConVar("sab_scoretype", "0", "Formula used to determine player 'skill'. 0 = K/D, 1 = 2*K/D, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks, 6 = NC RPG", _, true, 0.0, true, 6.0);
+	cvar_ScoreType = CreateConVar("sab_scoretype", "0", "Formula used to determine player 'skill'. 0 = K/D, 1 = 2*K/D, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks", _, true, 0.0, true, 5.0);
 	cvar_Scramble = CreateConVar("sab_scramble", "0", "Randomize teams instead of using a skill formula", _, true, 0.0, true, 1.0);
 	cvar_SetTeam = CreateConVar("sab_setteam", "0", "Add 'set player team' to 'player commands' in generic admin menu", _, true, 0.0, true, 1.0);
 	cvar_TeamMenu = CreateConVar("sab_teammenu", "1", "Whether to enable or disable the join team menu.", _, true, 0.0, true, 1.0);
@@ -233,10 +230,6 @@ public void OnLibraryAdded(const char[] name)
 	{
 		g_UsingLVLRanks = true;
 	}
-	if (StrEqual(name, "nc_rpg"))
-	{
-		g_UsingNCRPG = true;
-	}
 }
 public void OnLibraryRemoved(const char[] name)
 {
@@ -255,10 +248,6 @@ public void OnLibraryRemoved(const char[] name)
 	if (StrEqual(name, "lvl_ranks"))
 	{
 		g_UsingLVLRanks = false;
-	}
-	if (StrEqual(name, "nc_rpg"))
-	{
-		g_UsingNCRPG = false;
 	}
 }
 void InitColorStringMap()
@@ -560,17 +549,6 @@ void GetScore(int client)
 		else
 		{
 			LogError("GameME not found. Use other score type");
-		}
-	}
-	if (scoreType == TYPE_NCRPG)
-	{
-		if (g_UsingNCRPG)
-		{
-			g_iClientScore[client] = float(NCRPG_GetLevel(client));
-		}
-		else
-		{
-			LogError("NC RPG not found. Use other score type");
 		}
 	}
 	if (scoreType == TYPE_LVLRanks)
