@@ -95,7 +95,6 @@ sab_usedecay (boolean | default 1)
 Third party include files you need in order to compile are:
  * gameme.inc
  * kento_rankme/rankme.inc
- * nc_rpg.inc
  * lvl_ranks.inc
  
 ### Compatible Plugins
