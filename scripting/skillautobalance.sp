@@ -777,7 +777,7 @@ void ScrambleTeams()
 int RemoveOutliers()
 {
 	int outliers = 0;
-	int size = GetClientCountNoBots();
+	int size = GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT);
 	int q1Start = 0;
 	int q3End = size - 1;
 	float q1Med, q3Med, IQR;
@@ -790,19 +790,25 @@ int RemoveOutliers()
 		q3Size = q3End - q3Start + 1;
 		if (q1Size % 2 == 0)
 		{
-			q1Med = (g_iClientScore[q1Size / 2 - 1 + q1Start] + g_iClientScore[q1Size / 2 + q1Start]) / 2;
+			int leftClientIndex = g_iClients[q1Size / 2 - 1 + q1Start];
+			int rightClientIndex = g_iClients[q1Size / 2 + q1Start];
+			q1Med = (g_iClientScore[leftClientIndex] + g_iClientScore[rightClientIndex]) / 2;
 		}
 		else
 		{
-			q1Med = g_iClientScore[q1Size / 2 + q1Start];
+			int medianClientIndex = g_iClients[q1Size / 2 + q1Start];
+			q1Med = g_iClientScore[medianClientIndex];
 		}
 		if (q3Size % 2 == 0)
 		{
-			q3Med = (g_iClientScore[q3Size / 2 - 1 + q3Start] + g_iClientScore[q3Size / 2 + q3Start]) / 2;
+			int leftClientIndex = g_iClients[q3Size / 2 - 1 + q3Start];
+			int rightClientIndex = g_iClients[q3Size / 2 + q3Start];
+			q3Med = (g_iClientScore[leftClientIndex] + g_iClientScore[rightClientIndex]) / 2;
 		}
 		else
 		{
-			q3Med = g_iClientScore[q3Size / 2 + q3Start];
+			int medianClientIndex = g_iClients[q3Size / 2 + q3Start];
+			q3Med = g_iClientScore[medianClientIndex];
 		}
 	}
 	else
@@ -813,24 +819,30 @@ int RemoveOutliers()
 		q3Size = q3End - q3Start + 1;
 		if (q1Size % 2 == 0)
 		{
-			q1Med = (g_iClientScore[q1Size / 2 - 1 + q1Start] + g_iClientScore[q1Size / 2 + q1Start]) / 2;
+			int leftClientIndex = g_iClients[q1Size / 2 - 1 + q1Start];
+			int rightClientIndex = g_iClients[q1Size / 2 + q1Start];
+			q1Med = (g_iClientScore[leftClientIndex] + g_iClientScore[rightClientIndex]) / 2;
 		}
 		else
 		{
-			q1Med = g_iClientScore[q1Size / 2 + q1Start];
+			int medianClientIndex = g_iClients[q1Size / 2 + q1Start];
+			q1Med = g_iClientScore[medianClientIndex];
 		}
 		if (q3Size % 2 == 0)
 		{
-			q3Med = (g_iClientScore[q3Size / 2 - 1 + q3Start] + g_iClientScore[q3Size / 2 + q3Start]) / 2;
+			int leftClientIndex = g_iClients[q3Size / 2 - 1 + q3Start];
+			int rightClientIndex = g_iClients[q3Size / 2 + q3Start];
+			q3Med = (g_iClientScore[leftClientIndex] + g_iClientScore[rightClientIndex]) / 2;
 		}
 		else
 		{
-			q3Med = g_iClientScore[q3Size / 2 + q3Start];
+			int medianClientIndex = g_iClients[q3Size / 2 + q3Start];
+			q3Med = g_iClientScore[medianClientIndex];
 		}
 	}
-	IQR = q3Med - q1Med;
-	float upperBound = q3Med + 1.5 * IQR;
-	float lowerBound = q1Med - 1.5 * IQR;
+	IQR = q1Med - q3Med;
+	float lowerBound = q3Med - 1.5 * IQR;
+	float upperBound = q1Med + 1.5 * IQR;
 	int client;
 	for (int i = 0; i < size; ++i)
 	{
@@ -866,7 +878,7 @@ void SortCloseSums(int outliers)
 {
 	int client, team;
 	int i = 0;
-	int size = GetClientCountNoBots() / 2 - outliers;
+	int size = (GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT)) / 2 - outliers;
 	float tSum = 0.0;
 	float ctSum = 0.0;
 	int tCount = 0;
