@@ -1,6 +1,5 @@
 #include <sourcemod>
-#include <sdktools_functions>
-#include <sdktools_gamerules>
+#include <sdktools>
 #include <cstrike>
 #include <usermessages>
 #undef REQUIRE_PLUGIN
@@ -649,7 +648,6 @@ void GetScore(int client)
 	}
 	else
 	{
-		++g_Count;
 		float kills, deaths;
 		kills = float(GetClientFrags(client));
 		deaths = float(GetClientDeaths(client));
@@ -666,10 +664,14 @@ void GetScore(int client)
 		{
 			g_iClientScore[client] = kills * kills / deaths;
 		}
-		if (g_Count == GetClientCountNoBots())
+		if (g_Balancing)
 		{
-			BalanceSkill();
-			g_Count = 0;
+			++g_Count;
+			if (g_Count == GetClientCountNoBots())
+			{
+				BalanceSkill();
+				g_Count = 0;
+			}
 		}
 	}
 }
