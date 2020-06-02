@@ -182,6 +182,7 @@ public void OnConfigsExecuted()
 	UpdatePrefix(cvar_Prefix, str, str);
 	UpdatePrefixColor(cvar_PrefixColor, str, str);
 	UpdateMessageType(cvar_MessageType, str, str);
+	UpdateBlockTeamSwitch(cvar_BlockTeamSwitch, str, str);
 }
 void UpdateTeamMenu(ConVar convar, char [] oldValue, char [] newValue)
 {
