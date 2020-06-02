@@ -36,8 +36,8 @@ Put the compiled plugin in your plugins directory.
 
 ### ConVars
 ```
-sab_blockteamswitch (boolean | default 0)
-"Prevent clients from switching team. Can join spectate. Can switch if it is impossible for them to rejoin same team due to team-size"
+sab_blockteamswitch (int | min 0 max 2 default 0)
+"0 = Don't block. 1 = Block, can join spectate, must rejoin same team. 2 = Block, can't join spectate."
 
 sab_chatchangeteam (boolean | default 0)
 "Enable joining teams by chat commands '!join, !play, !j, !p, !spectate, !spec, !s (no picking teams)"
