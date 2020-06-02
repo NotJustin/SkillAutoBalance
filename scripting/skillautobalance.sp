@@ -116,7 +116,7 @@ public void OnPluginStart()
 
 	AddCommandListener(CommandList_JoinTeam, "jointeam");
 
-	cvar_BlockTeamSwitch = CreateConVar("sab_blockteamswitch", "0", "0 = Don't block. 1 = Block, can join spectate, must rejoin same team. 2 = Block, can't join spectate.", _, true, 0.0, true, 2.0);
+	cvar_BlockTeamSwitch = CreateConVar("sab_blockteamswitch", "0", "0 = Don't block. 1 = Block, can join spectate, must rejoin same team. 2 = Block completely (also disables teammenu and chatchangeteam commands like !join !spec)", _, true, 0.0, true, 2.0);
 	cvar_ChatChangeTeam = CreateConVar("sab_chatchangeteam", "0", "Enable joining teams by chat commands '!join, !play, !j, !p, !spectate, !spec, !s (no picking teams)", _, true, 0.0, true, 1.0);
 	cvar_DecayAmount = CreateConVar("sab_decayamount", "1.5", "The amount to subtract from a streak if UseDecay is true. In other words, the ratio of a team's round wins to the opposing team's must be greater than this number in order for a team balance to eventually occur.", _, true, 1.0);
 	cvar_DisplayChatMessages = CreateConVar("sab_displaychatmessages", "1", "Allow plugin to display messages in the chat", _, true, 0.0, true, 1.0);
@@ -132,7 +132,7 @@ public void OnPluginStart()
 	cvar_PrefixColor = CreateConVar("sab_prefixcolor", "white", "See sab_messagetype for info");
 	cvar_RoundRestartDelay = FindConVar("mp_round_restart_delay");
 	cvar_RoundTime = FindConVar("mp_roundtime");
-	cvar_ScoreType = CreateConVar("sab_scoretype", "0", "Formula used to determine player 'skill'. 0 = K/D, 1 = 2*K/D, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks", _, true, 0.0, true, 5.0);
+	cvar_ScoreType = CreateConVar("sab_scoretype", "0", "Formula used to determine player 'skill'. 0 = K/D, 1 = K/D + K/10 - D/20, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks", _, true, 0.0, true, 5.0);
 	cvar_Scramble = CreateConVar("sab_scramble", "0", "Randomize teams instead of using a skill formula", _, true, 0.0, true, 1.0);
 	cvar_SetTeam = CreateConVar("sab_setteam", "0", "Add 'set player team' to 'player commands' in generic admin menu", _, true, 0.0, true, 1.0);
 	cvar_TeamMenu = CreateConVar("sab_teammenu", "1", "Whether to enable or disable the join team menu.", _, true, 0.0, true, 1.0);
@@ -145,6 +145,7 @@ public void OnPluginStart()
 	cvar_PrefixColor.AddChangeHook(UpdatePrefixColor);
 	cvar_SetTeam.AddChangeHook(UpdateSetTeam);
 	cvar_TeamMenu.AddChangeHook(UpdateTeamMenu);
+	cvar_BlockTeamSwitch.AddChangeHook(UpdateBlockTeamSwitch);
 
 	RegConsoleCmd("sm_j", Command_Join, "Switches player to smallest team");
 	RegConsoleCmd("sm_join", Command_Join, "Switches player to smallest team");
@@ -157,6 +158,7 @@ public void OnPluginStart()
 	AutoExecConfig(true, "SkillAutoBalance");
 
 	LoadTranslations("skillautobalance.phrases");
+	LoadTranslations("common.phrases");
 
 	if (g_LateLoad)
 	{
@@ -185,12 +187,22 @@ void UpdateTeamMenu(ConVar convar, char [] oldValue, char [] newValue)
 {
 	if (g_MapLoaded)
 	{
-		if (convar.BoolValue)
+		if (convar.BoolValue && cvar_BlockTeamSwitch.IntValue != 2)
 		{
 			GameRules_SetProp("m_bIsQueuedMatchmaking", 0);
 			return;
 		}
 		GameRules_SetProp("m_bIsQueuedMatchmaking", 1);
+	}
+}
+void UpdateBlockTeamSwitch(ConVar convar, char [] oldValue, char [] newValue)
+{
+	if (g_MapLoaded)
+	{
+		if (convar.IntValue == 2)
+		{
+			GameRules_SetProp("m_bIsQueuedMatchmaking", 1);
+		}
 	}
 }
 void UpdateSetTeam(ConVar convar, char [] oldValue, char [] newValue)
@@ -354,7 +366,7 @@ public void Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast)
 Action Command_Join(int client, int args)
 {
 	int team;
-	if (cvar_ChatChangeTeam.BoolValue && client != 0 && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_T && team != TEAM_CT)
+	if (cvar_ChatChangeTeam.BoolValue && (cvar_BlockTeamSwitch.IntValue != 2) && client != 0 && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_T && team != TEAM_CT)
 	{
 		if (g_iClientTeam[client] == TEAM_SPEC || g_iClientTeam[client] == UNASSIGNED)
 		{
@@ -378,7 +390,7 @@ Action Command_Join(int client, int args)
 Action Command_Spectate(int client, int args)
 {
 	int team;
-	if (cvar_ChatChangeTeam.BoolValue && client != 0 && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
+	if (cvar_ChatChangeTeam.BoolValue && (cvar_BlockTeamSwitch.IntValue != 2) && client != 0 && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
 	{
 		if (IsPlayerAlive(client))
 		{
@@ -658,7 +670,7 @@ void GetScore(int client)
 		}
 		else if(scoreType == 1)
 		{
-			g_iClientScore[client] = 2 * kills / deaths;
+			g_iClientScore[client] = kills / deaths + kills / 10.0 - deaths / 20.0;
 		}
 		else if(scoreType == 2)
 		{
@@ -961,6 +973,10 @@ void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 	g_iClientScore[client] = -1.0;
 	g_iClientFrozen[client] = false;
 	g_iClientOutlier[client] = false;
+	if (!cvar_TeamMenu.BoolValue && cvar_DisplayChatMessages.BoolValue)
+	{
+		ColorPrintToChat(client, "Team Menu Disabled");
+	}
 	if (cvar_ForceJoinTeam.BoolValue || (!cvar_ChatChangeTeam.BoolValue && !cvar_TeamMenu.BoolValue && cvar_BlockTeamSwitch.IntValue > 0))
 	{
 		g_iClientForceJoin[client] = true;
