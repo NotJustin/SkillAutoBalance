@@ -23,25 +23,25 @@ A configurable automated team manager.<br>
 [CSGO Auto Assign Team by SM9](https://forums.alliedmods.net/showthread.php?t=321314)
 
 ### Changelog
-3.0.2 - 
-Bugfixes:
-Scores are updated correctly.
-BalanceSkill now only occurs after all scores are updated.
-Disabling "teammenu" now only occurs after mapstart to prevent errors.
-Balance should no longer cause teams to be horribly misbalanced. (imagine making an autobalance that just makes teams worse :oops: )
-Spawn bug (may) be fixed after implementing "[CSGO] Auto Assign Team by SM9". Forcing players to join teams now uses ClientCommand for "jointeam". Thanks to MAMAC for showing me and both SM9+MAMAC for creating this. *I say "may" be fixed because the problem was already rare and so it is possible that I have just not seen or been notified of it happening when it does.
-
-Changes:
-Sorting method combines two ideas now. I call them "closest sums" and "alternating".
-"Closest sums" makes the sum of points on both teams as close as possible.
-"Alternating" alternates players between teams as it goes down the sorted list.
-Read about it here: https://github.com/NotJustin/SkillAutoBalance/issues/2#issuecomment-636419874
-Added support for Level Ranks
-A fork of the plugin on github has support for NC RPG. I added but shortly after removed support because their include file has a lot of extra includes that I don't want to add as a requirement for this plugin to be installed.
-BlockTeamSwitch convar changed to be an int and has 3 options now (disabled: 0, enabled but can spectate: 1, enabled with no switching at all: 2)
-3.0.1 - Changed sorting method when sorting by gameME or RankMe.
-Using gameME, RankMe, LVL Ranks or NC RPG, get client's skill rather than their rank. This way, I can sort all of the score types in the same way.
-
+3.0.2 - <br>
+Bugfixes:<br>
+Scores are updated correctly.<br>
+BalanceSkill now only occurs after all scores are updated.<br>
+Disabling "teammenu" now only occurs after mapstart to prevent errors.<br>
+Balance should no longer cause teams to be horribly misbalanced. (imagine making an autobalance that just makes teams worse)<br>
+Spawn bug (may) be fixed after implementing "[CSGO] Auto Assign Team by SM9". Forcing players to join teams now uses ClientCommand for "jointeam". Thanks to MAMAC for showing me and both SM9+MAMAC for creating this. *I say "may" be fixed because the problem was already rare and so it is possible that I have just not seen or been notified of it happening when it does.*<br>
+<br>
+Changes:<br>
+Sorting method combines two ideas now. I call them "closest sums" and "alternating".<br>
+"Closest sums" makes the sum of points on both teams as close as possible.<br>
+"Alternating" alternates players between teams as it goes down the sorted list.<br>
+Read about it here: https://github.com/NotJustin/SkillAutoBalance/issues/2#issuecomment-636419874<br>
+Added support for Level Ranks<br>
+A fork of the plugin on github has support for NC RPG. I added but shortly after removed support because their include file has a lot of extra includes that I don't want to add as a requirement for this plugin to be installed.<br>
+BlockTeamSwitch convar changed to be an int and has 3 options now (disabled: 0, enabled but can spectate: 1, enabled with no switching at all: 2)<br>
+3.0.1 - Changed sorting method when sorting by gameME or RankMe.<br>
+Using gameME, RankMe, LVL Ranks or NC RPG, get client's skill rather than their rank. This way, I can sort all of the score types in the same way.<br>
+<br>
 3.0.0 - I've been making lots of minor changes to this plugin over the last month. In general, it consists of function optimization, improving code readability, adding some features and trying out various solutions to the bug I've been trying to fix for awhile now (see Bugs section).
 
 You can see old changelog(s) at the alliedmodders thread.
