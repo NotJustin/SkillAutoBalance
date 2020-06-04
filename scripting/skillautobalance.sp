@@ -23,7 +23,7 @@ public Plugin myinfo =
 	name = "SkillAutoBalance",
 	author = "Justin (ff)",
 	description = "A configurable automated team manager",
-	version = "3.0.3",
+	version = "3.0.4",
 	url = "https://steamcommunity.com/id/NameNotJustin/"
 }
 
@@ -898,11 +898,14 @@ void SortCloseSums(int outliers)
 {
 	int client, team;
 	int i = 0;
-	int size = (GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT)) / 2 - outliers;
+	int tSize = GetTeamClientCount(TEAM_T);
+	int ctSize = GetTeamClientCount(TEAM_CT);
+	int size = (tSize + ctSize - outliers) / 2;
 	float tSum = 0.0;
 	float ctSum = 0.0;
 	int tCount = 0;
 	int ctCount = 0;
+
 	while(tCount < size && ctCount < size)
 	{
 		client = g_iClient[i];
@@ -912,7 +915,7 @@ void SortCloseSums(int outliers)
 			{
 				tSum += g_iClientScore[client];
 				++tCount;
-				if (team == TEAM_CT)
+				if (g_iClientTeam[client] == TEAM_CT)
 				{
 					SwapPlayer(client, TEAM_T, "Client Skill Balance");
 				}
@@ -921,7 +924,7 @@ void SortCloseSums(int outliers)
 			{
 				ctSum += g_iClientScore[client];
 				++ctCount;
-				if (team == TEAM_T)
+				if (g_iClientTeam[client] == TEAM_T)
 				{
 					SwapPlayer(client, TEAM_CT, "Client Skill Balance");
 				}
@@ -932,18 +935,18 @@ void SortCloseSums(int outliers)
 	while(i < sizeof(g_iClient))
 	{
 		client = g_iClient[i];
-		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
+		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_iClientOutlier[client])
 		{
 			if (tCount < size)
 			{
-				if (team == TEAM_CT)
+				if (g_iClientTeam[client] == TEAM_CT)
 				{
 					SwapPlayer(client, TEAM_T, "Client Skill Balance");
 				}
 			}
 			else
 			{
-				if(team == TEAM_T)
+				if(g_iClientTeam[client] == TEAM_T)
 				{
 					SwapPlayer(client, TEAM_CT, "Client Skill Balance");
 				}
@@ -994,7 +997,6 @@ void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 		g_iClientForceJoin[client] = true;
 		int team = GetSmallestTeam();
 		ClientCommand(client, "jointeam 0 %i", team);
-		CreateTimer(2.0, Timer_DelayTeamUpdate, userId, TIMER_FLAG_NO_MAPCHANGE);
 		if (!IsPlayerAlive(client) && (g_iClientTeam[client] == TEAM_T || g_iClientTeam[client] == TEAM_CT) && (g_AllowSpawn || AreTeamsEmpty()))
 		{
 			CS_RespawnPlayer(client);
@@ -1044,6 +1046,7 @@ Action CommandList_JoinTeam(int client, const char[] command, int argc)
 	if (g_iClientForceJoin[client])
 	{
 		g_iClientForceJoin[client] = false;
+		CreateTimer(3.0, Timer_DelayTeamUpdate, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		return Plugin_Continue;
 	}
 	if (cvar_BlockTeamSwitch.IntValue == 2)
