@@ -20,10 +20,10 @@
 
 public Plugin myinfo =
 {
-	name = "SABREMAKE",
+	name = "SkillAutoBalance",
 	author = "Justin (ff)",
-	description = "Balance teams when one side is stacked",
-	version = "3.0.2",
+	description = "A configurable automated team manager",
+	version = "3.0.3",
 	url = "https://steamcommunity.com/id/NameNotJustin/"
 }
 
@@ -471,6 +471,15 @@ Action Command_SetTeam(int client, int args)
 }
 
 /* Timer Callbacks*/
+Action Timer_DelayTeamUpdate(Handle timer, int userId)
+{
+	int client = GetClientOfUserId(userId);
+	if (client != 0 && IsClientInGame(client) && g_iClientTeam[client] == TEAM_SPEC)
+	{
+		g_iClientTeam[client] = GetClientTeam(client);
+	}
+	return Plugin_Handled;
+}
 Action Timer_GraceTimeOver(Handle timer)
 {
 	g_AllowSpawn = false;
@@ -966,11 +975,13 @@ public void OnClientDisconnect(int client)
 }
 void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(event.GetInt("userid"));
+	int userId = event.GetInt("userid");
+	int client = GetClientOfUserId(userId);
 	if (client == 0 || !IsClientInGame(client) || IsFakeClient(client))
 	{
 		return;
 	}
+	g_iClientTeam[client] = TEAM_SPEC;
 	g_iClientScore[client] = -1.0;
 	g_iClientFrozen[client] = false;
 	g_iClientOutlier[client] = false;
@@ -983,9 +994,8 @@ void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 		g_iClientForceJoin[client] = true;
 		int team = GetSmallestTeam();
 		ClientCommand(client, "jointeam 0 %i", team);
-		g_iClientTeam[client] = team;
-		int realTeam = GetClientTeam(client);
-		if (!IsPlayerAlive(client) && (realTeam == TEAM_T || realTeam == TEAM_CT) && (g_AllowSpawn || AreTeamsEmpty()))
+		CreateTimer(2.0, Timer_DelayTeamUpdate, userId, TIMER_FLAG_NO_MAPCHANGE);
+		if (!IsPlayerAlive(client) && (g_iClientTeam[client] == TEAM_T || g_iClientTeam[client] == TEAM_CT) && (g_AllowSpawn || AreTeamsEmpty()))
 		{
 			CS_RespawnPlayer(client);
 		}
@@ -1042,20 +1052,20 @@ Action CommandList_JoinTeam(int client, const char[] command, int argc)
 	}
 	char arg[5];
 	GetCmdArg(1, arg, sizeof(arg));
-	int newTeam = StringToInt(arg);
-	if (newTeam == UNASSIGNED)
+	int team = StringToInt(arg);
+	if (team == UNASSIGNED)
 	{
 		return Plugin_Stop;
 	}
-	if (newTeam == TEAM_SPEC)
+	if (team == TEAM_SPEC)
 	{
 		return Plugin_Continue;
 	}
-	if (!CanJoin(client, newTeam, true))
+	if (!CanJoin(client, team, true))
 	{
 		return Plugin_Stop;
 	}
-	g_iClientTeam[client] = newTeam;
+	g_iClientTeam[client] = team;
 	return Plugin_Continue;
 }
 
