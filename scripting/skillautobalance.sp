@@ -912,7 +912,7 @@ void SortCloseSums(int outliers)
 			{
 				tSum += g_iClientScore[client];
 				++tCount;
-				if (g_iClientTeam[client] == TEAM_CT)
+				if (team == TEAM_CT)
 				{
 					SwapPlayer(client, TEAM_T, "Client Skill Balance");
 				}
@@ -921,7 +921,7 @@ void SortCloseSums(int outliers)
 			{
 				ctSum += g_iClientScore[client];
 				++ctCount;
-				if (g_iClientTeam[client] == TEAM_T)
+				if (team == TEAM_T)
 				{
 					SwapPlayer(client, TEAM_CT, "Client Skill Balance");
 				}
@@ -936,14 +936,14 @@ void SortCloseSums(int outliers)
 		{
 			if (tCount < size)
 			{
-				if (g_iClientTeam[client] == TEAM_CT)
+				if (team == TEAM_CT)
 				{
 					SwapPlayer(client, TEAM_T, "Client Skill Balance");
 				}
 			}
 			else
 			{
-				if(g_iClientTeam[client] == TEAM_T)
+				if(team == TEAM_T)
 				{
 					SwapPlayer(client, TEAM_CT, "Client Skill Balance");
 				}
