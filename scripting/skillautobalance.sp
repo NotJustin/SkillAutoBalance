@@ -898,15 +898,14 @@ void SortCloseSums(int outliers)
 {
 	int client, team;
 	int i = 0;
-	int tSize = GetTeamClientCount(TEAM_T);
-	int ctSize = GetTeamClientCount(TEAM_CT);
-	int size = (tSize + ctSize - outliers) / 2;
+	int totalSize = GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT) - outliers;
+	int teamSize = totalSize / 2;
 	float tSum = 0.0;
 	float ctSum = 0.0;
 	int tCount = 0;
 	int ctCount = 0;
 
-	while(tCount < size && ctCount < size)
+	while((totalSize % 2 == 0 && tCount < teamSize && ctCount < teamSize) || (totalSize % 2 == 1 && tCount <= teamSize && ctCount <= teamSize))
 	{
 		client = g_iClient[i];
 		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_iClientOutlier[client])
@@ -937,7 +936,7 @@ void SortCloseSums(int outliers)
 		client = g_iClient[i];
 		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_iClientOutlier[client])
 		{
-			if (tCount < size)
+			if (tCount < teamSize)
 			{
 				if (g_iClientTeam[client] == TEAM_CT)
 				{
