@@ -23,6 +23,13 @@ A configurable automated team manager.<br>
 [CSGO Auto Assign Team by SM9](https://forums.alliedmods.net/showthread.php?t=321314)
 
 ### Changelog
+3.1.0 - <br>
+Bugfixes: <br>
+The correct amount of players will be swapped now. (closed issues #8 and #11)<br>
+Changes: <br>
+ForceJoinTeam convar changed to be an int and has 3 options now (disabled: 0, optional: 1, forced: 2) <br>
+Added new cvars to balance teams after map change and after a certain amount of players join/leave, or even to balance every single round.<br>
+<br>
 3.0.2 - <br>
 Bugfixes:<br>
 Scores are updated correctly.<br>
@@ -39,6 +46,7 @@ Read about it here: https://github.com/NotJustin/SkillAutoBalance/issues/2#issue
 Added support for Level Ranks<br>
 A fork of the plugin on github has support for NC RPG. I added but shortly after removed support because their include file has a lot of extra includes that I don't want to add as a requirement for this plugin to be installed.<br>
 BlockTeamSwitch convar changed to be an int and has 3 options now (disabled: 0, enabled but can spectate: 1, enabled with no switching at all: 2)<br>
+<br>
 3.0.1 - Changed sorting method when sorting by gameME or RankMe.<br>
 Using gameME, RankMe, LVL Ranks or NC RPG, get client's skill rather than their rank. This way, I can sort all of the score types in the same way.<br>
 <br>
@@ -53,8 +61,17 @@ Put the compiled plugin in your plugins directory.
 
 ### ConVars
 ```
+sab_balanceafternplayerschange (int | min 0 default 0)
+"0 = Disabled. Otherwise, balance  teams when 'N' players join/leave the server. Requires sab_balanceafternrounds to be enabled"
+
+sab_balanceafternrounds (int | min 0 default 0)
+"0 = Disabled. Otherwise, after map change balance teams when 'N' rounds pass. Then balance based on team win streaks"
+
+sab_balanceeveryround (boolean | default 0)
+"If enabled, teams will be rebalanced at the end of every round"
+
 sab_blockteamswitch (int | min 0 max 2 default 0)
-"0 = Don't block. 1 = Block, can join spectate, must rejoin same team. 2 = Block, can't join spectate."
+"0 = Don't block. 1 = Block, can join spectate, must rejoin same team. 2 = Block completely (also disables teammenu and chatchangeteam commands like !join !spec)"
 
 sab_chatchangeteam (boolean | default 0)
 "Enable joining teams by chat commands '!join, !play, !j, !p, !spectate, !spec, !s (no picking teams)"
@@ -68,8 +85,8 @@ sab_displaychatmessages (boolean | default 1)
 sab_forcebalance (boolean | default 0)
 "Add 'force balance' to 'server commands' in generic admin menu"
 
-sab_forcejointeam (boolean | default 0)
-"Force clients to join a team upon connecting to the server. If both sab_chatchangeteam and sab_teammenu are disabled, this will always be enabled (otherwise, clients cannot join a team)"
+sab_forcejointeam (int | min 0 max 2 default 0)
+"0 = Disabled, 1 = Optional (!settings), 2 = Forced. Force clients to join a team upon connecting to the server. Always enabled if both sab_chatchangeteam and sab_teammenu are disabled"
 
 sab_keepplayersalive (boolean | default 1)
 "Living players are kept alive when their teams are changed"
@@ -92,8 +109,11 @@ sab_prefix (string | default [SAB])
 sab_prefixcolor (string | default white)
 "See sab_messagetype for info"
 
-sab_scoretype (int | min 0 max 4 default 0)
-"Formula used to determine player 'skill'. 0 = K/D, 1 = 2*K/D, 2 = K^2/D, 3 = gameME rank, 4 = RankMe rank"
+sab_scale (float | min 0.1 default 1.5)
+"Value to multiply IQR by. If your points have low spread keep this number. If your points have high spread change this to a lower number, like 0.5"
+
+sab_scoretype (int | min 0 max 6 default 0)
+"Formula used to determine player 'skill'. 0 = K/D, 1 = K/D + K/10 - D/20, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks, 6 = NCRPG" (note NCRPG does not work yet. Maybe soon)
 
 sab_scramble (boolean | default 0)
 "Randomize teams instead of using a skill formula"
@@ -113,6 +133,8 @@ Third party include files you need in order to compile are:
  * gameme.inc
  * kento_rankme/rankme.inc
  * lvl_ranks.inc
+ * ncrpg_Constants.inc
+ * ncrpg_XP_Credits.inc
  
 ### Compatible Plugins
 [gameME](https://www.gameme.com/)<br>
@@ -121,7 +143,4 @@ Third party include files you need in order to compile are:
 
 ### Bugs
 
-(rare) when a player joins the server, they may spawn in the opposing team's spawn. As this occurs rarely, it is difficult for me to test whether I have fixed it or not. If you notice this happens, set these convars accordingly:
- * sab_blockteamswitch 0
- * sab_forcejointeam 0
- * sab_teammenu 1
+No none bugs at the moment :D
