@@ -1158,6 +1158,10 @@ Action CommandList_JoinTeam(int client, const char[] command, int argc)
 /* Menu Functions */
 void Cookie_ForceSpawnPreference(int client, CookieMenuAction action, any info, char[] buffer, int maxlen)
 {
+	if (client == 0 || !IsClientInGame(client) || IsFakeClient(client))
+	{
+		return;
+	}
 	if (action == CookieMenuAction_DisplayOption)
 	{
 		Format(buffer, maxlen, "%t", "Auto-Join Preference");
