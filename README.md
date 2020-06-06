@@ -29,6 +29,8 @@ The correct amount of players will be swapped now. (closed issues #8 and #11)<br
 Changes: <br>
 ForceJoinTeam convar changed to be an int and has 3 options now (disabled: 0, optional: 1, forced: 2) <br>
 Added new cvars to balance teams after map change and after a certain amount of players join/leave, or even to balance every single round.<br>
+Added a scale. Basically, lower scale = more outliers.
+Translations updated.
 <br>
 3.0.2 - <br>
 Bugfixes:<br>
