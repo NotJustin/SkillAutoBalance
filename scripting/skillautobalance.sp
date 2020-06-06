@@ -148,7 +148,7 @@ public void OnPluginStart()
 	cvar_PrefixColor = CreateConVar("sab_prefixcolor", "white", "See sab_messagetype for info");
 	cvar_RoundRestartDelay = FindConVar("mp_round_restart_delay");
 	cvar_RoundTime = FindConVar("mp_roundtime");
-	cvar_Scale = CreateConVar("sab_scale", "1.5", "Value to multiply IQR by. If your sab_scoretype uses points, then here is advice. If your points have low spread from the points people start with when they join your server for the first time, keep this number. If your points have high spread from the points people start with when they join your server for the first time, change this to a lower number, like 0.5", _, true, 0.1);
+	cvar_Scale = CreateConVar("sab_scale", "1.5", "Value to multiply IQR by. If your points have low spread keep this number. If your points have high spread change this to a lower number, like 0.5", _, true, 0.1);
 	cvar_ScoreType = CreateConVar("sab_scoretype", "0", "Formula used to determine player 'skill'. 0 = K/D, 1 = K/D + K/10 - D/20, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks, 6 = NCRPG", _, true, 0.0, true, 6.0);
 	cvar_Scramble = CreateConVar("sab_scramble", "0", "Randomize teams instead of using a skill formula", _, true, 0.0, true, 1.0);
 	cvar_SetTeam = CreateConVar("sab_setteam", "0", "Add 'set player team' to 'player commands' in generic admin menu", _, true, 0.0, true, 1.0);
