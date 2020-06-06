@@ -1,5 +1,25 @@
 "Phrases"
 {
+	"Auto-Join Preference"
+	{
+		"en"			"Auto-Join Preference"
+	}
+	"Auto-Join T/CT"
+	{
+		"en"			"Auto-Join T/CT"
+	}
+	"Auto-Join T/CT [ENABLED]"
+	{
+		"en"			"Auto-Join T/CT [ENABLED]"
+	}
+	"Auto-Join Spectator"
+	{
+		"en"			"Auto-Join Spectator"
+	}
+	"Auto-Join Spectator [ENABLED]"
+	{
+		"en"			"Auto-Join Spectator [ENABLED]"
+	}
 	"Admin Client Swapped"
 	{
 		"en"			"Successfully changed player's team."
