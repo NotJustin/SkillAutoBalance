@@ -7,8 +7,7 @@
 #include <gameme>
 #include <kento_rankme/rankme>
 #include <lvl_ranks>
-#include <NCIncs/ncrpg_Constants>
-#include <NCIncs/ncrpg_XP_Credits>
+#include <NCIncs/nc_rpg.inc>
 #pragma newdecls required
 #pragma semicolon 1
 
@@ -26,7 +25,7 @@ public Plugin myinfo =
 	name = "SkillAutoBalance",
 	author = "Justin (ff)",
 	description = "A configurable automated team manager",
-	version = "3.1.0",
+	version = "3.1.1",
 	url = "https://steamcommunity.com/id/NameNotJustin/"
 }
 
@@ -98,7 +97,7 @@ int
 	g_PlayerCount = 0,
 	g_PlayerCountChange = 0,
 	g_RoundCount = 0,
-	g_iClient[MAXPLAYERS + 1],
+	g_iClient[MAXPLAYERS - 1] = {1, 2, ...},
 	g_iClientTeam[MAXPLAYERS + 1],
 	g_iClientForceJoinPreference[MAXPLAYERS + 1]
 ;
@@ -189,7 +188,6 @@ public void OnPluginStart()
 		OnConfigsExecuted();
 		for (int i = 1; i <= MaxClients; ++i)
 		{
-			g_iClient[i] = i;
 			if (IsClientInGame(g_iClient[i]))
 			{
 				g_iClientTeam[i] = GetClientTeam(g_iClient[i]);
@@ -197,6 +195,7 @@ public void OnPluginStart()
 		}	
 	}
 }
+
 public void OnConfigsExecuted()
 {
 	char str[1];
@@ -342,10 +341,6 @@ public void OnMapStart()
 	}
 	g_iStreak[0] = 0.0;
 	g_iStreak[1] = 0.0;
-	for (int i = 1; i <= MaxClients; ++i)
-	{
-		g_iClient[i] = i;
-	}
 }
 public void OnMapEnd()
 {
@@ -355,6 +350,8 @@ public void OnMapEnd()
 /* Events */
 void Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
 {
+	g_PlayerCount = 0;
+	g_Balancing = false;
 	bool warmupActive = IsWarmupActive();
 	if (warmupActive)
 	{
@@ -371,13 +368,10 @@ void Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast)
 {
 	g_AllowSpawn = false;
 	++g_RoundCount;
-	int tSize = GetTeamClientCount(TEAM_T);
-	int ctSize = GetTeamClientCount(TEAM_CT);
 	BalanceTeamCount();
-	if(tSize + ctSize >= cvar_MinPlayers.IntValue)
+	if(GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT) >= cvar_MinPlayers.IntValue)
 	{
-		int winningTeam = (GetEventInt(event, "winner") == TEAM_T) ? TEAM_T : TEAM_CT;
-		SetStreak(winningTeam);
+		SetStreak((GetEventInt(event, "winner") == TEAM_T) ? TEAM_T : TEAM_CT);
 		if(g_ForceBalance || BalanceSkillNeeded())
 		{
 			g_Balancing = true;
@@ -581,9 +575,7 @@ Action Timer_CheckScore(Handle timer, int userId)
 			++g_PlayerCount;
 			if (g_PlayerCount == GetClientCountNoBots())
 			{
-				g_Balancing = false;
 				BalanceSkill();
-				g_PlayerCount = 0;
 			}
 		}
 	}
@@ -694,10 +686,6 @@ void UpdateScores()
 			GetScore(client);
 		}
 	}
-	if (cvar_ScoreType.IntValue != TYPE_GAMEME)
-	{
-		BalanceSkill();
-	}
 }
 void GetScore(int client)
 {
@@ -708,7 +696,7 @@ void GetScore(int client)
 		if (g_UsingGameME)
 		{
 			QueryGameMEStats("playerinfo", client, GameMEStatsCallback, 1);
-			CreateTimer(0.5, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(0.1, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		}
 		else
 		{
@@ -720,7 +708,7 @@ void GetScore(int client)
 		if (g_UsingRankME)
 		{
 			g_iClientScore[client] = float(RankMe_GetPoints(client));
-			CreateTimer(0.5, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(0.1, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		}
 		else
 		{
@@ -732,7 +720,7 @@ void GetScore(int client)
 		if (g_UsingLVLRanks)
 		{
 			g_iClientScore[client] = float(LR_GetClientInfo(client, ST_EXP));
-			CreateTimer(0.5, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(0.1, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		}
 		else
 		{
@@ -741,15 +729,14 @@ void GetScore(int client)
 	}
 	else if (scoreType == TYPE_NCRPG)
 	{
-		/*if (g_UsingNCRPG)
+		if (g_UsingNCRPG)
 		{
 			g_iClientScore[client] = float(NCRPG_GetLevel(client));
 		}
 		else
 		{
 			LogError("NCRPG not found. Use other score type");
-		}*/
-		LogError("NCRPG is not supported yet. Use other score type");
+		}
 	}
 	else
 	{
@@ -967,11 +954,11 @@ int RemoveOutliers()
 	IQR = q1Med - q3Med;
 	float lowerBound = q3Med - cvar_Scale.IntValue * IQR;
 	float upperBound = q1Med + cvar_Scale.IntValue * IQR;
-	int client;
-	for (int i = 0; i < size; ++i)
+	int client, team;
+	for (int i = 0; i < sizeof(g_iClient); ++i)
 	{
 		client = g_iClient[i];
-		if (g_iClientScore[client] > upperBound || g_iClientScore[client] < lowerBound)
+		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (g_iClientScore[client] > upperBound || g_iClientScore[client] < lowerBound) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
 		{
 			g_iClientOutlier[client] = true;
 			outliers++;
@@ -979,39 +966,42 @@ int RemoveOutliers()
 	}
 	return outliers;
 }
-void AddOutliers()
+void AddOutliers(int sizes[2])
 {
 	int client, team;
 	int teams[2] = {2, 3};
-	int nextTeam = GetSmallestTeam() - 2;
+	int nextTeam = (sizes[0] <= sizes[1] ? 0 : 1);
 	for (int i = 0; i < sizeof(g_iClient); ++i)
 	{
 		client = g_iClient[i];
 		if (g_iClientOutlier[client] && client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
 		{
-			g_iClientOutlier[client] = false;
 			if (g_iClientTeam[client] != teams[nextTeam])
 			{
 				SwapPlayer(client, teams[nextTeam], "Client Skill Balance");
 			}
 			nextTeam = (nextTeam + 1) % 2;
 		}
+		g_iClientOutlier[client] = false;
 	}
 }
-void SortCloseSums(int outliers)
+int SortCloseSums(int outliers)
 {
+	int sizes[2];
 	int client, team;
 	int i = 0;
-	int tSize = GetTeamClientCount(TEAM_T);
-	int ctSize = GetTeamClientCount(TEAM_CT);
-	int totalSize = tSize + ctSize - outliers;
-	int teamSize = totalSize / 2;
+	int totalSize = GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT) - outliers;
+	int smallTeamSize = totalSize / 2;
+	int bigTeamSize = smallTeamSize;
+	if (totalSize % 2 == 1)
+	{
+		++bigTeamSize;
+	}
 	float tSum = 0.0;
 	float ctSum = 0.0;
 	int tCount = 0;
 	int ctCount = 0;
-
-	while((totalSize % 2 == 0 && tCount < teamSize && ctCount < teamSize) || (totalSize % 2 == 1 && tCount <= teamSize && ctCount <= teamSize))
+	while(tCount < bigTeamSize && ctCount < bigTeamSize)
 	{
 		client = g_iClient[i];
 		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_iClientOutlier[client])
@@ -1042,15 +1032,17 @@ void SortCloseSums(int outliers)
 		client = g_iClient[i];
 		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_iClientOutlier[client])
 		{
-			if (tCount < teamSize)
+			if (tCount < smallTeamSize)
 			{
+				++tCount;
 				if (g_iClientTeam[client] == TEAM_CT)
 				{
 					SwapPlayer(client, TEAM_T, "Client Skill Balance");
 				}
 			}
-			else
+			else if (ctCount < smallTeamSize)
 			{
+				++ctCount;
 				if(g_iClientTeam[client] == TEAM_T)
 				{
 					SwapPlayer(client, TEAM_CT, "Client Skill Balance");
@@ -1059,6 +1051,9 @@ void SortCloseSums(int outliers)
 		}
 		++i;
 	}
+	sizes[0] = tCount;
+	sizes[1] = ctCount;
+	return sizes;
 }
 void BalanceSkill()
 {
@@ -1068,8 +1063,12 @@ void BalanceSkill()
 	}
 	SortCustom1D(g_iClient, sizeof(g_iClient), Sort_Scores);
 	int outliers = RemoveOutliers();
-	SortCloseSums(outliers);
-	AddOutliers();
+	int sizes[2];
+	sizes = SortCloseSums(outliers);
+	if (outliers > 0)
+	{
+		AddOutliers(sizes);
+	}
 }
 
 /* Public Client-Related Functions */
@@ -1084,12 +1083,16 @@ public void OnClientCookiesCached(int client)
 }
 public void OnClientDisconnect(int client)
 {
+	g_iClientTeam[client] = TEAM_SPEC;
+	g_iClientScore[client] = -1.0;
+	g_iClientFrozen[client] = false;
+	g_iClientOutlier[client] = false;
+	++g_PlayerCountChange;
 	if (!AreTeamsEmpty())
 	{
 		return;
 	}
 	g_AllowSpawn = true;
-	++g_PlayerCountChange;
 }
 public Action OnPlayerRunCmd(int client, int &buttons)
 {
@@ -1158,10 +1161,6 @@ Action CommandList_JoinTeam(int client, const char[] command, int argc)
 /* Menu Functions */
 void Cookie_ForceSpawnPreference(int client, CookieMenuAction action, any info, char[] buffer, int maxlen)
 {
-	if (client == 0 || !IsClientInGame(client) || IsFakeClient(client))
-	{
-		return;
-	}
 	if (action == CookieMenuAction_DisplayOption)
 	{
 		Format(buffer, maxlen, "%t", "Auto-Join Preference");
@@ -1173,6 +1172,10 @@ void Cookie_ForceSpawnPreference(int client, CookieMenuAction action, any info, 
 }
 void ShowForceJoinMenu(int client)
 {
+	if (client == 0 || !IsClientInGame(client) || IsFakeClient(client))
+	{
+		return;
+	}
 	Menu menu = new Menu(MenuHandler_ForceJoin);
 	char option1[100];
 	char option2[100];
@@ -1211,9 +1214,14 @@ int MenuHandler_ForceJoin(Menu menu, MenuAction action, int client, int option)
 			g_iClientForceJoinPreference[client] = 1;
 		}
 	}
-	char sCookieValue[12];
-	IntToString(g_iClientForceJoinPreference[client], sCookieValue, sizeof(sCookieValue));
-	SetClientCookie(client, g_hForceSpawn, sCookieValue);
+	// Adding a bunch of checks because I have no fucking clue why I'm getting client index 0 is invalid here. Earlier, I return when client index is 0, so why is it changing to 0?
+	if (client != 0 && IsClientInGame(client) && IsFakeClient(client))
+	{
+		char sCookieValue[12];
+		IntToString(g_iClientForceJoinPreference[client], sCookieValue, sizeof(sCookieValue));
+		SetClientCookie(client, g_hForceSpawn, sCookieValue);
+		return;
+	}
 }
 void OnAdminMenuReady(Handle aTopMenu)
 {
