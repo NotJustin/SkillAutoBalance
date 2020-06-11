@@ -8,6 +8,7 @@
 #include <kento_rankme/rankme>
 #include <lvl_ranks>
 #include <NCIncs/nc_rpg.inc>
+#include <smrpg>
 #pragma newdecls required
 #pragma semicolon 1
 
@@ -19,6 +20,7 @@
 #define TYPE_RANKME 4
 #define TYPE_LVLRanks 5
 #define TYPE_NCRPG 6
+#define TYPE_SMRPG 7
 
 public Plugin myinfo =
 {
@@ -47,6 +49,7 @@ bool
 	g_UsingRankME,
 	g_UsingLVLRanks,
 	g_UsingNCRPG,
+	g_UsingSMRPG,
 	g_SetTeamHooked = false,
 	g_ForceBalanceHooked = false,
 	g_LateLoad = false,
@@ -148,7 +151,7 @@ public void OnPluginStart()
 	cvar_RoundRestartDelay = FindConVar("mp_round_restart_delay");
 	cvar_RoundTime = FindConVar("mp_roundtime");
 	cvar_Scale = CreateConVar("sab_scale", "1.5", "Value to multiply IQR by. If your points have low spread keep this number. If your points have high spread change this to a lower number, like 0.5", _, true, 0.1);
-	cvar_ScoreType = CreateConVar("sab_scoretype", "0", "Formula used to determine player 'skill'. 0 = K/D, 1 = K/D + K/10 - D/20, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks, 6 = NCRPG", _, true, 0.0, true, 6.0);
+	cvar_ScoreType = CreateConVar("sab_scoretype", "0", "Formula used to determine player 'skill'. 0 = K/D, 1 = K/D + K/10 - D/20, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks, 6 = NCRPG, 7 = SMRPG", _, true, 0.0, true, 7.0);
 	cvar_Scramble = CreateConVar("sab_scramble", "0", "Randomize teams instead of using a skill formula", _, true, 0.0, true, 1.0);
 	cvar_SetTeam = CreateConVar("sab_setteam", "0", "Add 'set player team' to 'player commands' in generic admin menu", _, true, 0.0, true, 1.0);
 	cvar_TeamMenu = CreateConVar("sab_teammenu", "1", "Whether to enable or disable the join team menu.", _, true, 0.0, true, 1.0);
@@ -279,6 +282,10 @@ public void OnLibraryAdded(const char[] name)
 	{
 		g_UsingNCRPG = true;
 	}
+	if (StrEqual(name, "smrpg"))
+	{
+		g_UsingSMRPG = true;
+	}
 }
 public void OnLibraryRemoved(const char[] name)
 {
@@ -301,6 +308,10 @@ public void OnLibraryRemoved(const char[] name)
 	if (StrEqual(name, "NCRPG"))
 	{
 		g_UsingNCRPG = false;
+	}
+	if (StrEqual(name, "smrpg"))
+	{
+		g_UsingSMRPG = false;
 	}
 }
 void InitColorStringMap()
@@ -731,11 +742,20 @@ void GetScore(int client)
 	{
 		if (g_UsingNCRPG)
 		{
-			g_iClientScore[client] = float(NCRPG_GetLevel(client));
+			g_iClientScore[client] = NCRPG_GetSkillSum(client);
+			CreateTimer(0.1, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		}
 		else
 		{
 			LogError("NCRPG not found. Use other score type");
+		}
+	}
+	else if (scoreType == TYPE_SMRPG)
+	{
+		if (g_UsingSMRPG)
+		{
+			g_iClientScore[client] = float(SMRPG_GetClientLevel(client));
+			CreateTimer(0.1, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 	else
@@ -1120,6 +1140,18 @@ int get_param(int index, int argument_count)
 		return StringToInt(param);
 	}
 	return -1;
+}
+float NCRPG_GetSkillSum(int client)
+{
+	float score = 0.0;
+	for (int i = 0; i < NCRPG_GetSkillCount(); ++i)
+	{
+		if (NCRPG_IsValidSkillID(i))
+		{
+			score += float(NCRPG_GetSkillLevel(client, i));
+		}
+	}
+	return score;
 }
 
 /* Command Listeners */
