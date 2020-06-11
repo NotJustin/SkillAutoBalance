@@ -145,15 +145,16 @@ Third party include files you need in order to compile are:
  * gameme.inc
  * kento_rankme/rankme.inc
  * lvl_ranks.inc
- * NCIncs/nc_rpg.inc
- * NCIncs/ncrpg_Constants.inc
- * NCIncs/ncrpg_XP_Credits.inc
+ * NCIncs directory
+ * smrpg.inc
+ * smrpg directory
  
 ### Compatible Plugins
 [gameME](https://www.gameme.com/)<br>
 [RankMe Kento Edition](https://forums.alliedmods.net/showthread.php?t=290063) untested<br>
 [LVL Ranks](https://github.com/levelsranks/levels-ranks-core) untested<br>
 [NCRPG](https://github.com/Rabb1tof/NCRPG)
+[SMRPG](https://github.com/peace-maker/smrpg)
 
 ### Bugs
 
