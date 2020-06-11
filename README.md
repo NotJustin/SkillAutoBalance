@@ -120,7 +120,7 @@ sab_scale (float | min 0.1 default 1.5)
 "Value to multiply IQR by. If your points have low spread keep this number. If your points have high spread change this to a lower number, like 0.5"
 
 sab_scoretype (int | min 0 max 6 default 0)
-"Formula used to determine player 'skill'. 0 = K/D, 1 = K/D + K/10 - D/20, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks, 6 = NCRPG" (note NCRPG does not work yet. Maybe soon)
+"Formula used to determine player 'skill'. 0 = K/D, 1 = K/D + K/10 - D/20, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks, 6 = NCRPG"
 
 sab_scramble (boolean | default 0)
 "Randomize teams instead of using a skill formula"
@@ -140,14 +140,16 @@ Third party include files you need in order to compile are:
  * gameme.inc
  * kento_rankme/rankme.inc
  * lvl_ranks.inc
- * ncrpg_Constants.inc
- * ncrpg_XP_Credits.inc
+ * NCIncs/nc_rpg.inc
+ * NCIncs/ncrpg_Constants.inc
+ * NCIncs/ncrpg_XP_Credits.inc
  
 ### Compatible Plugins
 [gameME](https://www.gameme.com/)<br>
-[RankMe Kento Edition](https://forums.alliedmods.net/showthread.php?t=290063) currently untested, need confirmation that this works<br>
-[LVL Ranks](https://github.com/levelsranks/levels-ranks-core) currently untested, need confirmation that this works
+[RankMe Kento Edition](https://forums.alliedmods.net/showthread.php?t=290063) untested<br>
+[LVL Ranks](https://github.com/levelsranks/levels-ranks-core) untested<br>
+[NCRPG](https://github.com/Rabb1tof/NCRPG)
 
 ### Bugs
 
-No none bugs at the moment :D
+No bugs at the moment :D
