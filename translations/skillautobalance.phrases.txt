@@ -3,109 +3,136 @@
 	"Auto-Join Preference"
 	{
 		"en"			"Auto-Join Preference"
+		"tr"                    "Oto-Katilma Tercihi"
 	}
 	"Auto-Join T/CT"
 	{
 		"en"			"Auto-Join T/CT"
+		"tr"                    "Oto-Katilma T/CT"
 	}
 	"Auto-Join T/CT [ENABLED]"
 	{
 		"en"			"Auto-Join T/CT [ENABLED]"
+		"tr"                    "Oto-Katilma T/CT [ETKIN]"
 	}
 	"Auto-Join Spectator"
 	{
 		"en"			"Auto-Join Spectator"
+		"tr"                    "Oto-Katilma Izleyici"
 	}
 	"Auto-Join Spectator [ENABLED]"
 	{
 		"en"			"Auto-Join Spectator [ENABLED]"
+		"tr"                    "Oto-Katilma Izleyici [ETKIN]"
 	}
 	"Admin Client Swapped"
 	{
 		"en"			"Successfully changed player's team."
+		"tr"                    "Oyuncunun takimi basariyla degistirildi"
 	}
 	"Admin Join"
 	{
 		"en"			"Team changed by admin."
+		"tr"                    "Takim admin tarafindan degistirildi"
 	}
 	"Admin Force Balance"
 	{
 		"en"			"Team balance will occur at round end."
+		"tr"                    "Takim dengeleme raund sonunda olacak"
 	}
 	"Auto Join"
 	{
 		"en"			"You have been placed on a team."
+		"tr"                    "Bir takima yerlestirildin."
 	}
 	"Delay Join"
 	{
 		"en"			"You will automatically be placed on a team."
+		"tr"                    "Bir takima otomatik olarak yerlestirileceksin."
 	}
 	"Pacified Client"
 	{
 		"en"			"You are out of combat until next round."
+		"tr"                    "Diger raunda kadar mucadele disindasin."
 	}
 	"Incorrect SetTeam Usage"
 	{
 		"en"			"Usage: sm_setteam player spec/t/ct/1/2/3."
+		"tr"                    "Kullanim: sm_setteam oyuncu spec/t/ct/1/2/3."
 	}
 	"Client Not Found"
 	{
 		"en"			"Client was not found."
+		"tr"                    "Kullanici bulunamadi."
 	}
 	"Team Count Balance"
 	{
 		"en"			"Balancing uneven teams."
+		"tr"                    "Dengesiz takimlar dengeleniyor."
 	}
 	"Global Scramble Teams"
 	{
 		"en"			"Scrambling teams."
+		"tr"                    "Takimlar karistiriliyor."
 	}
 	"Client Scramble Team"
 	{
 		"en"			"Swapped to scramble teams."
+		"tr"                    "Takimlari karistirmak icin degis tokus yapildi"
 	}
 	"Client Skill Balance"
 	{
 		"en"			"Swapped to balance average skill of each team."
+		"tr"                    "Her takimin yetenek ortalamasini dengelemek icin degis tokus yapildi" 
 	}
 	"Global Skill Balance"
 	{
 		"en"			"Balancing skill of each team."
+		"tr"                    "Her takimin yetenegini dengeleme."
 	}
 	"Team Has More Players"
 	{
 		"en"			"Cannot join team that has more players."
+		"tr"                    "Daha cok oyunculu takima katilanamiyor."
 	}
 	"Team Menu Disabled"
 	{
 		"en"			"Team Menu Disabled, !j to play, !s to spectate"
+		"tr"                    "Takim Menu Devre Disi, oynamak icin !j, izleyici icin !s yaz"
 	}
 	"Must Join Previous Team"
 	{
 		"en"			"Must join previous team."
+		"tr"                    "Onceki takima katilmali."
 	}
 	"Cannot Target Player"
 	{
 		"en"			"Player cannot be targetted."
+		"tr"                    "Oyuncu hedeflenemiyor."
 	}
 	"Set Player's Team"
 	{
 		"en"			"Set player's team."
+		"tr"                    "Oyuncunun takimini ayarla"
 	}
 	"Select Team"
 	{
 		"en"			"Select a team."
+		"tr"                    "Bir takim sec."
 	}
 	"Spectator"
 	{
 		"en"			"Spectator"
+		"tr"                    "Izleyici"
 	}
 	"Terrorists"
 	{
 		"en"			"Terrorists"
+		"tr"                    "Teroristler"
 	}
 	"Counter-Terrorists"
 	{
 		"en"			"Counter-Terrorists"
+		"tr"                    "Anti-Teroristler"
 	}
 }
