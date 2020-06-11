@@ -2,7 +2,7 @@
  <img width="630" height="50" src="https://forums.alliedmods.net/image-proxy/bb415b212a80b7a578daa8a01733f35f7cf1b467/68747470733a2f2f63646e2e646973636f72646170702e636f6d2f6174746163686d656e74732f3639303232343333353735393231323734322f3731393634363637343932353931323137342f736b696c6c6175746f62616c616e63652e706e67"><br>
  A configurable automated team manager.<br>
  <url src="https://forums.alliedmods.net/showthread.php?t=316478><br>
-</p>
+</p><br>
 
 #### Table of Contents
 [Credits/Inspiration](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#credits--inspiration)<br>
@@ -14,6 +14,8 @@
 [Bugs](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#bugs)<br>
 
 ### Credits / Inspiration
+<details>
+ <summary>Expand for related plugins</summary>
 [Admin Player Team Switch and Scramble Menu by r5053](https://forums.alliedmods.net/showthread.php?p=549446)<br>
 [[CS:S/GO+DoD:S] Auto Team Scrambler 2 (Updated 27-12-2012 @ DODS/CSGO) by RedSword](https://forums.alliedmods.net/showthread.php?p=1685854)<br>
 [[ANY MOD] SwapTeam v1.2.6 (Updated 30/09/12) by bobbobagan](https://forums.alliedmods.net/showthread.php?p=859951)<br>
@@ -23,8 +25,11 @@
 [Block Team Changes by sdz](https://forums.alliedmods.net/showpost.php?p=2422410&postcount=2)<br>
 [TeamChange Unlimited by Sheepdude](https://forums.alliedmods.net/showthread.php?p=1877187)<br>
 [CSGO Auto Assign Team by SM9](https://forums.alliedmods.net/showthread.php?t=321314)
+</details>
 
 ### Changelog
+<details>
+ <summary>Expand for changelog</summary>
 3.1.1 - <br>
 Bugfixes:<br>
 This time, for sure, the correct amount of players will be swapped now. The bug is, there were duplicate clients being created in my list of clients. They were created after sorting. In my list of clients, there were some extra empty indices with 0's, and those 0's were being replaced with other client indices.<br>
@@ -62,6 +67,7 @@ Using gameME, RankMe, LVL Ranks or NC RPG, get client's skill rather than their 
 3.0.0 - I've been making lots of minor changes to this plugin over the last month. In general, it consists of function optimization, improving code readability, adding some features and trying out various solutions to the bug I've been trying to fix for awhile now (see Bugs section).
 
 You can see old changelog(s) at the alliedmodders thread.
+</details>
 
 ### Installation
 Extract this repository into your ./csgo/addons/sourcemod/ directory.
@@ -135,7 +141,7 @@ sab_teammenu (boolean | default 1)
 
 sab_usedecay (boolean | default 1)
 "If 1, subtract sab_decayamount from a team's streak when they lose instead of setting their streak to 0"
- ```
+```
 
 ### Dependencies
 Third party include files you need in order to compile are:
