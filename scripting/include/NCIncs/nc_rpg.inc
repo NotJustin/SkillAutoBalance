@@ -13,7 +13,17 @@
 #include <sdkhooks>
 #include <cstrike>
 #include "NCIncs/ncrpg_Constants"
+#include "NCIncs/ncrpg_GameCheck"
+#include "NCIncs/ncrpg_Effects"
 #include "NCIncs/ncrpg_XP_Credits"
+#include "NCIncs/ncrpg_Messages"
+//#include "NCIncs/ncrpg_Messages_css"
+//#include "NCIncs/ncrpg_Menu"
+#include "NCIncs/ncrpg_Buffs"
+#include "NCIncs/ncrpg_Skills"
+#include "NCIncs/ncrpg_Damage"
+#include "NCIncs/ncrpg_Configs"
+#include "NCIncs/ncrpg_PrecacheDownload"
 
 forward NCRPG_OnConnectedToDB(Handle hndl);
 
