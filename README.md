@@ -23,14 +23,19 @@ A configurable automated team manager.<br>
 [CSGO Auto Assign Team by SM9](https://forums.alliedmods.net/showthread.php?t=321314)
 
 ### Changelog
+3.1.1 - <br>
+Bugfixes:
+This time, for sure, the correct amount of players will be swapped now. The bug is, there were duplicate clients being created in my list of clients. They were created after sorting. In my list of clients, there were some extra empty indices with 0's, and those 0's were being replaced with other client indices.<br>
+Also fixed other broken logic related to determining which players count as outliers.<br>
+<br>
 3.1.0 - <br>
 Bugfixes: <br>
 The correct amount of players will be swapped now. (closed issues #8 and #11)<br>
 Changes: <br>
 ForceJoinTeam convar changed to be an int and has 3 options now (disabled: 0, optional: 1, forced: 2) <br>
 Added new cvars to balance teams after map change and after a certain amount of players join/leave, or even to balance every single round.<br>
-Added a scale. Basically, lower scale = more outliers.
-Translations updated.
+Added a scale. Basically, lower scale = more outliers.<br>
+Translations updated.<br>
 <br>
 3.0.2 - <br>
 Bugfixes:<br>
