@@ -14,8 +14,6 @@
 [Bugs](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#bugs)<br>
 
 ### Credits / Inspiration
-<details>
- <summary>Expand for related plugins</summary>
 [Admin Player Team Switch and Scramble Menu by r5053](https://forums.alliedmods.net/showthread.php?p=549446)<br>
 [[CS:S/GO+DoD:S] Auto Team Scrambler 2 (Updated 27-12-2012 @ DODS/CSGO) by RedSword](https://forums.alliedmods.net/showthread.php?p=1685854)<br>
 [[ANY MOD] SwapTeam v1.2.6 (Updated 30/09/12) by bobbobagan](https://forums.alliedmods.net/showthread.php?p=859951)<br>
@@ -25,7 +23,6 @@
 [Block Team Changes by sdz](https://forums.alliedmods.net/showpost.php?p=2422410&postcount=2)<br>
 [TeamChange Unlimited by Sheepdude](https://forums.alliedmods.net/showthread.php?p=1877187)<br>
 [CSGO Auto Assign Team by SM9](https://forums.alliedmods.net/showthread.php?t=321314)
-</details>
 
 ### Changelog
 <details>
