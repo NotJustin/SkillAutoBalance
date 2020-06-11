@@ -24,7 +24,7 @@ A configurable automated team manager.<br>
 
 ### Changelog
 3.1.1 - <br>
-Bugfixes:
+Bugfixes:<br>
 This time, for sure, the correct amount of players will be swapped now. The bug is, there were duplicate clients being created in my list of clients. They were created after sorting. In my list of clients, there were some extra empty indices with 0's, and those 0's were being replaced with other client indices.<br>
 Also fixed other broken logic related to determining which players count as outliers.<br>
 <br>
