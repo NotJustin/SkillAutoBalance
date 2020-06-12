@@ -3,136 +3,158 @@
 	"Auto-Join Preference"
 	{
 		"en"			"Auto-Join Preference"
-		"tr"                    "Oto-Katilma Tercihi"
+		"tr"			"Oto-Katilma Tercihi"
 	}
 	"Auto-Join T/CT"
 	{
 		"en"			"Auto-Join T/CT"
-		"tr"                    "Oto-Katilma T/CT"
+		"tr"			"Oto-Katilma T/CT"
 	}
 	"Auto-Join T/CT [ENABLED]"
 	{
 		"en"			"Auto-Join T/CT [ENABLED]"
-		"tr"                    "Oto-Katilma T/CT [ETKIN]"
+		"tr"			"Oto-Katilma T/CT [ETKIN]"
 	}
 	"Auto-Join Spectator"
 	{
 		"en"			"Auto-Join Spectator"
-		"tr"                    "Oto-Katilma Izleyici"
+		"tr"			"Oto-Katilma Izleyici"
 	}
 	"Auto-Join Spectator [ENABLED]"
 	{
 		"en"			"Auto-Join Spectator [ENABLED]"
-		"tr"                    "Oto-Katilma Izleyici [ETKIN]"
+		"tr"			"Oto-Katilma Izleyici [ETKIN]"
 	}
 	"Admin Client Swapped"
 	{
 		"en"			"Successfully changed player's team."
-		"tr"                    "Oyuncunun takimi basariyla degistirildi"
+		"tr"			"Oyuncunun takimi basariyla degistirildi"
+		"ru"			"Успешное изменение команды игрока."
 	}
 	"Admin Join"
 	{
 		"en"			"Team changed by admin."
-		"tr"                    "Takim admin tarafindan degistirildi"
+		"tr"			"Takim admin tarafindan degistirildi"
+		"ru"			"Команда изменена администратором."
 	}
 	"Admin Force Balance"
 	{
 		"en"			"Team balance will occur at round end."
-		"tr"                    "Takim dengeleme raund sonunda olacak"
+		"tr"			"Takim dengeleme raund sonunda olacak"
+		"ru"			"Баланс команды наступит в конце раунда."
 	}
 	"Auto Join"
 	{
 		"en"			"You have been placed on a team."
-		"tr"                    "Bir takima yerlestirildin."
+		"tr"			"Bir takima yerlestirildin."
+		"ru"			"Ты попал в команду."
 	}
 	"Delay Join"
 	{
 		"en"			"You will automatically be placed on a team."
-		"tr"                    "Bir takima otomatik olarak yerlestirileceksin."
+		"tr"			"Bir takima otomatik olarak yerlestirileceksin."
+		"ru"			"Вы автоматически будете помещены в команду."
 	}
 	"Pacified Client"
 	{
 		"en"			"You are out of combat until next round."
-		"tr"                    "Diger raunda kadar mucadele disindasin."
+		"tr"			"Diger raunda kadar mucadele disindasin."
+		"ru"			"Ты вне игры до следующего раунда."
 	}
 	"Incorrect SetTeam Usage"
 	{
 		"en"			"Usage: sm_setteam player spec/t/ct/1/2/3."
-		"tr"                    "Kullanim: sm_setteam oyuncu spec/t/ct/1/2/3."
+		"tr"			"Kullanim: sm_setteam oyuncu spec/t/ct/1/2/3."
+		"ru"			"Используйте: sm_setteam player spec/t/ct/1/2/3."
 	}
 	"Client Not Found"
 	{
 		"en"			"Client was not found."
-		"tr"                    "Kullanici bulunamadi."
+		"tr"			"Kullanici bulunamadi."
+		"ru"			"Клиент не найден."
 	}
 	"Team Count Balance"
 	{
 		"en"			"Balancing uneven teams."
-		"tr"                    "Dengesiz takimlar dengeleniyor."
+		"tr"			"Dengesiz takimlar dengeleniyor."
+		"ru"			"Балансировка неравномерных команд."
 	}
 	"Global Scramble Teams"
 	{
 		"en"			"Scrambling teams."
-		"tr"                    "Takimlar karistiriliyor."
+		"tr"			"Takimlar karistiriliyor."
+		"ru"			"Перемешивание команд."
 	}
 	"Client Scramble Team"
 	{
 		"en"			"Swapped to scramble teams."
-		"tr"                    "Takimlari karistirmak icin degis tokus yapildi"
+		"tr"			"Takimlari karistirmak icin degis tokus yapildi"
+		"ru"			"Поменял местами команды."
 	}
 	"Client Skill Balance"
 	{
 		"en"			"Swapped to balance average skill of each team."
-		"tr"                    "Her takimin yetenek ortalamasini dengelemek icin degis tokus yapildi" 
+		"tr"			"Her takimin yetenek ortalamasini dengelemek icin degis tokus yapildi"
+		"ru"			"Перемещен для баланса скилла в каждой из команд."
 	}
 	"Global Skill Balance"
 	{
 		"en"			"Balancing skill of each team."
-		"tr"                    "Her takimin yetenegini dengeleme."
+		"tr"			"Her takimin yetenegini dengeleme."
+		"ru"			"Балансировка для каждой из команд."
 	}
 	"Team Has More Players"
 	{
 		"en"			"Cannot join team that has more players."
-		"tr"                    "Daha cok oyunculu takima katilanamiyor."
+		"tr"			"Daha cok oyunculu takima katilanamiyor."
+		"ru"			"Невозможно присоединиться к команде, в которой больше игроков."
 	}
 	"Team Menu Disabled"
 	{
 		"en"			"Team Menu Disabled, !j to play, !s to spectate"
-		"tr"                    "Takim Menu Devre Disi, oynamak icin !j, izleyici icin !s yaz"
+		"tr"			"Takim Menu Devre Disi, oynamak icin !j, izleyici icin !s yaz"
+		"ru"			"Меню выбора команд Отключено, !j для играть, !s для наблюдения"
 	}
 	"Must Join Previous Team"
 	{
 		"en"			"Must join previous team."
-		"tr"                    "Onceki takima katilmali."
+		"tr"			"Onceki takima katilmali."
+		"ru"			"Должен присоединиться к предыдущей команде."
 	}
 	"Cannot Target Player"
 	{
 		"en"			"Player cannot be targetted."
-		"tr"                    "Oyuncu hedeflenemiyor."
+		"tr"			"Oyuncu hedeflenemiyor."
+		"ru"			"Игрок не может быть целью."
 	}
 	"Set Player's Team"
 	{
 		"en"			"Set player's team."
-		"tr"                    "Oyuncunun takimini ayarla"
+		"tr"			"Oyuncunun takimini ayarla"
+		"ru"			"Установить команду игроку."
 	}
 	"Select Team"
 	{
 		"en"			"Select a team."
-		"tr"                    "Bir takim sec."
+		"tr"			"Bir takim sec."
+		"ru"			"Выберите команду."
 	}
 	"Spectator"
 	{
 		"en"			"Spectator"
-		"tr"                    "Izleyici"
+		"tr"			"Izleyici"
+		"ru"			"Наблюдатели"
 	}
 	"Terrorists"
 	{
 		"en"			"Terrorists"
-		"tr"                    "Teroristler"
+		"tr"			"Teroristler"
+		"ru"			"Террористы"
 	}
 	"Counter-Terrorists"
 	{
 		"en"			"Counter-Terrorists"
-		"tr"                    "Anti-Teroristler"
+		"tr"			"Anti-Teroristler"
+		"ru"			"Контер-Террористы"
 	}
 }
