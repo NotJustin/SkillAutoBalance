@@ -27,13 +27,13 @@ public Plugin myinfo =
 	name = "SkillAutoBalance",
 	author = "Justin (ff)",
 	description = "A configurable automated team manager",
-	version = "3.1.1",
+	version = "3.1.2",
 	url = "https://steamcommunity.com/id/NameNotJustin/"
 }
 
 enum struct PlayerInfo
 {
-	int target;
+	int target;//
 	int targetUserId;
 }
 
@@ -189,7 +189,7 @@ public void OnPluginStart()
 	if (g_LateLoad)
 	{
 		OnConfigsExecuted();
-		for (int i = 1; i <= MaxClients; ++i)
+		for (int i = 0; i < MaxClients; ++i)
 		{
 			if (IsClientInGame(g_iClient[i]))
 			{
