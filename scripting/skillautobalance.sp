@@ -274,7 +274,7 @@ public void OnLibraryAdded(const char[] name)
 	{
 		g_UsingRankME = true;
 	}
-	if (StrEqual(name, "lvl_ranks"))
+	if (StrEqual(name, "levelranks"))
 	{
 		g_UsingLVLRanks = true;
 	}
@@ -301,7 +301,7 @@ public void OnLibraryRemoved(const char[] name)
 	{
 		g_UsingRankME = false;
 	}
-	if (StrEqual(name, "lvl_ranks"))
+	if (StrEqual(name, "levelranks"))
 	{
 		g_UsingLVLRanks = false;
 	}
