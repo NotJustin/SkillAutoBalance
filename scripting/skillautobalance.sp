@@ -87,7 +87,8 @@ ConVar
 	cvar_PrefixColor,
 	cvar_DisplayChatMessages,
 	cvar_BlockTeamSwitch,
-	cvar_KeepPlayersAlive
+	cvar_KeepPlayersAlive,
+	cvar_EnablePlayerTeamMessage
 ;
 
 float
@@ -128,6 +129,7 @@ public void OnPluginStart()
 	HookEvent("round_end", Event_RoundEnd);
 	HookEvent("round_start", Event_RoundStart);
 	HookEvent("player_connect_full", Event_PlayerConnectFull);
+	HookEvent("player_team", Event_PlayerTeam);
 
 	AddCommandListener(CommandList_JoinTeam, "jointeam");
 
@@ -138,6 +140,7 @@ public void OnPluginStart()
 	cvar_ChatChangeTeam = CreateConVar("sab_chatchangeteam", "0", "Enable joining teams by chat commands '!join, !play, !j, !p, !spectate, !spec, !s (no picking teams)", _, true, 0.0, true, 1.0);
 	cvar_DecayAmount = CreateConVar("sab_decayamount", "1.5", "The amount to subtract from a streak if UseDecay is true. In other words, the ratio of a team's round wins to the opposing team's must be greater than this number in order for a team balance to eventually occur.", _, true, 1.0);
 	cvar_DisplayChatMessages = CreateConVar("sab_displaychatmessages", "1", "Allow plugin to display messages in the chat", _, true, 0.0, true, 1.0);
+	cvar_EnablePlayerTeamMessage = CreateConVar("sab_enableplayerteammessage", "0", "Show the messages in chat when a player switches team?", _, true, 0.0, true, 1.0);
 	cvar_ForceBalance = CreateConVar("sab_forcebalance", "0", "Add 'force balance' to 'server commands' in generic admin menu", _, true, 0.0, true, 1.0);
 	cvar_ForceJoinTeam = CreateConVar("sab_forcejointeam", "0", "0 = Disabled, 1 = Optional (!settings), 2 = Forced. Force clients to join a team upon connecting to the server. Always enabled if both sab_chatchangeteam and sab_teammenu are disabled", _, true, 0.0, true, 2.0);
 	cvar_GraceTime = FindConVar("mp_join_grace_time");
@@ -359,6 +362,15 @@ public void OnMapEnd()
 }
 
 /* Events */
+void Event_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)
+{
+	if (cvar_EnablePlayerTeamMessage.BoolValue)
+	{
+		SetEventBroadcast(event, false);
+		return;
+	}
+	SetEventBroadcast(event, true);
+}
 void Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
 {
 	g_PlayerCount = 0;
