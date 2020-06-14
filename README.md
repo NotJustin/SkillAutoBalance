@@ -94,6 +94,9 @@ sab_decayamount (float | min 1 default 1.5)
 sab_displaychatmessages (boolean | default 1) 
 "Allow plugin to display messages in the chat"
 
+sab_enableplayerteammessage (boolean | default 0)
+"Show the messages in chat when a player switches team"
+
 sab_forcebalance (boolean | default 0)
 "Add 'force balance' to 'server commands' in generic admin menu"
 
