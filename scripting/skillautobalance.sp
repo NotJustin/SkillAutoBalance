@@ -27,7 +27,7 @@ public Plugin myinfo =
 	name = "SkillAutoBalance",
 	author = "Justin (ff)",
 	description = "A configurable automated team manager",
-	version = "3.1.3",
+	version = "3.1.4",
 	url = "https://steamcommunity.com/id/NameNotJustin/"
 }
 
@@ -59,8 +59,7 @@ bool
 char
 	g_MessageColor[4],
 	g_PrefixColor[4],
-	g_Prefix[20],
-	g_Path[PLATFORM_MAX_PATH]
+	g_Prefix[20]
 ;
 
 ConVar
@@ -124,8 +123,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
-	BuildPath(Path_SM, g_Path, sizeof(g_Path), "logs/log_skillautobalance.log");
-
 	InitColorStringMap();
 
 	HookEvent("round_end", Event_RoundEnd);
@@ -999,10 +996,6 @@ void AddOutliers(int sizes[2])
 		client = g_iClient[i];
 		if (g_iClientOutlier[client] && client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
 		{
-			if (g_iClientTeam[client] != team)
-			{
-				LogToFile(g_Path, "%d's team differs", client);
-			}
 			if (g_iClientTeam[client] != teams[nextTeam])
 			{
 				SwapPlayer(client, teams[nextTeam], "Client Skill Balance");
@@ -1037,10 +1030,6 @@ int SortCloseSums(int outliers)
 			{
 				tSum += g_iClientScore[client];
 				++tCount;
-				if (g_iClientTeam[client] != team)
-				{
-					LogToFile(g_Path, "%d's team differs", client);
-				}
 				if (g_iClientTeam[client] == TEAM_CT)
 				{
 					SwapPlayer(client, TEAM_T, "Client Skill Balance");
@@ -1050,10 +1039,6 @@ int SortCloseSums(int outliers)
 			{
 				ctSum += g_iClientScore[client];
 				++ctCount;
-				if (g_iClientTeam[client] != team)
-				{
-					LogToFile(g_Path, "%d's team differs", client);
-				}
 				if (g_iClientTeam[client] == TEAM_T)
 				{
 					SwapPlayer(client, TEAM_CT, "Client Skill Balance");
@@ -1070,10 +1055,6 @@ int SortCloseSums(int outliers)
 			if (tCount < smallTeamSize)
 			{
 				++tCount;
-				if (g_iClientTeam[client] != team)
-				{
-					LogToFile(g_Path, "%d's team differs", client);
-				}
 				if (g_iClientTeam[client] == TEAM_CT)
 				{
 					SwapPlayer(client, TEAM_T, "Client Skill Balance");
@@ -1082,10 +1063,6 @@ int SortCloseSums(int outliers)
 			else if (ctCount < smallTeamSize)
 			{
 				++ctCount;
-				if (g_iClientTeam[client] != team)
-				{
-					LogToFile(g_Path, "%d's team differs", client);
-				}
 				if(g_iClientTeam[client] == TEAM_T)
 				{
 					SwapPlayer(client, TEAM_CT, "Client Skill Balance");
@@ -1112,11 +1089,6 @@ void BalanceSkill()
 	{
 		AddOutliers(sizes);
 	}
-	int tSize = GetTeamClientCount(TEAM_T);
-	int ctSize = GetTeamClientCount(TEAM_CT);
-	LogToFile(g_Path, "---New Balance Below---");
-	LogToFile(g_Path, "Size of Terrorist: %d", tSize);
-	LogToFile(g_Path, "Size of Counter-Terrorist: %d", ctSize);
 }
 
 /* Public Client-Related Functions */
