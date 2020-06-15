@@ -27,6 +27,8 @@
 ### Changelog
 <details>
  <summary>Expand for changelog</summary>
+3.1.5 - <br>
+Add HLStatsX support. Not sure if it works. Other changes in other versions, bugfixes, I'll go through commit history later and update this.
 3.1.1 - <br>
 Bugfixes:<br>
 This time, for sure, the correct amount of players will be swapped now. The bug is, there were duplicate clients being created in my list of clients. They were created after sorting. In my list of clients, there were some extra empty indices with 0's, and those 0's were being replaced with other client indices.<br>
@@ -151,6 +153,7 @@ Third party include files you need in order to compile are:
  * NCIncs directory
  * smrpg.inc
  * smrpg directory
+ * hlstatsx_api
  
 ### Compatible Plugins
 [gameME](https://www.gameme.com/)<br>
@@ -158,6 +161,7 @@ Third party include files you need in order to compile are:
 [LVL Ranks](https://github.com/levelsranks/levels-ranks-core) untested<br>
 [NCRPG](https://github.com/Rabb1tof/NCRPG)
 [SMRPG](https://github.com/peace-maker/smrpg)
+[HLStatsX](https://github.com/NomisCZ/hlstatsx-community-edition)
 
 ### Bugs
 
