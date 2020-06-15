@@ -129,7 +129,9 @@ public void OnPluginStart()
 	HookEvent("round_end", Event_RoundEnd);
 	HookEvent("round_start", Event_RoundStart);
 	HookEvent("player_connect_full", Event_PlayerConnectFull);
-	HookEvent("player_team", Event_PlayerTeam);
+	HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
+	HookEvent("player_connect", Event_PlayerTeam, EventHookMode_Pre);
+	HookEvent("player_disconnect", Event_PlayerTeam, EventHookMode_Pre);
 
 	AddCommandListener(CommandList_JoinTeam, "jointeam");
 
@@ -367,9 +369,11 @@ void Event_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)
 	if (cvar_EnablePlayerTeamMessage.BoolValue)
 	{
 		SetEventBroadcast(event, false);
-		return;
 	}
-	SetEventBroadcast(event, true);
+	else
+	{
+		SetEventBroadcast(event, true);
+	}
 }
 void Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
 {
