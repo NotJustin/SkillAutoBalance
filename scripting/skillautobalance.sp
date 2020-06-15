@@ -9,6 +9,7 @@
 #include <lvl_ranks>
 #include <NCIncs/nc_rpg.inc>
 #include <smrpg>
+#include <hlstatsx_api>
 #pragma newdecls required
 #pragma semicolon 1
 
@@ -21,19 +22,20 @@
 #define TYPE_LVLRanks 5
 #define TYPE_NCRPG 6
 #define TYPE_SMRPG 7
+#define TYPE_HLSTATSX 8
 
 public Plugin myinfo =
 {
 	name = "SkillAutoBalance",
 	author = "Justin (ff)",
 	description = "A configurable automated team manager",
-	version = "3.1.4",
+	version = "3.1.5",
 	url = "https://steamcommunity.com/id/NameNotJustin/"
 }
 
 enum struct PlayerInfo
 {
-	int target;//
+	int target;
 	int targetUserId;
 }
 
@@ -50,6 +52,7 @@ bool
 	g_UsingLVLRanks,
 	g_UsingNCRPG,
 	g_UsingSMRPG,
+	g_UsingHLStatsX,
 	g_SetTeamHooked = false,
 	g_ForceBalanceHooked = false,
 	g_LateLoad = false,
@@ -156,7 +159,7 @@ public void OnPluginStart()
 	cvar_RoundRestartDelay = FindConVar("mp_round_restart_delay");
 	cvar_RoundTime = FindConVar("mp_roundtime");
 	cvar_Scale = CreateConVar("sab_scale", "1.5", "Value to multiply IQR by. If your points have low spread keep this number. If your points have high spread change this to a lower number, like 0.5", _, true, 0.1);
-	cvar_ScoreType = CreateConVar("sab_scoretype", "0", "Formula used to determine player 'skill'. 0 = K/D, 1 = K/D + K/10 - D/20, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks, 6 = NCRPG, 7 = SMRPG", _, true, 0.0, true, 7.0);
+	cvar_ScoreType = CreateConVar("sab_scoretype", "0", "Formula used to determine player 'skill'. 0 = K/D, 1 = K/D + K/10 - D/20, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks, 6 = NCRPG, 7 = SMRPG, 8 = HLStatsX", _, true, 0.0, true, 8.0);
 	cvar_Scramble = CreateConVar("sab_scramble", "0", "Randomize teams instead of using a skill formula", _, true, 0.0, true, 1.0);
 	cvar_SetTeam = CreateConVar("sab_setteam", "0", "Add 'set player team' to 'player commands' in generic admin menu", _, true, 0.0, true, 1.0);
 	cvar_TeamMenu = CreateConVar("sab_teammenu", "1", "Whether to enable or disable the join team menu.", _, true, 0.0, true, 1.0);
@@ -291,6 +294,10 @@ public void OnLibraryAdded(const char[] name)
 	{
 		g_UsingSMRPG = true;
 	}
+	if (StrEqual(name, "hlstatsx_api"))
+	{
+		g_UsingHLStatsX = true;
+	}
 }
 public void OnLibraryRemoved(const char[] name)
 {
@@ -317,6 +324,10 @@ public void OnLibraryRemoved(const char[] name)
 	if (StrEqual(name, "smrpg"))
 	{
 		g_UsingSMRPG = false;
+	}
+	if (StrEqual(name, "hlstatsx_api"))
+	{
+		g_UsingHLStatsX = false;
 	}
 }
 void InitColorStringMap()
@@ -593,7 +604,7 @@ Action Timer_CheckScore(Handle timer, int userId)
 	int client = GetClientOfUserId(userId);
 	if (client != 0 && IsClientInGame(client))
 	{
-		if (g_iClientScore[client] == -1)
+		if (g_iClientScore[client] == -1.0)
 		{
 			g_iClientScore[client] = g_LastAverageScore;
 		}
@@ -772,6 +783,18 @@ void GetScore(int client)
 		{
 			g_iClientScore[client] = float(SMRPG_GetClientLevel(client));
 			CreateTimer(0.1, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+		}
+	}
+	if (scoreType == TYPE_HLSTATSX)
+	{
+		if (g_UsingHLStatsX)
+		{
+			HLStatsX_Api_GetStats("playerinfo", client, HLStatsXStatsCallback, 0);
+			CreateTimer(0.1, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+		}
+		else
+		{
+			LogError("HLStatsX not found. Use other score type");
 		}
 	}
 	else
@@ -1142,6 +1165,16 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 }
 
 /* Other Plugin Callbacks */
+void HLStatsXStatsCallback(int command, int payload, int client, DataPack &datapack)
+{
+	if (client && IsClientInGame(client) && !IsFakeClient(client))
+	{
+		DataPack pack = view_as<DataPack>(CloneHandle(datapack));
+		pack.ReadCell(); // Skipping client rank. Skill is in the next cell
+		g_iClientScore[client] = float(pack.ReadCell());
+	}
+	delete datapack;
+}
 Action GameMEStatsCallback(int command, int payload, int client, Handle datapack)
 {
 	int argument_count = GetCmdArgs();
