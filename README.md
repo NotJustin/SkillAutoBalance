@@ -160,8 +160,8 @@ Third party include files you need in order to compile are:
 [RankMe Kento Edition](https://forums.alliedmods.net/showthread.php?t=290063) untested<br>
 [LVL Ranks](https://github.com/levelsranks/levels-ranks-core) untested<br>
 [NCRPG](https://github.com/Rabb1tof/NCRPG)<br>
-[SMRPG](https://github.com/peace-maker/smrpg)<br>
-[HLStatsX](https://github.com/NomisCZ/hlstatsx-community-edition)
+[SMRPG](https://github.com/peace-maker/smrpg)<br> untested
+[HLStatsX](https://github.com/NomisCZ/hlstatsx-community-edition) untested
 
 ### Bugs
 
