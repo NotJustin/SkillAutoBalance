@@ -29,7 +29,7 @@ public Plugin myinfo =
 	name = "SkillAutoBalance",
 	author = "Justin (ff)",
 	description = "A configurable automated team manager",
-	version = "3.1.6",
+	version = "3.1.7",
 	url = "https://steamcommunity.com/id/NameNotJustin/"
 }
 
@@ -604,7 +604,7 @@ Action Timer_UnpacifyPlayer(Handle timer, int userID)
 Action Timer_CheckScore(Handle timer, int userId)
 {
 	int client = GetClientOfUserId(userId);
-	if (client && IsClientInGame(client))
+	if (client && IsClientInGame(client) && !IsClientSourceTV(client))
 	{
 		if (g_iClientScore[client] == -1.0)
 		{
@@ -616,6 +616,7 @@ Action Timer_CheckScore(Handle timer, int userId)
 			if (g_PlayerCount == GetClientCount())
 			{
 				BalanceSkill();
+				g_PlayerCount = 0;
 			}
 		}
 	}
