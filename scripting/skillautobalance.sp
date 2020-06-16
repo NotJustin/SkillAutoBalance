@@ -29,7 +29,7 @@ public Plugin myinfo =
 	name = "SkillAutoBalance",
 	author = "Justin (ff)",
 	description = "A configurable automated team manager",
-	version = "3.1.5",
+	version = "3.1.6",
 	url = "https://steamcommunity.com/id/NameNotJustin/"
 }
 
@@ -91,7 +91,8 @@ ConVar
 	cvar_DisplayChatMessages,
 	cvar_BlockTeamSwitch,
 	cvar_KeepPlayersAlive,
-	cvar_EnablePlayerTeamMessage
+	cvar_EnablePlayerTeamMessage,
+	cvar_BotsArePlayers
 ;
 
 float
@@ -142,6 +143,7 @@ public void OnPluginStart()
 	cvar_BalanceAfterNPlayersChange = CreateConVar("sab_balanceafternplayerschange", "0", "0 = Disabled. Otherwise, balance  teams when 'N' players join/leave the server. Requires sab_balanceafternrounds to be enabled", _, true, 0.0);
 	cvar_BalanceEveryRound = CreateConVar("sab_balanceeveryround", "0", "If enabled, teams will be rebalanced at the end of every round", _, true, 0.0, true, 1.0);
 	cvar_BlockTeamSwitch = CreateConVar("sab_blockteamswitch", "0", "0 = Don't block. 1 = Block, can join spectate, must rejoin same team. 2 = Block completely (also disables teammenu and chatchangeteam commands like !join !spec)", _, true, 0.0, true, 2.0);
+	cvar_BotsArePlayers = CreateConVar("sab_botsareplayers", "0", "When teams are being balanced, 1 = Bots are players (bots have points/KDR), 0 = Bots are outliers (bots do not have points/KDR)", _, true, 0.0, true, 1.0);
 	cvar_ChatChangeTeam = CreateConVar("sab_chatchangeteam", "0", "Enable joining teams by chat commands '!join, !play, !j, !p, !spectate, !spec, !s (no picking teams)", _, true, 0.0, true, 1.0);
 	cvar_DecayAmount = CreateConVar("sab_decayamount", "1.5", "The amount to subtract from a streak if UseDecay is true. In other words, the ratio of a team's round wins to the opposing team's must be greater than this number in order for a team balance to eventually occur.", _, true, 1.0);
 	cvar_DisplayChatMessages = CreateConVar("sab_displaychatmessages", "1", "Allow plugin to display messages in the chat", _, true, 0.0, true, 1.0);
@@ -437,7 +439,7 @@ void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 {
 	int userId = event.GetInt("userid");
 	int client = GetClientOfUserId(userId);
-	if (client == 0 || !IsClientInGame(client) || IsFakeClient(client))
+	if (!client|| !IsClientInGame(client))
 	{
 		return;
 	}
@@ -471,7 +473,7 @@ void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 Action Command_Join(int client, int args)
 {
 	int team;
-	if (cvar_ChatChangeTeam.BoolValue && (cvar_BlockTeamSwitch.IntValue != 2) && client != 0 && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_T && team != TEAM_CT)
+	if (cvar_ChatChangeTeam.BoolValue && (cvar_BlockTeamSwitch.IntValue != 2) && client && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_T && team != TEAM_CT)
 	{
 		if (g_iClientTeam[client] == TEAM_SPEC || g_iClientTeam[client] == UNASSIGNED)
 		{
@@ -495,7 +497,7 @@ Action Command_Join(int client, int args)
 Action Command_Spectate(int client, int args)
 {
 	int team;
-	if (cvar_ChatChangeTeam.BoolValue && (cvar_BlockTeamSwitch.IntValue != 2) && client != 0 && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
+	if (cvar_ChatChangeTeam.BoolValue && (cvar_BlockTeamSwitch.IntValue != 2) && client && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
 	{
 		if (IsPlayerAlive(client))
 		{
@@ -508,7 +510,7 @@ Action Command_Spectate(int client, int args)
 Action Command_Balance(int client, int args)
 {
 	g_ForceBalance = true;
-	if (client == 0)
+	if (!client)
 	{
 		PrefixPrintToServer("Admin Force Balance");
 	}
@@ -522,7 +524,7 @@ Action Command_SetTeam(int client, int args)
 {
 	if (args < 2)
 	{
-		if (client == 0)
+		if (!client)
 		{
 			PrefixPrintToServer("Incorrect SetTeam Usage");
 		}
@@ -537,7 +539,7 @@ Action Command_SetTeam(int client, int args)
 	int client1 = FindTarget(client, buff);
 	if (client1 == -1)
 	{
-		if (client == 0)
+		if (!client)
 		{
 			PrefixPrintToServer("Client Not Found");
 		}
@@ -562,7 +564,7 @@ Action Command_SetTeam(int client, int args)
 		{
 			SwapPlayer(client1, TEAM_SPEC, "Admin Join");
 		}
-		if (client == 0)
+		if (!client)
 		{
 			PrefixPrintToServer("Admin Client Swapped");
 		}
@@ -578,7 +580,7 @@ Action Command_SetTeam(int client, int args)
 void DelayTeamUpdate(int userId)
 {
 	int client = GetClientOfUserId(userId);
-	if (client != 0 && IsClientInGame(client))
+	if (client && IsClientInGame(client))
 	{
 		g_iClientTeam[client] = GetClientTeam(client);
 	}
@@ -592,7 +594,7 @@ Action Timer_UnpacifyPlayer(Handle timer, int userID)
 {
 	int client = GetClientOfUserId(userID);
 	g_iClientFrozen[client] = false;
-	if(client != 0 && IsClientInGame(client) && !IsFakeClient(client))
+	if(client && IsClientInGame(client))
 	{
 		SetEntityRenderColor(client, 255, 255, 255, 255);
 		SetEntProp(client, Prop_Data, "m_takedamage", 2, 1);
@@ -602,7 +604,7 @@ Action Timer_UnpacifyPlayer(Handle timer, int userID)
 Action Timer_CheckScore(Handle timer, int userId)
 {
 	int client = GetClientOfUserId(userId);
-	if (client != 0 && IsClientInGame(client))
+	if (client && IsClientInGame(client))
 	{
 		if (g_iClientScore[client] == -1.0)
 		{
@@ -611,7 +613,7 @@ Action Timer_CheckScore(Handle timer, int userId)
 		if (g_Balancing)
 		{
 			++g_PlayerCount;
-			if (g_PlayerCount == GetClientCountNoBots())
+			if (g_PlayerCount == GetClientCount())
 			{
 				BalanceSkill();
 			}
@@ -630,18 +632,6 @@ bool AreTeamsEmpty()
 }
 
 /* Internal Client-Related Functions */
-int GetClientCountNoBots()
-{
-	int amount = 0;
-	for (int client = 1; client <= MaxClients; ++client)
-	{
-		if (IsClientInGame(client) && !IsFakeClient(client))
-		{
-			++amount;
-		}
-	}
-	return amount;
-}
 bool CanJoin(int client, int team, bool printMessage)
 {
 	int count[2];
@@ -719,7 +709,7 @@ void UpdateScores()
 	for (int i = 0; i < sizeof(g_iClient); ++i)
 	{
 		client = g_iClient[i];
-		if (client != 0 && IsClientInGame(client))
+		if (client && IsClientInGame(client))
 		{
 			GetScore(client);
 		}
@@ -818,7 +808,7 @@ void GetScore(int client)
 		if (g_Balancing)
 		{
 			++g_PlayerCount;
-			if (g_PlayerCount == GetClientCountNoBots())
+			if (g_PlayerCount == GetClientCount())
 			{
 				BalanceSkill();
 				g_PlayerCount = 0;
@@ -863,7 +853,7 @@ void BalanceTeamCount()
 	while(i < sizeof(g_iClient) && (GetTeamClientCount(teams[bigIndex]) - GetTeamClientCount(teams[smallIndex]) > 1))
 	{
 		client = g_iClient[i];
-		if (client != 0 && IsClientInGame(client) && GetClientTeam(client) == teams[bigIndex])
+		if (client && IsClientInGame(client) && GetClientTeam(client) == teams[bigIndex])
 		{
 			SwapPlayer(client, teams[smallIndex], "Team Count Balance");
 		}
@@ -904,6 +894,33 @@ bool BalanceSkillNeeded()
 }
 int Sort_Scores(int client1, int client2, const int[] array, Handle hndl)
 {
+	if (IsClientInGame(client1) && !IsClientInGame(client2))
+	{
+		return -1;
+	}
+	else if (!IsClientInGame(client1) && IsClientInGame(client2))
+	{
+		return 1;
+	}
+	else if (!IsClientInGame(client1) && !IsClientInGame(client2))
+	{
+		return 0;
+	}
+	if (!cvar_BotsArePlayers.BoolValue)
+	{
+		if (!IsFakeClient(client1) && IsFakeClient(client2))
+		{
+			return -1;
+		}
+		else if (IsFakeClient(client1) && !IsFakeClient(client2))
+		{
+			return 1;
+		}
+		else if (IsFakeClient(client1) && IsFakeClient(client2))
+		{
+			return 0;
+		}
+	}
 	float client1Score = g_iClientScore[client1];
 	float client2Score = g_iClientScore[client2];
 	if(client1Score == client2Score)
@@ -914,7 +931,7 @@ int Sort_Scores(int client1, int client2, const int[] array, Handle hndl)
 }
 float GetAverageScore()
 {
-	int count = GetClientCountNoBots();
+	int count = GetClientCount();
 	float sum = 0.0;
 	int client;
 	for (int i = 0; i < count; ++i)
@@ -933,7 +950,7 @@ void ScrambleTeams()
 	for (int i = 0; i < sizeof(g_iClient); ++i)
 	{
 		client = g_iClient[i];
-		if (client == 0 || !IsClientInGame(client) || IsFakeClient(client) || (team = GetClientTeam(client)) == TEAM_SPEC || team == UNASSIGNED)
+		if (!client || !IsClientInGame(client) || (team = GetClientTeam(client)) == TEAM_SPEC || team == UNASSIGNED)
 		{
 			continue;
 		}
@@ -1017,10 +1034,18 @@ int RemoveOutliers()
 	for (int i = 0; i < sizeof(g_iClient); ++i)
 	{
 		client = g_iClient[i];
-		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (g_iClientScore[client] > upperBound || g_iClientScore[client] < lowerBound) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
+		if (client && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
 		{
-			g_iClientOutlier[client] = true;
-			outliers++;
+			if (IsFakeClient(client) && !cvar_BotsArePlayers.BoolValue)
+			{
+				g_iClientOutlier[client] = true;
+				outliers++;
+			}
+			else if (g_iClientScore[client] > upperBound || g_iClientScore[client] < lowerBound)
+			{
+				g_iClientOutlier[client] = true;
+				outliers++;
+			}
 		}
 	}
 	return outliers;
@@ -1033,7 +1058,7 @@ void AddOutliers(int sizes[2])
 	for (int i = 0; i < sizeof(g_iClient); ++i)
 	{
 		client = g_iClient[i];
-		if (g_iClientOutlier[client] && client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
+		if (client && g_iClientOutlier[client] && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
 		{
 			if (g_iClientTeam[client] != teams[nextTeam])
 			{
@@ -1063,7 +1088,7 @@ int SortCloseSums(int outliers)
 	while(tCount < bigTeamSize && ctCount < bigTeamSize)
 	{
 		client = g_iClient[i];
-		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_iClientOutlier[client])
+		if (client && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_iClientOutlier[client])
 		{
 			if (tSum < ctSum)
 			{
@@ -1089,7 +1114,7 @@ int SortCloseSums(int outliers)
 	while(i < sizeof(g_iClient))
 	{
 		client = g_iClient[i];
-		if (client != 0 && IsClientInGame(client) && !IsFakeClient(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_iClientOutlier[client])
+		if (client && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_iClientOutlier[client])
 		{
 			if (tCount < smallTeamSize)
 			{
@@ -1167,7 +1192,7 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 /* Other Plugin Callbacks */
 void HLStatsXStatsCallback(int command, int payload, int client, DataPack &datapack)
 {
-	if (client && IsClientInGame(client) && !IsFakeClient(client))
+	if (client && IsClientInGame(client))
 	{
 		DataPack pack = view_as<DataPack>(CloneHandle(datapack));
 		pack.ReadCell(); // Skipping client rank. Skill is in the next cell
@@ -1254,7 +1279,7 @@ void Cookie_ForceSpawnPreference(int client, CookieMenuAction action, any info, 
 }
 void ShowForceJoinMenu(int client)
 {
-	if (client == 0 || !IsClientInGame(client) || IsFakeClient(client))
+	if (!client || !IsClientInGame(client) || IsFakeClient(client))
 	{
 		return;
 	}
@@ -1297,7 +1322,7 @@ int MenuHandler_ForceJoin(Menu menu, MenuAction action, int client, int option)
 		}
 	}
 	// Adding a bunch of checks because I have no fucking clue why I'm getting client index 0 is invalid here. Earlier, I return when client index is 0, so why is it changing to 0?
-	if (client != 0 && IsClientInGame(client) && IsFakeClient(client))
+	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
 		char sCookieValue[12];
 		IntToString(g_iClientForceJoinPreference[client], sCookieValue, sizeof(sCookieValue));
@@ -1416,7 +1441,7 @@ void PrepareSetTeam(int client, int target, const char[] team)
 	int originalTarget = GetClientOfUserId(playerinfo[client].targetUserId);
 	if (originalTarget != target)
 	{
-		if (client == 0)
+		if (!client)
 		{
 			PrefixPrintToServer("Client Not Found");
 		}
