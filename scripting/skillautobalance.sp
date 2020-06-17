@@ -29,7 +29,7 @@ public Plugin myinfo =
 	name = "SkillAutoBalance",
 	author = "Justin (ff)",
 	description = "A configurable automated team manager",
-	version = "3.1.7",
+	version = "3.1.8",
 	url = "https://steamcommunity.com/id/NameNotJustin/"
 }
 
@@ -613,7 +613,7 @@ Action Timer_CheckScore(Handle timer, int userId)
 		if (g_Balancing)
 		{
 			++g_PlayerCount;
-			if (g_PlayerCount == GetClientCount())
+			if (g_PlayerCount == GetClientCountMinusSourceTV())
 			{
 				BalanceSkill();
 				g_PlayerCount = 0;
@@ -776,7 +776,7 @@ void GetScore(int client)
 			CreateTimer(0.1, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
-	if (scoreType == TYPE_HLSTATSX)
+	else if (scoreType == TYPE_HLSTATSX)
 	{
 		if (g_UsingHLStatsX)
 		{
@@ -809,7 +809,7 @@ void GetScore(int client)
 		if (g_Balancing)
 		{
 			++g_PlayerCount;
-			if (g_PlayerCount == GetClientCount())
+			if (g_PlayerCount == GetClientCountMinusSourceTV())
 			{
 				BalanceSkill();
 				g_PlayerCount = 0;
@@ -930,9 +930,20 @@ int Sort_Scores(int client1, int client2, const int[] array, Handle hndl)
 	}
 	return client1Score > client2Score ? -1 : 1;
 }
+
+int GetClientCountMinusSourceTV()
+{
+	int count = GetClientCount(true);
+	if (IsClientInGame(1) && IsClientSourceTV(1))
+	{
+		--count;
+	}
+	return count;
+}
+
 float GetAverageScore()
 {
-	int count = GetClientCount();
+	int count = GetClientCountMinusSourceTV();
 	float sum = 0.0;
 	int client;
 	for (int i = 0; i < count; ++i)
