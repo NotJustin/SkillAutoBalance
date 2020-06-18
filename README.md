@@ -157,7 +157,7 @@ Third party include files you need in order to compile are:
  
 ### Compatible Plugins
 [gameME](https://www.gameme.com/)<br>
-[RankMe Kento Edition](https://forums.alliedmods.net/showthread.php?t=290063) untested<br>
+[RankMe Kento Edition](https://github.com/rogeraabbccdd/Kento-Rankme) untested<br>
 [LVL Ranks](https://github.com/levelsranks/levels-ranks-core) untested<br>
 [NCRPG](https://github.com/Rabb1tof/NCRPG)<br>
 [SMRPG](https://github.com/peace-maker/smrpg)<br> untested
