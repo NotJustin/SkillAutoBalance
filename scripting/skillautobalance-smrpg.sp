@@ -74,3 +74,7 @@ void GetScore(int client)
 		LogError("SMRPG not found. Must have smrpg plugin running to use this version.");
 	}
 }
+public void SMRPG_OnClientLoaded(int client)
+{
+	GetScore(client);
+}

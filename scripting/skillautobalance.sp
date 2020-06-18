@@ -35,8 +35,6 @@ bool g_UsingAdminmenu;
 #include "SkillAutoBalance/menus.sp"
 #include "SkillAutoBalance/timers.sp"
 
-/* Plugin-Related Functions */
-
 public void OnLibraryAdded(const char[] name)
 {
 	if (StrEqual(name, "adminmenu"))
@@ -53,31 +51,15 @@ public void OnLibraryRemoved(const char[] name)
 }
 void GetScore(int client)
 {
-	g_iClientScore[client] = -1.0;
-	int scoreType = cvar_ScoreType.IntValue;
 	float kills, deaths;
+	g_iClientScore[client] = -1.0;
 	kills = float(GetClientFrags(client));
 	deaths = float(GetClientDeaths(client));
 	deaths = deaths < 1.0 ? 1.0 : deaths;
-	if(scoreType == 0)
+	g_iClientScore[client] = kills / deaths;
+	if (kills <= 10)
 	{
-		g_iClientScore[client] = kills / deaths;
+		g_iClientScore[client] = g_iClientScore[client] / 2.0;
 	}
-	else if(scoreType == 1)
-	{
-		g_iClientScore[client] = kills / deaths + kills / 10.0 - deaths / 20.0;
-	}
-	else if(scoreType == 2)
-	{
-		g_iClientScore[client] = kills * kills / deaths;
-	}
-	if (g_Balancing)
-	{
-		++g_PlayerCount;
-		if (g_PlayerCount == GetClientCountMinusSourceTV())
-		{
-			BalanceSkill();
-			g_PlayerCount = 0;
-		}
-	}
+	CreateTimer(0.1, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }

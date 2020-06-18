@@ -35,7 +35,6 @@ ConVar
 	cvar_RoundRestartDelay,
 	cvar_RoundTime,
 	cvar_GraceTime,
-	cvar_ScoreType,
 	cvar_TeamMenu,
 	cvar_UseDecay,
 	cvar_DecayAmount,

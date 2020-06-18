@@ -48,6 +48,7 @@ public void OnLibraryAdded(const char[] name)
 	if (StrEqual(name, "levelranks"))
 	{
 		g_UsingLVLRanks = true;
+		LR_Hook(LR_OnPlayerLoaded, LR_GetScore);
 	}
 }
 public void OnLibraryRemoved(const char[] name)
@@ -73,4 +74,9 @@ void GetScore(int client)
 	{
 		LogError("Level Ranks not found. Must have levelranks plugin running to use this version.");
 	}
+}
+
+public void LR_GetScore(int iClient, int iAccountID)
+{
+	GetScore(iClient);
 }

@@ -74,3 +74,7 @@ void GetScore(int client)
 		LogError("kento_rankme not found. Must have kento_rankme plugin running to use this version.");
 	}
 }
+public Action RankMe_OnPlayerLoaded(int client)
+{
+	GetScore(client);
+}

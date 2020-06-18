@@ -74,6 +74,10 @@ void GetScore(int client)
 		LogError("NCRPG not found. Must have NCRPG plugin running to use this version.");
 	}
 }
+public int NCRPG_OnClientLoaded(int client, int count)
+{
+	GetScore(client);
+}
 float NCRPG_GetSkillSum(int client)
 {
 	float score = 0.0;
