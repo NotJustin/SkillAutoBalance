@@ -69,7 +69,8 @@ You can see old changelog(s) at the alliedmodders thread.
 </details>
 
 ### Installation
-Put the skillautobalance you want to use into your plugins directory.
+Put the skillautobalance you want to use into your plugins directory. You only need one.
+Pick skillautobalance if you do not use any of the other plugins, or if you do not want to balance with those versions.
 Put skillautobalance.phrases.txt into your translations directory.
 If you want to compile it yourself, just pick the one you need from scripting. You should not need to take any of the include files if you already have the other plugin installed (eg: if you have rankme installed you should already have all of the kento_rankme includes).
 
