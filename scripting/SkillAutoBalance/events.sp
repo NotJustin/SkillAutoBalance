@@ -97,5 +97,4 @@ void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 	{
 		g_iClientForceJoin[client] = false;
 	}
-	GetScore(client);
 }

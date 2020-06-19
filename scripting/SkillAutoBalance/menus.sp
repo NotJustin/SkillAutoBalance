@@ -50,7 +50,7 @@ void ShowForceJoinMenu(int client)
 	}
 	menu.Display(client, MENU_TIME_FOREVER);
 }
-int MenuHandler_ForceJoin(Menu menu, MenuAction action, int client, int option)
+int MenuHandler_ForceJoin(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_End)
 	{
@@ -59,23 +59,18 @@ int MenuHandler_ForceJoin(Menu menu, MenuAction action, int client, int option)
 	else if (action == MenuAction_Select)
 	{
 		char menuItem[32];
-		menu.GetItem(option, menuItem, sizeof(menuItem));
+		menu.GetItem(param2, menuItem, sizeof(menuItem));
 		if (StringToInt(menuItem) == 0)
 		{
-			g_iClientForceJoinPreference[client] = 0;
+			g_iClientForceJoinPreference[param1] = 0;
 		}
 		else if (StringToInt(menuItem) == 1)
 		{
-			g_iClientForceJoinPreference[client] = 1;
+			g_iClientForceJoinPreference[param1] = 1;
 		}
-	}
-	// Adding a bunch of checks because I have no fucking clue why I'm getting client index 0 is invalid here. Earlier, I return when client index is 0, so why is it changing to 0?
-	if (client && IsClientInGame(client) && !IsFakeClient(client))
-	{
 		char sCookieValue[12];
-		IntToString(g_iClientForceJoinPreference[client], sCookieValue, sizeof(sCookieValue));
-		SetClientCookie(client, g_hForceSpawn, sCookieValue);
-		return;
+		IntToString(g_iClientForceJoinPreference[param1], sCookieValue, sizeof(sCookieValue));
+		SetClientCookie(param1, g_hForceSpawn, sCookieValue);
 	}
 }
 void OnAdminMenuReady(Handle aTopMenu)

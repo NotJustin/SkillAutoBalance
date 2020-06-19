@@ -69,9 +69,10 @@ You can see old changelog(s) at the alliedmodders thread.
 </details>
 
 ### Installation
-Extract this repository into your ./csgo/addons/sourcemod/ directory.
-Compile it.
-Put the compiled plugin in your plugins directory.
+Put the skillautobalance you want to use into your plugins directory. You only need one.<br>
+Pick skillautobalance if you do not use any of the other plugins, or if you do not want to balance with those versions.<br>
+Put skillautobalance.phrases.txt into your translations directory.<br>
+If you want to compile it yourself, just pick the one you need from scripting. You should not need to take any of the include files if you already have the other plugin installed (eg: if you have rankme installed you should already have all of the kento_rankme includes).
 
 ### ConVars
 ```
@@ -146,14 +147,7 @@ sab_usedecay (boolean | default 1)
 ```
 
 ### Dependencies
-Third party include files you need in order to compile are:
- * gameme.inc
- * kento_rankme/rankme.inc
- * lvl_ranks.inc
- * NCIncs directory
- * smrpg.inc
- * smrpg directory
- * hlstatsx_api
+Third party include files you need in order to compile depend on what version you are using. See Installation section.
  
 ### Compatible Plugins
 [gameME](https://www.gameme.com/)<br>
