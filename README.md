@@ -27,6 +27,8 @@
 ### Changelog
 <details>
  <summary>Expand for changelog</summary>
+3.2.0 - <br>
+Split the plugin into different versions and removed sab_scoretype. See Installation section.
 3.1.5 - <br>
 Add HLStatsX support. Not sure if it works. Other changes in other versions, bugfixes, I'll go through commit history later and update this.
 3.1.1 - <br>
@@ -129,9 +131,6 @@ sab_prefixcolor (string | default white)
 
 sab_scale (float | min 0.1 default 1.5)
 "Value to multiply IQR by. If your points have low spread keep this number. If your points have high spread change this to a lower number, like 0.5"
-
-sab_scoretype (int | min 0 max 6 default 0)
-"Formula used to determine player 'skill'. 0 = K/D, 1 = K/D + K/10 - D/20, 2 = K^2/D, 3 = gameME rank, 4 = RankME, 5 = LVL Ranks, 6 = NCRPG"
 
 sab_scramble (boolean | default 0)
 "Randomize teams instead of using a skill formula"
