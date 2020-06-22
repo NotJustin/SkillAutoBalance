@@ -15,7 +15,7 @@ public Plugin myinfo =
 	name = "SkillAutoBalance",
 	author = "Justin (ff)",
 	description = "A configurable automated team manager",
-	version = "3.2.0",
+	version = "3.2.1",
 	url = "https://steamcommunity.com/id/NameNotJustin/"
 }
 
