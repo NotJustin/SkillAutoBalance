@@ -27,10 +27,15 @@
 ### Changelog
 <details>
  <summary>Expand for changelog</summary>
+3.2.1 - <br>
+Fixed "sab_forcejointeam 1", which did not function properly.<br>
+<br>
 3.2.0 - <br>
-Split the plugin into different versions and removed sab_scoretype. See Installation section.
+Split the plugin into different versions and removed sab_scoretype. See Installation section.<br>
+<br>
 3.1.5 - <br>
-Add HLStatsX support. Not sure if it works. Other changes in other versions, bugfixes, I'll go through commit history later and update this.
+Add HLStatsX support. Not sure if it works. Other changes in other versions, bugfixes, I'll go through commit history later and update this.<br>
+<br>
 3.1.1 - <br>
 Bugfixes:<br>
 This time, for sure, the correct amount of players will be swapped now. The bug is, there were duplicate clients being created in my list of clients. They were created after sorting. In my list of clients, there were some extra empty indices with 0's, and those 0's were being replaced with other client indices.<br>
