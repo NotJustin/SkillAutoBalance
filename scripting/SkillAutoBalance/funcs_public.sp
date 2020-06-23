@@ -11,6 +11,10 @@ public void OnClientCookiesCached(int client)
 	{
 		g_iClientForceJoinPreference[client] = StringToInt(buffer);
 	}
+	else
+	{
+		g_iClientForceJoinPreference[client] = 0;
+	}
 }
 public void OnClientDisconnect(int client)
 {
@@ -18,6 +22,7 @@ public void OnClientDisconnect(int client)
 	g_iClientScore[client] = -1.0;
 	g_iClientFrozen[client] = false;
 	g_iClientOutlier[client] = false;
+	g_iClientForceJoinPreference[client] = 0;
 	++g_PlayerCountChange;
 	if (!AreTeamsEmpty())
 	{

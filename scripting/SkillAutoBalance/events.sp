@@ -74,6 +74,10 @@ void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 	{
 		return;
 	}
+	if (AreClientCookiesCached(client))
+	{
+		OnClientCookiesCached(client);
+	}
 	g_iClientTeam[client] = TEAM_SPEC;
 	g_iClientScore[client] = -1.0;
 	g_iClientFrozen[client] = false;
@@ -95,6 +99,7 @@ void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 	}
 	else
 	{
+		ClientCommand(client, "spectate");
 		g_iClientForceJoin[client] = false;
 	}
 }

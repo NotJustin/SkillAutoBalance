@@ -34,14 +34,14 @@ void ShowForceJoinMenu(int client)
 	Menu menu = new Menu(MenuHandler_ForceJoin);
 	char option1[100];
 	char option2[100];
-	if (g_iClientForceJoinPreference[client] == 0)
+	if (g_iClientForceJoinPreference[client] == 1)
 	{
 		Format(option1, sizeof(option1), "%t", "Auto-Join T/CT [ENABLED]");
 		Format(option2, sizeof(option2), "%t", "Auto-Join Spectator");
 		menu.AddItem("0", option1);
 		menu.AddItem("1", option2);
 	}
-	else if (g_iClientForceJoinPreference[client] == 1)
+	else if (g_iClientForceJoinPreference[client] == 0)
 	{
 		Format(option1, sizeof(option1), "%t", "Auto-Join T/CT");
 		Format(option2, sizeof(option2), "%t", "Auto-Join Spectator [ENABLED]");
@@ -60,13 +60,13 @@ int MenuHandler_ForceJoin(Menu menu, MenuAction action, int param1, int param2)
 	{
 		char menuItem[32];
 		menu.GetItem(param2, menuItem, sizeof(menuItem));
-		if (StringToInt(menuItem) == 0)
-		{
-			g_iClientForceJoinPreference[param1] = 0;
-		}
-		else if (StringToInt(menuItem) == 1)
+		if (!StringToInt(menuItem))
 		{
 			g_iClientForceJoinPreference[param1] = 1;
+		}
+		else
+		{
+			g_iClientForceJoinPreference[param1] = 0;
 		}
 		char sCookieValue[12];
 		IntToString(g_iClientForceJoinPreference[param1], sCookieValue, sizeof(sCookieValue));
