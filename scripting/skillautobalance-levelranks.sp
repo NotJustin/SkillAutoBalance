@@ -78,5 +78,5 @@ void GetScore(int client)
 
 public void LR_GetScore(int iClient, int iAccountID)
 {
-	GetScore(iClient);
+	//GetScore(iClient);
 }

@@ -76,5 +76,5 @@ void GetScore(int client)
 }
 public void SMRPG_OnClientLoaded(int client)
 {
-	GetScore(client);
+	//GetScore(client);
 }

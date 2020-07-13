@@ -76,5 +76,5 @@ void GetScore(int client)
 }
 public Action RankMe_OnPlayerLoaded(int client)
 {
-	GetScore(client);
+	//GetScore(client);
 }

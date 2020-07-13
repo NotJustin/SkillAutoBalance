@@ -76,7 +76,7 @@ void GetScore(int client)
 }
 public int NCRPG_OnClientLoaded(int client, int count)
 {
-	GetScore(client);
+	//GetScore(client);
 }
 float NCRPG_GetSkillSum(int client)
 {
