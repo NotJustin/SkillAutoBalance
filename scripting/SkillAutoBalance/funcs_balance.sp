@@ -69,12 +69,31 @@ float GetAverageScore()
 	int count = GetClientCountMinusSourceTV();
 	float sum = 0.0;
 	int client;
-	for (int i = 0; i < count; ++i)
+	int missingScores = 0;
+	int i = 0;
+	int counted = 0;
+	while(counted < count)
 	{
 		client = g_iClient[i];
-		sum += g_iClientScore[client];
+		if (IsClientInGame(client) && !IsClientSourceTV(client))
+		{
+			++counted;
+			if (g_iClientScore[client] != -1.0)
+			{
+				sum += g_iClientScore[client];
+			}
+			else
+			{
+				++missingScores;
+			}
+		}
+		++i;
+		if (i > MaxClients)
+		{
+			break;
+		}
 	}
-	return sum / count;
+	return sum / (count - missingScores);
 }
 int RemoveOutliers()
 {
@@ -316,9 +335,25 @@ void UpdateScores()
 	for (int i = 0; i < sizeof(g_iClient); ++i)
 	{
 		client = g_iClient[i];
-		if (client && IsClientInGame(client))
+		if (client && IsClientInGame(client) && !IsClientSourceTV(client))
 		{
 			GetScore(client);
+		}
+	}
+}
+void FixMissingScores()
+{
+	g_LastAverageScore = GetAverageScore();
+	for (int i = 0; i < sizeof(g_iClient); ++i)
+	{
+		int client = g_iClient[i];
+		if (client && IsClientInGame(client) && !IsClientSourceTV(client))
+		{
+			if (g_iClientScore[client] == -1.0)
+			{
+				g_iClientScoreUpdated[client] = true;
+				g_iClientScore[client] = g_LastAverageScore;
+			}
 		}
 	}
 }

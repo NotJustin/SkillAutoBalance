@@ -117,7 +117,7 @@ Action Command_SetTeam(int client, int args)
 /* Command Listeners */
 Action CommandList_JoinTeam(int client, const char[] command, int argc)
 {
-	if (cvar_BlockTeamSwitch.IntValue == 0)
+	if (cvar_BlockTeamSwitch.IntValue == 0 || (GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT)) < cvar_MinPlayers.IntValue)
 	{
 		RequestFrame(DelayTeamUpdate, GetClientUserId(client));
 		return Plugin_Continue;

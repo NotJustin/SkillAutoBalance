@@ -13,6 +13,7 @@ Action Timer_CheckScore(Handle timer, int userId)
 	{
 		if (g_iClientScore[client] == -1.0)
 		{
+			g_iClientScoreUpdated[client] = true;
 			g_iClientScore[client] = g_LastAverageScore;
 		}
 		if (g_Balancing)
@@ -20,6 +21,7 @@ Action Timer_CheckScore(Handle timer, int userId)
 			++g_PlayerCount;
 			if (g_PlayerCount == GetClientCountMinusSourceTV())
 			{
+				FixMissingScores();
 				BalanceSkill();
 				g_PlayerCount = 0;
 			}

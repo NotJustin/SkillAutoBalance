@@ -19,6 +19,7 @@ public void OnClientCookiesCached(int client)
 public void OnClientDisconnect(int client)
 {
 	g_iClientTeam[client] = TEAM_SPEC;
+	g_iClientScoreUpdated[client] = false;
 	g_iClientScore[client] = -1.0;
 	g_iClientFrozen[client] = false;
 	g_iClientOutlier[client] = false;

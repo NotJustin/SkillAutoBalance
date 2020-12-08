@@ -27,6 +27,11 @@
 ### Changelog
 <details>
  <summary>Expand for changelog</summary>
+3.2.2 - <br>
+Fixed a bug where client scores were not being fetched properly.<br>
+Fixed a bug where GetAverageScore would not iterate through all players, resulting in an abnormally low average score.<br>
+Few small logic fixes.
+<br>
 3.2.1 - <br>
 Fixed "sab_forcejointeam 1", which did not function properly.<br>
 <br>
