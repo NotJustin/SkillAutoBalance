@@ -45,7 +45,7 @@ public void OnLibraryAdded(const char[] name)
 	{
 		g_UsingAdminmenu = true;
 	}
-	if (StrEqual(name, "levelranks"))
+	if (StrEqual(name, "levelsranks"))
 	{
 		g_UsingLVLRanks = true;
 		LR_Hook(LR_OnPlayerLoaded, LR_GetScore);
