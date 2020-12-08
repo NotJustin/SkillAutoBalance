@@ -1,3 +1,5 @@
+#define SAB_PLUGIN_VERSION_IN_GLOBALS "3.2.2"
+
 #define UNASSIGNED 0
 #define TEAM_SPEC 1
 #define TEAM_T 2
@@ -10,6 +12,7 @@
 #define TYPE_HLSTATSX 8
 
 bool
+	g_iClientScoreUpdated[MAXPLAYERS + 1] = {false, false, ...},
 	g_AllowSpawn = true,
 	g_ForceBalance,
 	g_Balancing,
@@ -60,7 +63,7 @@ ConVar
 float
 	g_iClientScore[MAXPLAYERS + 1],
 	g_iStreak[2],
-	g_LastAverageScore
+	g_LastAverageScore = 1000.0
 ;
 
 Handle g_hForceSpawn;

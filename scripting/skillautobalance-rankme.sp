@@ -10,15 +10,6 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-public Plugin myinfo =
-{
-	name = "SkillAutoBalance",
-	author = "Justin (ff)",
-	description = "A configurable automated team manager",
-	version = "3.2.1",
-	url = "https://steamcommunity.com/id/NameNotJustin/"
-}
-
 /* Libraries */
 bool
 	g_UsingAdminmenu,
@@ -39,6 +30,14 @@ bool
 #include "SkillAutoBalance/menus.sp"
 #include "SkillAutoBalance/timers.sp"
 
+public Plugin myinfo =
+{
+	name = "SkillAutoBalance",
+	author = "Justin (ff)",
+	description = "A configurable automated team manager",
+	version = SAB_PLUGIN_VERSION_IN_GLOBALS,
+	url = "https://steamcommunity.com/id/NameNotJustin/"
+}
 public void OnLibraryAdded(const char[] name)
 {
 	if (StrEqual(name, "adminmenu"))
@@ -67,7 +66,7 @@ void GetScore(int client)
 	if (g_UsingRankMe)
 	{
 		g_iClientScore[client] = float(RankMe_GetPoints(client));
-		CreateTimer(0.1, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(1.0, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else
 	{

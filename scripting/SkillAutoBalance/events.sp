@@ -37,6 +37,12 @@ void Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
 }
 void Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast)
 {
+	int client;
+	for (int i = 0; i < sizeof(g_iClient); i++)
+	{
+		client = g_iClient[i];
+		g_iClientScoreUpdated[client] = false;
+	}
 	g_AllowSpawn = false;
 	++g_RoundCount;
 	BalanceTeamCount();
@@ -56,7 +62,6 @@ void Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast)
 			}
 			else
 			{
-				g_LastAverageScore = GetAverageScore();
 				UpdateScores();
 				g_iStreak[0] = 0.0;
 				g_iStreak[1] = 0.0;
@@ -79,6 +84,7 @@ void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 		OnClientCookiesCached(client);
 	}
 	g_iClientTeam[client] = TEAM_SPEC;
+	g_iClientScoreUpdated[client] = false;
 	g_iClientScore[client] = -1.0;
 	g_iClientFrozen[client] = false;
 	g_iClientOutlier[client] = false;

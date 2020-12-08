@@ -10,15 +10,6 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-public Plugin myinfo =
-{
-	name = "SkillAutoBalance",
-	author = "Justin (ff)",
-	description = "A configurable automated team manager",
-	version = "3.2.1",
-	url = "https://steamcommunity.com/id/NameNotJustin/"
-}
-
 /* Libraries */
 bool
 	g_UsingAdminmenu,
@@ -38,6 +29,15 @@ bool
 #include "SkillAutoBalance/funcs_team.sp"
 #include "SkillAutoBalance/menus.sp"
 #include "SkillAutoBalance/timers.sp"
+
+public Plugin myinfo =
+{
+	name = "SkillAutoBalance",
+	author = "Justin (ff)",
+	description = "A configurable automated team manager",
+	version = SAB_PLUGIN_VERSION_IN_GLOBALS,
+	url = "https://steamcommunity.com/id/NameNotJustin/"
+}
 
 public void OnLibraryAdded(const char[] name)
 {
@@ -67,7 +67,7 @@ void GetScore(int client)
 	if (g_UsingGameME)
 	{
 		QueryGameMEStats("playerinfo", client, GameMEStatsCallback, 1);
-		CreateTimer(0.1, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(1.0, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else
 	{
@@ -77,6 +77,11 @@ void GetScore(int client)
 Action GameMEStatsCallback(int command, int payload, int client, Handle datapack)
 {
 	char param[128];
+	if (g_iClientScoreUpdated[client])
+	{
+		return Plugin_Handled;
+	}
+	g_iClientScoreUpdated[client] = true;
 	if (6 <= GetCmdArgs())
 	{
 		GetCmdArg(6, param, sizeof(param));
@@ -86,4 +91,5 @@ Action GameMEStatsCallback(int command, int payload, int client, Handle datapack
 	{
 		g_iClientScore[client] = -1.0;
 	}
+	return Plugin_Handled;
 }
