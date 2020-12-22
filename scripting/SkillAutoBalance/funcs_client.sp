@@ -1,3 +1,40 @@
+void InitializeClient(int client)
+{
+	if (AreClientCookiesCached(client))
+	{
+		OnClientCookiesCached(client);
+	}
+	g_iClientTeam[client] = TEAM_SPEC;
+	g_iClientScoreUpdated[client] = false;
+	g_iClientScore[client] = -1.0;
+	g_iClientFrozen[client] = false;
+	g_iClientOutlier[client] = false;
+	++g_PlayerCountChange;
+	if (!cvar_TeamMenu.BoolValue && cvar_DisplayChatMessages.BoolValue)
+	{
+		ColorPrintToChat(client, "Team Menu Disabled");
+	}
+	bool teamsFull = false;
+	if (!(teamsFull = AreTeamsFull()) && (cvar_ForceJoinTeam.IntValue == 1 && g_iClientForceJoinPreference[client] == 1) || cvar_ForceJoinTeam.IntValue == 2 || (!cvar_ChatChangeTeam.BoolValue && !cvar_TeamMenu.BoolValue && cvar_BlockTeamSwitch.IntValue > 0))
+	{
+		g_iClientForceJoin[client] = true;
+		int team = GetSmallestTeam();
+		ClientCommand(client, "jointeam 0 %i", team);
+		if (!IsPlayerAlive(client) && (GetClientTeam(client) == TEAM_T || GetClientTeam(client) == TEAM_CT) && (g_AllowSpawn || AreTeamsEmpty()))
+		{
+			CS_RespawnPlayer(client);
+		}
+	}
+	else
+	{
+		if (teamsFull)
+		{
+			ColorPrintToChat(client, "Teams Are Full");
+		}
+		ClientCommand(client, "spectate");
+		g_iClientForceJoin[client] = false;
+	}
+}
 void PacifyPlayer(int client)
 {
 	if(cvar_DisplayChatMessages.BoolValue)
@@ -8,7 +45,7 @@ void PacifyPlayer(int client)
 	g_iClientFrozen[client] = true;
 	SetEntityRenderColor(client, 0, 170, 174, 255);
 	SetEntProp(client, Prop_Data, "m_takedamage", 0, 1);
-	CreateTimer(cvar_RoundRestartDelay.FloatValue, Timer_UnpacifyPlayer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	CreateTimer((cvar_RoundRestartDelay.FloatValue - CHECKSCORE_DELAY), Timer_UnpacifyPlayer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }
 void SwapPlayer(int client, int team, char reason[50])
 {
@@ -16,7 +53,6 @@ void SwapPlayer(int client, int team, char reason[50])
 	{
 		ColorPrintToChat(client, reason);
 	}
-	g_iClientTeam[client] = team;
 	if(team != TEAM_SPEC && team != UNASSIGNED)
 	{
 		if (IsPlayerAlive(client) && cvar_KeepPlayersAlive.BoolValue)

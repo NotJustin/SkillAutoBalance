@@ -25,6 +25,10 @@
 		"en"			"Auto-Join Spectator [ENABLED]"
 		"tr"			"Oto-Katilma Izleyici [ETKIN]"
 	}
+	"Not Kicked Because Admin"
+	{
+		"en"			"You have not been kicked because you are admin."
+	}
 	"Admin Client Swapped"
 	{
 		"en"			"Successfully changed player's team."
@@ -79,6 +83,10 @@
 		"tr"			"Dengesiz takimlar dengeleniyor."
 		"ru"			"Балансировка неравномерных команд."
 	}
+	"Teams Are Full"
+	{
+		"en"			"Teams are full, you can only spectate."
+	}
 	"Global Scramble Teams"
 	{
 		"en"			"Scrambling teams."
@@ -102,6 +110,10 @@
 		"en"			"Balancing skill of each team."
 		"tr"			"Her takimin yetenegini dengeleme."
 		"ru"			"Балансировка для каждой из команд."
+	}
+	"Kicked Because Teams Full"
+	{
+		"en"			"Kicked because both teams are full."
 	}
 	"Team Has More Players"
 	{

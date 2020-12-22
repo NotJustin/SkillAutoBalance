@@ -8,7 +8,7 @@ void AddOutliers(int sizes[2])
 		client = g_iClient[i];
 		if (client && g_iClientOutlier[client] && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
 		{
-			if (g_iClientTeam[client] != teams[nextTeam])
+			if (GetClientTeam(client) != teams[nextTeam])
 			{
 				SwapPlayer(client, teams[nextTeam], "Client Skill Balance");
 			}
@@ -197,7 +197,7 @@ void ScrambleTeams()
 		{
 			continue;
 		}
-		if (g_iClientTeam[client] != teams[nextTeam])
+		if (GetClientTeam(client) != teams[nextTeam])
 		{
 			SwapPlayer(client, teams[nextTeam], "Client Scramble Team");
 		}
@@ -247,7 +247,7 @@ int SortCloseSums(int outliers)
 			{
 				tSum += g_iClientScore[client];
 				++tCount;
-				if (g_iClientTeam[client] == TEAM_CT)
+				if (GetClientTeam(client) == TEAM_CT)
 				{
 					SwapPlayer(client, TEAM_T, "Client Skill Balance");
 				}
@@ -256,7 +256,7 @@ int SortCloseSums(int outliers)
 			{
 				ctSum += g_iClientScore[client];
 				++ctCount;
-				if (g_iClientTeam[client] == TEAM_T)
+				if (GetClientTeam(client) == TEAM_T)
 				{
 					SwapPlayer(client, TEAM_CT, "Client Skill Balance");
 				}
@@ -272,7 +272,7 @@ int SortCloseSums(int outliers)
 			if (tCount < smallTeamSize)
 			{
 				++tCount;
-				if (g_iClientTeam[client] == TEAM_CT)
+				if (GetClientTeam(client) == TEAM_CT)
 				{
 					SwapPlayer(client, TEAM_T, "Client Skill Balance");
 				}
@@ -280,7 +280,7 @@ int SortCloseSums(int outliers)
 			else if (ctCount < smallTeamSize)
 			{
 				++ctCount;
-				if(g_iClientTeam[client] == TEAM_T)
+				if(GetClientTeam(client) == TEAM_T)
 				{
 					SwapPlayer(client, TEAM_CT, "Client Skill Balance");
 				}

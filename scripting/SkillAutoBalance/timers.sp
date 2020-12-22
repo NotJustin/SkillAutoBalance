@@ -1,11 +1,3 @@
-void DelayTeamUpdate(int userId) //This is for a RequestFrame. Whatever
-{
-	int client = GetClientOfUserId(userId);
-	if (client && IsClientInGame(client))
-	{
-		g_iClientTeam[client] = GetClientTeam(client);
-	}
-}
 Action Timer_CheckScore(Handle timer, int userId)
 {
 	int client = GetClientOfUserId(userId);
@@ -33,6 +25,14 @@ Action Timer_GraceTimeOver(Handle timer)
 {
 	g_AllowSpawn = false;
 	return Plugin_Handled;
+}
+Action Timer_KickClient(Handle timer, int userId)
+{
+	int client = GetClientOfUserId(userId);
+	if (client && client < MaxClients && IsClientInGame(client))
+	{
+		KickClient(client, "%T", "Kicked Because Teams Full");
+	}
 }
 Action Timer_UnpacifyPlayer(Handle timer, int userID)
 {

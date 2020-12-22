@@ -1,18 +1,20 @@
-#define SAB_PLUGIN_VERSION_IN_GLOBALS "3.2.2"
+#define SAB_PLUGIN_NAME "SkillAutoBalance" ... SAB_PLUGIN_VARIANT
+#define SAB_PLUGIN_AUTHOR "Justin (ff)"
+#define SAB_PLUGIN_DESCRIPTION "A configurable automated team manager"
+#define SAB_PLUGIN_VERSION "3.2.3"
+#define SAB_PLUGIN_URL "https://steamcommunity.com/id/NameNotJustin/"
 
 #define UNASSIGNED 0
 #define TEAM_SPEC 1
 #define TEAM_T 2
 #define TEAM_CT 3
-#define TYPE_GAMEME 3
-#define TYPE_RANKME 4
-#define TYPE_LVLRanks 5
-#define TYPE_NCRPG 6
-#define TYPE_SMRPG 7
-#define TYPE_HLSTATSX 8
+
+#define CHECKSCORE_DELAY 1.0
 
 bool
 	g_iClientScoreUpdated[MAXPLAYERS + 1] = {false, false, ...},
+	g_iClientPostAdminCheck[MAXPLAYERS + 1] = {false, false, ...},
+	g_iClientConnectFull[MAXPLAYERS + 1] = {false, false, ...},
 	g_AllowSpawn = true,
 	g_ForceBalance,
 	g_Balancing,
@@ -57,7 +59,8 @@ ConVar
 	cvar_BlockTeamSwitch,
 	cvar_KeepPlayersAlive,
 	cvar_EnablePlayerTeamMessage,
-	cvar_BotsArePlayers
+	cvar_BotsArePlayers,
+	cvar_MaxTeamSize
 ;
 
 float

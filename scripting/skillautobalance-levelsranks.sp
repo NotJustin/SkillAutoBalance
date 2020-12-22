@@ -4,10 +4,10 @@
 #include <clientprefs>
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
-#include <NCIncs/nc_rpg.inc>
+#include <lvl_ranks>
 #define REQUIRE_PLUGIN
 
-#define SAB_PLUGIN_VARIANT " NCRPG"
+#define SAB_PLUGIN_VARIANT " Levels Ranks"
 
 #pragma newdecls required
 #pragma semicolon 1
@@ -15,7 +15,7 @@
 /* Libraries */
 bool
 	g_UsingAdminmenu,
-	g_UsingNCRPG
+	g_UsingLVLRanks
 ;
 
 #include "SkillAutoBalance/globals.sp"
@@ -47,9 +47,9 @@ void CheckIfLibrariesExist()
 	{
 		g_UsingAdminmenu = true;
 	}
-	if (LibraryExists("NCRPG"))
+	if (LibraryExists("levelsranks"))
 	{
-		g_UsingNCRPG = true;
+		g_UsingLVLRanks = true;
 	}
 }
 
@@ -59,9 +59,10 @@ public void OnLibraryAdded(const char[] name)
 	{
 		g_UsingAdminmenu = true;
 	}
-	if (StrEqual(name, "NCRPG"))
+	if (StrEqual(name, "levelsranks"))
 	{
-		g_UsingNCRPG = true;
+		g_UsingLVLRanks = true;
+		//LR_Hook(LR_OnPlayerLoaded, LR_GetScore);
 	}
 }
 public void OnLibraryRemoved(const char[] name)
@@ -70,37 +71,26 @@ public void OnLibraryRemoved(const char[] name)
 	{
 		g_UsingAdminmenu = false;
 	}
-	if (StrEqual(name, "NCRPG"))
+	if (StrEqual(name, "levelranks"))
 	{
-		g_UsingNCRPG = false;
+		g_UsingLVLRanks = false;
 	}
 }
 void GetScore(int client)
 {
 	g_iClientScore[client] = -1.0;
-	if (g_UsingNCRPG)
+	if (g_UsingLVLRanks)
 	{
-		g_iClientScore[client] = NCRPG_GetSkillSum(client);
+		g_iClientScore[client] = float(LR_GetClientInfo(client, ST_EXP));
 		CreateTimer(CHECKSCORE_DELAY, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else
 	{
-		LogError("NCRPG not found. Must have NCRPG plugin running to use this version.");
+		LogError("Level Ranks not found. Must have levelranks plugin running to use this version.");
 	}
 }
-public int NCRPG_OnClientLoaded(int client, int count)
+
+public void LR_GetScore(int iClient, int iAccountID)
 {
-	//GetScore(client);
-}
-float NCRPG_GetSkillSum(int client)
-{
-	float score = 0.0;
-	for (int i = 0; i < NCRPG_GetSkillCount(); ++i)
-	{
-		if (NCRPG_IsValidSkillID(i))
-		{
-			score += float(NCRPG_GetSkillLevel(client, i));
-		}
-	}
-	return score;
+	//GetScore(iClient);
 }

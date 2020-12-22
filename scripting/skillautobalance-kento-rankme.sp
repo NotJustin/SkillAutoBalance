@@ -4,10 +4,10 @@
 #include <clientprefs>
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
-#include <NCIncs/nc_rpg.inc>
+#include <kento_rankme/rankme>
 #define REQUIRE_PLUGIN
 
-#define SAB_PLUGIN_VARIANT " NCRPG"
+#define SAB_PLUGIN_VARIANT " Kento-RankMe"
 
 #pragma newdecls required
 #pragma semicolon 1
@@ -15,7 +15,7 @@
 /* Libraries */
 bool
 	g_UsingAdminmenu,
-	g_UsingNCRPG
+	g_UsingRankMe
 ;
 
 #include "SkillAutoBalance/globals.sp"
@@ -47,9 +47,9 @@ void CheckIfLibrariesExist()
 	{
 		g_UsingAdminmenu = true;
 	}
-	if (LibraryExists("NCRPG"))
+	if (LibraryExists("kento_rankme"))
 	{
-		g_UsingNCRPG = true;
+		g_UsingRankMe = true;
 	}
 }
 
@@ -59,9 +59,9 @@ public void OnLibraryAdded(const char[] name)
 	{
 		g_UsingAdminmenu = true;
 	}
-	if (StrEqual(name, "NCRPG"))
+	if (StrEqual(name, "kento_rankme"))
 	{
-		g_UsingNCRPG = true;
+		g_UsingRankMe = true;
 	}
 }
 public void OnLibraryRemoved(const char[] name)
@@ -70,37 +70,25 @@ public void OnLibraryRemoved(const char[] name)
 	{
 		g_UsingAdminmenu = false;
 	}
-	if (StrEqual(name, "NCRPG"))
+	if (StrEqual(name, "kento_rankme"))
 	{
-		g_UsingNCRPG = false;
+		g_UsingRankMe = false;
 	}
 }
 void GetScore(int client)
 {
 	g_iClientScore[client] = -1.0;
-	if (g_UsingNCRPG)
+	if (g_UsingRankMe)
 	{
-		g_iClientScore[client] = NCRPG_GetSkillSum(client);
+		g_iClientScore[client] = float(RankMe_GetPoints(client));
 		CreateTimer(CHECKSCORE_DELAY, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else
 	{
-		LogError("NCRPG not found. Must have NCRPG plugin running to use this version.");
+		LogError("kento_rankme not found. Must have kento_rankme plugin running to use this version.");
 	}
 }
-public int NCRPG_OnClientLoaded(int client, int count)
+public Action RankMe_OnPlayerLoaded(int client)
 {
 	//GetScore(client);
-}
-float NCRPG_GetSkillSum(int client)
-{
-	float score = 0.0;
-	for (int i = 0; i < NCRPG_GetSkillCount(); ++i)
-	{
-		if (NCRPG_IsValidSkillID(i))
-		{
-			score += float(NCRPG_GetSkillLevel(client, i));
-		}
-	}
-	return score;
 }

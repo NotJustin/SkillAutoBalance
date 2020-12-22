@@ -27,11 +27,18 @@
 ### Changelog
 <details>
  <summary>Expand for changelog</summary>
+3.2.3 - <br>
+Added cvar_MaxTeamSize. It allows you to set a maximum team size. If the team sizes reach the max, players who join and are not admin are kicked. The admins who join can only spectate.<br>
+Fixed bug caused by last update, where players who teams were switched are immune for ~1 second at round start.<br>
+Added translations/phrases related to the new convar.<br>
+Fixed bug in issue #27 and #29<br>
+Fixed bug where players can still join spectate when disabled, by adding commandlistener for spectate.<br>
+<br>
 3.2.2 - <br>
 Fixed a bug where client scores were not being fetched properly.<br>
 Fixed a bug where GetAverageScore would not iterate through all players, resulting in an abnormally low average score.<br>
 Few small logic fixes.<br>
-Fixed name of levelsranks plugin to be levelsranks and not levelranks (thanks penalte on alliedmods).
+Fixed name of levelsranks plugin to be levelsranks and not levelranks (thanks penalte on alliedmods).<br>
 <br>
 3.2.1 - <br>
 Fixed "sab_forcejointeam 1", which did not function properly.<br>
@@ -122,6 +129,9 @@ sab_forcejointeam (int | min 0 max 2 default 0)
 sab_keepplayersalive (boolean | default 1)
 "Living players are kept alive when their teams are changed"
 
+sab_maxteamsize (int | default 0)
+"0 = Unlimited. Max players allowed on each team. If both teams reach this amount, new non-admin players are kicked. Only works if sab_blockteamswitch is 2."
+
 sab_messagecolor (string | default white)
 "See sab_messagetype for info"
 
@@ -169,4 +179,4 @@ Third party include files you need in order to compile depend on what version yo
 
 ### Bugs
 
-No bugs at the moment :D
+No bugs, as far as I know.

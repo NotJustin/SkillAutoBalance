@@ -8,7 +8,7 @@ void HookEvents()
 	HookEvent("player_disconnect", Event_PlayerTeam, EventHookMode_Pre);
 }
 
-void Event_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)
+void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	if (cvar_EnablePlayerTeamMessage.BoolValue)
 	{
@@ -18,9 +18,19 @@ void Event_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)
 	{
 		SetEventBroadcast(event, true);
 	}
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	int team = event.GetInt("team");
+	if (client && client < MaxClients && IsClientInGame(client) && (team == TEAM_T || team == TEAM_CT))
+	{
+		g_iClientTeam[client] = team;
+	}
 }
-void Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
+	if (cvar_DisplayChatMessages.BoolValue && cvar_ChatChangeTeam.BoolValue)
+	{
+		PrintHowToJoinForSpectators();
+	}
 	g_PlayerCount = 0;
 	g_Balancing = false;
 	bool warmupActive = IsWarmupActive();
@@ -35,7 +45,7 @@ void Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
 		CreateTimer(cvar_GraceTime.FloatValue, Timer_GraceTimeOver, _, TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
-void Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast)
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	int client;
 	for (int i = 0; i < sizeof(g_iClient); i++)
@@ -45,11 +55,10 @@ void Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast)
 	}
 	g_AllowSpawn = false;
 	++g_RoundCount;
-	BalanceTeamCount();
 	if(GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT) >= cvar_MinPlayers.IntValue)
 	{
-		SetStreak((GetEventInt(event, "winner") == TEAM_T) ? TEAM_T : TEAM_CT);
-		if(g_ForceBalance || BalanceSkillNeeded())
+		SetStreak((event.GetInt("winner") == TEAM_T) ? TEAM_T : TEAM_CT);
+		if(g_ForceBalance || BalanceSkillNeeded() || !AreTeamsEvenlySized())
 		{
 			g_Balancing = true;
 			if (cvar_Scramble.BoolValue)
@@ -79,33 +88,9 @@ void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 	{
 		return;
 	}
-	if (AreClientCookiesCached(client))
+	g_iClientConnectFull[client] = true;
+	if (g_iClientPostAdminCheck[client])
 	{
-		OnClientCookiesCached(client);
-	}
-	g_iClientTeam[client] = TEAM_SPEC;
-	g_iClientScoreUpdated[client] = false;
-	g_iClientScore[client] = -1.0;
-	g_iClientFrozen[client] = false;
-	g_iClientOutlier[client] = false;
-	++g_PlayerCountChange;
-	if (!cvar_TeamMenu.BoolValue && cvar_DisplayChatMessages.BoolValue)
-	{
-		ColorPrintToChat(client, "Team Menu Disabled");
-	}
-	if ((cvar_ForceJoinTeam.IntValue == 1 && g_iClientForceJoinPreference[client] == 1) || cvar_ForceJoinTeam.IntValue == 2 || (!cvar_ChatChangeTeam.BoolValue && !cvar_TeamMenu.BoolValue && cvar_BlockTeamSwitch.IntValue > 0))
-	{
-		g_iClientForceJoin[client] = true;
-		int team = GetSmallestTeam();
-		ClientCommand(client, "jointeam 0 %i", team);
-		if (!IsPlayerAlive(client) && (g_iClientTeam[client] == TEAM_T || g_iClientTeam[client] == TEAM_CT) && (g_AllowSpawn || AreTeamsEmpty()))
-		{
-			CS_RespawnPlayer(client);
-		}
-	}
-	else
-	{
-		ClientCommand(client, "spectate");
-		g_iClientForceJoin[client] = false;
+		InitializeClient(client);
 	}
 }
