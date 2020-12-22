@@ -10,6 +10,10 @@ void RegCommands()
 }
 Action Command_Join(int client, int args)
 {
+	if (AreTeamsFull())
+	{
+		ColorPrintToChat(client, "Teams Are Full");
+	}
 	int team;
 	if (cvar_ChatChangeTeam.BoolValue && (cvar_BlockTeamSwitch.IntValue != 2) && client && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_T && team != TEAM_CT)
 	{
