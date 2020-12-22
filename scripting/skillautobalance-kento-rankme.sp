@@ -4,8 +4,10 @@
 #include <clientprefs>
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
-#include <lvl_ranks>
+#include <kento_rankme/rankme>
 #define REQUIRE_PLUGIN
+
+#define SAB_PLUGIN_VARIANT " Kento-RankMe"
 
 #pragma newdecls required
 #pragma semicolon 1
@@ -13,7 +15,7 @@
 /* Libraries */
 bool
 	g_UsingAdminmenu,
-	g_UsingLVLRanks
+	g_UsingRankMe
 ;
 
 #include "SkillAutoBalance/globals.sp"
@@ -32,11 +34,23 @@ bool
 
 public Plugin myinfo =
 {
-	name = "SkillAutoBalance",
-	author = "Justin (ff)",
-	description = "A configurable automated team manager",
-	version = SAB_PLUGIN_VERSION_IN_GLOBALS,
-	url = "https://steamcommunity.com/id/NameNotJustin/"
+	name = SAB_PLUGIN_NAME,
+	author = SAB_PLUGIN_AUTHOR,
+	description = SAB_PLUGIN_DESCRIPTION,
+	version = SAB_PLUGIN_VERSION,
+	url = SAB_PLUGIN_URL
+}
+
+void CheckIfLibrariesExist()
+{
+	if (LibraryExists("adminmenu"))
+	{
+		g_UsingAdminmenu = true;
+	}
+	if (LibraryExists("kento_rankme"))
+	{
+		g_UsingRankMe = true;
+	}
 }
 
 public void OnLibraryAdded(const char[] name)
@@ -45,10 +59,9 @@ public void OnLibraryAdded(const char[] name)
 	{
 		g_UsingAdminmenu = true;
 	}
-	if (StrEqual(name, "levelranks"))
+	if (StrEqual(name, "kento_rankme"))
 	{
-		g_UsingLVLRanks = true;
-		LR_Hook(LR_OnPlayerLoaded, LR_GetScore);
+		g_UsingRankMe = true;
 	}
 }
 public void OnLibraryRemoved(const char[] name)
@@ -57,26 +70,25 @@ public void OnLibraryRemoved(const char[] name)
 	{
 		g_UsingAdminmenu = false;
 	}
-	if (StrEqual(name, "levelranks"))
+	if (StrEqual(name, "kento_rankme"))
 	{
-		g_UsingLVLRanks = false;
+		g_UsingRankMe = false;
 	}
 }
 void GetScore(int client)
 {
 	g_iClientScore[client] = -1.0;
-	if (g_UsingLVLRanks)
+	if (g_UsingRankMe)
 	{
-		g_iClientScore[client] = float(LR_GetClientInfo(client, ST_EXP));
-		CreateTimer(1.0, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+		g_iClientScore[client] = float(RankMe_GetPoints(client));
+		CreateTimer(CHECKSCORE_DELAY, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else
 	{
-		LogError("Level Ranks not found. Must have levelranks plugin running to use this version.");
+		LogError("kento_rankme not found. Must have kento_rankme plugin running to use this version.");
 	}
 }
-
-public void LR_GetScore(int iClient, int iAccountID)
+public Action RankMe_OnPlayerLoaded(int client)
 {
-	//GetScore(iClient);
+	//GetScore(client);
 }

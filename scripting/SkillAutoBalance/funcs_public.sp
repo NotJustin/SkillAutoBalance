@@ -3,6 +3,25 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	g_LateLoad = late;
 	return APLRes_Success;
 }
+public void OnClientPostAdminCheck(int client)
+{
+	if (AreTeamsFull())
+	{
+		if (!CheckCommandAccess(client, "", ADMFLAG_GENERIC, true))
+		{
+			CreateTimer(0.1, Timer_KickClient, GetClientUserId(client));
+		}
+		else
+		{
+			ColorPrintToChat(client, "Not Kicked Because Admin");
+		}
+	}
+	g_iClientPostAdminCheck[client] = true;
+	if (g_iClientConnectFull[client])
+	{
+		InitializeClient(client);
+	}
+}
 public void OnClientCookiesCached(int client)
 {
 	char buffer[24];
@@ -24,6 +43,8 @@ public void OnClientDisconnect(int client)
 	g_iClientFrozen[client] = false;
 	g_iClientOutlier[client] = false;
 	g_iClientForceJoinPreference[client] = 0;
+	g_iClientPostAdminCheck[client] = false;
+	g_iClientConnectFull[client] = false;
 	++g_PlayerCountChange;
 	if (!AreTeamsEmpty())
 	{
@@ -34,6 +55,7 @@ public void OnClientDisconnect(int client)
 public void OnConfigsExecuted()
 {
 	UpdateConfigs();
+	CheckIfLibrariesExist();
 }
 public void OnMapEnd()
 {
@@ -76,6 +98,7 @@ public void OnPluginStart()
 	RegCommands();
 
 	AddCommandListener(CommandList_JoinTeam, "jointeam");
+	AddCommandListener(CommandList_JoinTeam, "spectate");
 
 	AutoExecConfig(true, "SkillAutoBalance");
 

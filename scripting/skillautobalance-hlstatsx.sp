@@ -7,6 +7,8 @@
 #include <hlstatsx_api>
 #define REQUIRE_PLUGIN
 
+#define SAB_PLUGIN_VARIANT " HLstatsX"
+
 #pragma newdecls required
 #pragma semicolon 1
 
@@ -32,11 +34,23 @@ bool
 
 public Plugin myinfo =
 {
-	name = "SkillAutoBalance",
-	author = "Justin (ff)",
-	description = "A configurable automated team manager",
-	version = SAB_PLUGIN_VERSION_IN_GLOBALS,
-	url = "https://steamcommunity.com/id/NameNotJustin/"
+	name = SAB_PLUGIN_NAME,
+	author = SAB_PLUGIN_AUTHOR,
+	description = SAB_PLUGIN_DESCRIPTION,
+	version = SAB_PLUGIN_VERSION,
+	url = SAB_PLUGIN_URL
+}
+
+void CheckIfLibrariesExist()
+{
+	if (LibraryExists("adminmenu"))
+	{
+		g_UsingAdminmenu = true;
+	}
+	if (LibraryExists("hlstatsx_api"))
+	{
+		g_UsingHLStatsX = true;
+	}
 }
 
 public void OnLibraryAdded(const char[] name)
@@ -67,7 +81,7 @@ void GetScore(int client)
 	if (g_UsingHLStatsX)
 	{
 		HLStatsX_Api_GetStats("playerinfo", client, HLStatsXStatsCallback, 0);
-		CreateTimer(1.0, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(CHECKSCORE_DELAY, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else
 	{

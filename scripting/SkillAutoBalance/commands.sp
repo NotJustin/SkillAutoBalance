@@ -119,13 +119,11 @@ Action CommandList_JoinTeam(int client, const char[] command, int argc)
 {
 	if (cvar_BlockTeamSwitch.IntValue == 0 || (GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT)) < cvar_MinPlayers.IntValue)
 	{
-		RequestFrame(DelayTeamUpdate, GetClientUserId(client));
 		return Plugin_Continue;
 	}
 	if (g_iClientForceJoin[client])
 	{
 		g_iClientForceJoin[client] = false;
-		RequestFrame(DelayTeamUpdate, GetClientUserId(client));
 		return Plugin_Continue;
 	}
 	if (cvar_BlockTeamSwitch.IntValue == 2)
@@ -147,6 +145,5 @@ Action CommandList_JoinTeam(int client, const char[] command, int argc)
 	{
 		return Plugin_Stop;
 	}
-	RequestFrame(DelayTeamUpdate, GetClientUserId(client));
 	return Plugin_Continue;
 }
