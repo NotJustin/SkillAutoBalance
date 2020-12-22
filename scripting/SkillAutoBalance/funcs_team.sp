@@ -4,7 +4,7 @@ bool AreTeamsEmpty()
 }
 bool AreTeamsFull()
 {
-	return cvar_MaxTeamSize.BoolValue && GetClientCount(true) > 1 && GetTeamClientCount(TEAM_T) == cvar_MaxTeamSize.IntValue && GetTeamClientCount(TEAM_CT) == cvar_MaxTeamSize.IntValue;
+	return cvar_BlockTeamSwitch.IntValue == 2 && cvar_MaxTeamSize.BoolValue && GetClientCount(true) > 1 && GetTeamClientCount(TEAM_T) == cvar_MaxTeamSize.IntValue && GetTeamClientCount(TEAM_CT) == cvar_MaxTeamSize.IntValue;
 }
 int GetSmallestTeam()
 {
