@@ -128,6 +128,9 @@ sab_forcejointeam (int | min 0 max 2 default 0)
 sab_keepplayersalive (boolean | default 1)
 "Living players are kept alive when their teams are changed"
 
+sab_maxteamsize (int | default 0)
+"0 = Unlimited. Max players allowed on each team. If both teams reach this amount, new non-admin players are kicked. Only works if sab_blockteamswitch is 2."
+
 sab_messagecolor (string | default white)
 "See sab_messagetype for info"
 
@@ -175,4 +178,4 @@ Third party include files you need in order to compile depend on what version yo
 
 ### Bugs
 
-No bugs at the moment :D
+No bugs, as far as I know.
