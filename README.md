@@ -27,10 +27,17 @@
 ### Changelog
 <details>
  <summary>Expand for changelog</summary>
+3.2.3 - <br>
+Added cvar_MaxTeamSize. It allows you to set a maximum team size. If the team sizes reach the max, players who join and are not admin are kicked. The admins who join can only spectate.<br>
+Fixed bug caused by last update, where players who teams were switched are immune for ~1 second at round start.<br>
+Added translations/phrases related to the new convar.<br>
+Fixed bug in issue #27 and #29<br>
+Fixed bug where players can still join spectate when disabled, by adding commandlistener for spectate.<br>
+<br>
 3.2.2 - <br>
 Fixed a bug where client scores were not being fetched properly.<br>
 Fixed a bug where GetAverageScore would not iterate through all players, resulting in an abnormally low average score.<br>
-Few small logic fixes.
+Few small logic fixes.<br>
 <br>
 3.2.1 - <br>
 Fixed "sab_forcejointeam 1", which did not function properly.<br>
