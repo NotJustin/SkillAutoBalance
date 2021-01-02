@@ -39,11 +39,7 @@ bool BalanceSkillNeeded()
 	int minStreak = cvar_MinStreak.IntValue;
 	if (time > (cvar_RoundTime.FloatValue * 60 + cvar_RoundRestartDelay.FloatValue + 1))
 	{
-		if (cvar_BalanceEveryRound.BoolValue)
-		{
-			return true;
-		}
-		else if (g_iStreak[0] >= minStreak || g_iStreak[1] >= minStreak)
+		if (cvar_BalanceEveryRound.BoolValue || g_iStreak[0] >= minStreak || g_iStreak[1] >= minStreak)
 		{
 			return true;
 		}
