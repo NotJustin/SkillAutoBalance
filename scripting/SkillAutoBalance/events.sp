@@ -33,8 +33,7 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	}
 	g_PlayerCount = 0;
 	g_Balancing = false;
-	bool warmupActive = IsWarmupActive();
-	if (warmupActive)
+	if (IsWarmupActive())
 	{
 		g_AllowSpawn = true;
 		return;
@@ -54,7 +53,10 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 		g_iClientScoreUpdated[client] = false;
 	}
 	g_AllowSpawn = false;
-	++g_RoundCount;
+	if (!IsWarmupActive())
+	{
+		++g_RoundCount;
+	}
 	if(GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT) >= cvar_MinPlayers.IntValue)
 	{
 		SetStreak((event.GetInt("winner") == TEAM_T) ? TEAM_T : TEAM_CT);

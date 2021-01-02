@@ -1,11 +1,13 @@
 int GetClientCountMinusSourceTV()
 {
-	int count = GetClientCount(true);
-	if (IsClientInGame(1) && IsClientSourceTV(1))
+	for (int i = 1; i < MaxClients; ++i)
 	{
-		--count;
+		if (i && IsClientInGame(i) && IsClientSourceTV(i))
+		{
+			return GetClientCount(true) - 1;
+		}
 	}
-	return count;
+	return GetClientCount(true);
 }
 bool IsWarmupActive()
 {

@@ -14,24 +14,26 @@ void InitializeClient(int client)
 	{
 		ColorPrintToChat(client, "Team Menu Disabled");
 	}
-	bool teamsFull = false;
-	if (!(teamsFull = AreTeamsFull()) && (cvar_ForceJoinTeam.IntValue == 1 && g_iClientForceJoinPreference[client] == 1) || cvar_ForceJoinTeam.IntValue == 2 || (!cvar_ChatChangeTeam.BoolValue && !cvar_TeamMenu.BoolValue && cvar_BlockTeamSwitch.IntValue > 0))
+	if ((cvar_ForceJoinTeam.IntValue == 1 && g_iClientForceJoinPreference[client] == 1) || cvar_ForceJoinTeam.IntValue == 2 || (!cvar_ChatChangeTeam.BoolValue && !cvar_TeamMenu.BoolValue && cvar_BlockTeamSwitch.IntValue > 0))
 	{
-		g_iClientForceJoin[client] = true;
-		int team = GetSmallestTeam();
-		ClientCommand(client, "jointeam 0 %i", team);
-		if (!IsPlayerAlive(client) && (GetClientTeam(client) == TEAM_T || GetClientTeam(client) == TEAM_CT) && (g_AllowSpawn || AreTeamsEmpty()))
+		if (!AreTeamsFull())
 		{
-			CS_RespawnPlayer(client);
+			g_iClientForceJoin[client] = true;
+			int team = GetSmallestTeam();
+			ClientCommand(client, "jointeam 0 %i", team);
+			if (!IsPlayerAlive(client) && (GetClientTeam(client) == TEAM_T || GetClientTeam(client) == TEAM_CT) && (g_AllowSpawn || AreTeamsEmpty()))
+			{
+				CS_RespawnPlayer(client);
+			}
+		}
+		else
+		{
+			ColorPrintToChat(client, "Teams Are Full");
+			ClientCommand(client, "spectate");
 		}
 	}
 	else
 	{
-		if (teamsFull)
-		{
-			ColorPrintToChat(client, "Teams Are Full");
-		}
-		ClientCommand(client, "spectate");
 		g_iClientForceJoin[client] = false;
 	}
 }

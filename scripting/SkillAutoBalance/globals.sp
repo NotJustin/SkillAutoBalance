@@ -1,7 +1,7 @@
 #define SAB_PLUGIN_NAME "SkillAutoBalance" ... SAB_PLUGIN_VARIANT
 #define SAB_PLUGIN_AUTHOR "Justin (ff)"
 #define SAB_PLUGIN_DESCRIPTION "A configurable automated team manager"
-#define SAB_PLUGIN_VERSION "3.2.3"
+#define SAB_PLUGIN_VERSION "3.2.4"
 #define SAB_PLUGIN_URL "https://steamcommunity.com/id/NameNotJustin/"
 
 #define UNASSIGNED 0
