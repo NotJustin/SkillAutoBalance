@@ -27,6 +27,11 @@
 ### Changelog
 <details>
  <summary>Expand for changelog</summary>
+3.2.4 - <br>
+Properly check if a server has SourceTV before doing balance. Fixes bug where balance never occurs.<br>
+Do not move players to spectate if forcejointeam is disabled. Fixes bug where teammenu disappears after a few seconds and players must wait.<br>
+Only increment rounds passed after warmup ends. Balance after "n" rounds had been occurring 1 round too early.<br>
+Thanks to Răzvan from alliedmodders for helping me debug and fix these issues.<br>
 3.2.3 - <br>
 Added cvar_MaxTeamSize. It allows you to set a maximum team size. If the team sizes reach the max, players who join and are not admin are kicked. The admins who join can only spectate.<br>
 Fixed bug caused by last update, where players who teams were switched are immune for ~1 second at round start.<br>
