@@ -47,6 +47,10 @@
 		"tr"			"Takim dengeleme raund sonunda olacak"
 		"ru"			"Баланс команды наступит в конце раунда."
 	}
+	"AFK Return"
+	{
+		"en"			"You were AFK - Welcome back"	
+	}
 	"Auto Join"
 	{
 		"en"			"You have been placed on a team."

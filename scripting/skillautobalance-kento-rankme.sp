@@ -77,10 +77,10 @@ public void OnLibraryRemoved(const char[] name)
 }
 void GetScore(int client)
 {
-	g_iClientScore[client] = -1.0;
+	g_fClientScore[client] = -1.0;
 	if (g_UsingRankMe)
 	{
-		g_iClientScore[client] = float(RankMe_GetPoints(client));
+		g_fClientScore[client] = float(RankMe_GetPoints(client));
 		CreateTimer(CHECKSCORE_DELAY, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else

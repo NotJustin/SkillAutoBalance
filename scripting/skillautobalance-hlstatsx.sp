@@ -77,7 +77,7 @@ public void OnLibraryRemoved(const char[] name)
 }
 void GetScore(int client)
 {
-	g_iClientScore[client] = -1.0;
+	g_fClientScore[client] = -1.0;
 	if (g_UsingHLStatsX)
 	{
 		HLStatsX_Api_GetStats("playerinfo", client, HLStatsXStatsCallback, 0);
@@ -94,7 +94,7 @@ void HLStatsXStatsCallback(int command, int payload, int client, DataPack &datap
 	{
 		DataPack pack = view_as<DataPack>(CloneHandle(datapack));
 		pack.ReadCell(); // Skipping client rank. Skill is in the next cell
-		g_iClientScore[client] = float(pack.ReadCell());
+		g_fClientScore[client] = float(pack.ReadCell());
 	}
 	delete datapack;
 }

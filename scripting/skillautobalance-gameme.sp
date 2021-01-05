@@ -77,7 +77,7 @@ public void OnLibraryRemoved(const char[] name)
 }
 void GetScore(int client)
 {
-	g_iClientScore[client] = -1.0;
+	g_fClientScore[client] = -1.0;
 	if (g_UsingGameME)
 	{
 		QueryGameMEStats("playerinfo", client, GameMEStatsCallback, 1);
@@ -91,19 +91,19 @@ void GetScore(int client)
 Action GameMEStatsCallback(int command, int payload, int client, Handle datapack)
 {
 	char param[128];
-	if (g_iClientScoreUpdated[client])
+	if (g_bClientScoreUpdated[client])
 	{
 		return Plugin_Handled;
 	}
-	g_iClientScoreUpdated[client] = true;
+	g_bClientScoreUpdated[client] = true;
 	if (6 <= GetCmdArgs())
 	{
 		GetCmdArg(6, param, sizeof(param));
-		g_iClientScore[client] = StringToFloat(param);
+		g_fClientScore[client] = StringToFloat(param);
 	}
 	else
 	{
-		g_iClientScore[client] = -1.0;
+		g_fClientScore[client] = -1.0;
 	}
 	return Plugin_Handled;
 }
