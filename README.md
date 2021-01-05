@@ -5,6 +5,7 @@
 </p><br>
 
 #### Table of Contents
+[Description](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#description)<br>
 [Credits/Inspiration](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#credits--inspiration)<br>
 [Changelog](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#changelog)<br>
 [Installation](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#installation)<br>
@@ -12,6 +13,13 @@
 [Dependencies](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#dependencies)<br>
 [Compatible Plugins](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#compatible-plugins)<br>
 [Bugs](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#bugs)<br>
+
+### Description
+Skill Auto Balance is a simple concept. Rearrange the players on each team so that each team's skill level is approximately the same. In practice, doing this is very difficult because teams are made of random players and defining "individual skill" in team-based game modes is difficult.<br>
+<br>
+For that reason, this plugin is designed for a specific type of gamemode. It is meant for round-based gamemodes where the objective is to eliminate the enemy team.<br>
+<br>
+What this plugin does is calculate a score for each player to represent their "skill", and then assign players to each team in a way such that the sum of the player scores on each team is as close as possible - with some exceptions due to players with excessively high or low scores. The way that score is calculated depends on which version of the plugin is used. The basic version of the plugin assigns scores by each player's kill-death ratio. All other versions use scores based off of external point-systems from other plugins. There are currently 6 external plugins that Skill Auto Balance supports. Adding support for an additional plugin is as simple as fetching a player's score using a native from the plugin we want to add support for.<br>
 
 ### Credits / Inspiration
 [Admin Player Team Switch and Scramble Menu by r5053](https://forums.alliedmods.net/showthread.php?p=549446)<br>
