@@ -1,3 +1,23 @@
+void PutClientOnATeam(int client)
+{
+	if (g_iClientTeam[client] == TEAM_SPEC || g_iClientTeam[client] == UNASSIGNED)
+	{
+		SwapPlayer(client, GetSmallestTeam(), "Auto Join");
+	}
+	else if (CanJoin(client, g_iClientTeam[client], false))
+	{
+		SwapPlayer(client, g_iClientTeam[client], "Auto Join");
+	}
+	else if (g_iClientTeam[client] == TEAM_T)
+	{
+		SwapPlayer(client, TEAM_CT, "Auto Join");
+	}
+	else
+	{
+		SwapPlayer(client, TEAM_T, "Auto Join");
+	}
+}
+
 void InitializeClient(int client)
 {
 	if (AreClientCookiesCached(client))
@@ -5,10 +25,10 @@ void InitializeClient(int client)
 		OnClientCookiesCached(client);
 	}
 	g_iClientTeam[client] = TEAM_SPEC;
-	g_iClientScoreUpdated[client] = false;
-	g_iClientScore[client] = -1.0;
-	g_iClientFrozen[client] = false;
-	g_iClientOutlier[client] = false;
+	g_bClientScoreUpdated[client] = false;
+	g_fClientScore[client] = -1.0;
+	g_bClientIsFrozen[client] = false;
+	g_bClientIsOutlier[client] = false;
 	++g_PlayerCountChange;
 	if (!cvar_TeamMenu.BoolValue && cvar_DisplayChatMessages.BoolValue)
 	{
@@ -18,7 +38,7 @@ void InitializeClient(int client)
 	{
 		if (!AreTeamsFull())
 		{
-			g_iClientForceJoin[client] = true;
+			g_bClientForceJoin[client] = true;
 			int team = GetSmallestTeam();
 			ClientCommand(client, "jointeam 0 %i", team);
 			if (!IsPlayerAlive(client) && (GetClientTeam(client) == TEAM_T || GetClientTeam(client) == TEAM_CT) && (g_AllowSpawn || AreTeamsEmpty()))
@@ -34,7 +54,7 @@ void InitializeClient(int client)
 	}
 	else
 	{
-		g_iClientForceJoin[client] = false;
+		g_bClientForceJoin[client] = false;
 	}
 }
 void PacifyPlayer(int client)
@@ -44,7 +64,7 @@ void PacifyPlayer(int client)
 		ColorPrintToChat(client, "Pacified Client");
 	}
 	CS_UpdateClientModel(client);
-	g_iClientFrozen[client] = true;
+	g_bClientIsFrozen[client] = true;
 	SetEntityRenderColor(client, 0, 170, 174, 255);
 	SetEntProp(client, Prop_Data, "m_takedamage", 0, 1);
 	CreateTimer((cvar_RoundRestartDelay.FloatValue - CHECKSCORE_DELAY), Timer_UnpacifyPlayer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);

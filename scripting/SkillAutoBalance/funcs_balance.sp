@@ -6,7 +6,7 @@ void AddOutliers(int sizes[2])
 	for (int i = 0; i < sizeof(g_iClient); ++i)
 	{
 		client = g_iClient[i];
-		if (client && g_iClientOutlier[client] && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
+		if (client && g_bClientIsOutlier[client] && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED)
 		{
 			if (GetClientTeam(client) != teams[nextTeam])
 			{
@@ -14,7 +14,7 @@ void AddOutliers(int sizes[2])
 			}
 			nextTeam = (nextTeam + 1) % 2;
 		}
-		g_iClientOutlier[client] = false;
+		g_bClientIsOutlier[client] = false;
 	}
 }
 void BalanceSkill()
@@ -39,7 +39,7 @@ bool BalanceSkillNeeded()
 	int minStreak = cvar_MinStreak.IntValue;
 	if (time > (cvar_RoundTime.FloatValue * 60 + cvar_RoundRestartDelay.FloatValue + 1))
 	{
-		if (cvar_BalanceEveryRound.BoolValue || g_iStreak[0] >= minStreak || g_iStreak[1] >= minStreak)
+		if (cvar_BalanceEveryRound.BoolValue || g_fTeamWinStreak[0] >= minStreak || g_fTeamWinStreak[1] >= minStreak)
 		{
 			return true;
 		}
@@ -74,9 +74,9 @@ float GetAverageScore()
 		if (IsClientInGame(client) && !IsClientSourceTV(client))
 		{
 			++counted;
-			if (g_iClientScore[client] != -1.0)
+			if (g_fClientScore[client] != -1.0)
 			{
-				sum += g_iClientScore[client];
+				sum += g_fClientScore[client];
 			}
 			else
 			{
@@ -109,23 +109,23 @@ int RemoveOutliers()
 		{
 			int leftClientIndex = g_iClient[q1Size / 2 - 1 + q1Start];
 			int rightClientIndex = g_iClient[q1Size / 2 + q1Start];
-			q1Med = (g_iClientScore[leftClientIndex] + g_iClientScore[rightClientIndex]) / 2;
+			q1Med = (g_fClientScore[leftClientIndex] + g_fClientScore[rightClientIndex]) / 2;
 		}
 		else
 		{
 			int medianClientIndex = g_iClient[q1Size / 2 + q1Start];
-			q1Med = g_iClientScore[medianClientIndex];
+			q1Med = g_fClientScore[medianClientIndex];
 		}
 		if (q3Size % 2 == 0)
 		{
 			int leftClientIndex = g_iClient[q3Size / 2 - 1 + q3Start];
 			int rightClientIndex = g_iClient[q3Size / 2 + q3Start];
-			q3Med = (g_iClientScore[leftClientIndex] + g_iClientScore[rightClientIndex]) / 2;
+			q3Med = (g_fClientScore[leftClientIndex] + g_fClientScore[rightClientIndex]) / 2;
 		}
 		else
 		{
 			int medianClientIndex = g_iClient[q3Size / 2 + q3Start];
-			q3Med = g_iClientScore[medianClientIndex];
+			q3Med = g_fClientScore[medianClientIndex];
 		}
 	}
 	else
@@ -138,23 +138,23 @@ int RemoveOutliers()
 		{
 			int leftClientIndex = g_iClient[q1Size / 2 - 1 + q1Start];
 			int rightClientIndex = g_iClient[q1Size / 2 + q1Start];
-			q1Med = (g_iClientScore[leftClientIndex] + g_iClientScore[rightClientIndex]) / 2;
+			q1Med = (g_fClientScore[leftClientIndex] + g_fClientScore[rightClientIndex]) / 2;
 		}
 		else
 		{
 			int medianClientIndex = g_iClient[q1Size / 2 + q1Start];
-			q1Med = g_iClientScore[medianClientIndex];
+			q1Med = g_fClientScore[medianClientIndex];
 		}
 		if (q3Size % 2 == 0)
 		{
 			int leftClientIndex = g_iClient[q3Size / 2 - 1 + q3Start];
 			int rightClientIndex = g_iClient[q3Size / 2 + q3Start];
-			q3Med = (g_iClientScore[leftClientIndex] + g_iClientScore[rightClientIndex]) / 2;
+			q3Med = (g_fClientScore[leftClientIndex] + g_fClientScore[rightClientIndex]) / 2;
 		}
 		else
 		{
 			int medianClientIndex = g_iClient[q3Size / 2 + q3Start];
-			q3Med = g_iClientScore[medianClientIndex];
+			q3Med = g_fClientScore[medianClientIndex];
 		}
 	}
 	IQR = q1Med - q3Med;
@@ -168,12 +168,12 @@ int RemoveOutliers()
 		{
 			if (IsFakeClient(client) && !cvar_BotsArePlayers.BoolValue)
 			{
-				g_iClientOutlier[client] = true;
+				g_bClientIsOutlier[client] = true;
 				outliers++;
 			}
-			else if (g_iClientScore[client] > upperBound || g_iClientScore[client] < lowerBound)
+			else if (g_fClientScore[client] > upperBound || g_fClientScore[client] < lowerBound)
 			{
-				g_iClientOutlier[client] = true;
+				g_bClientIsOutlier[client] = true;
 				outliers++;
 			}
 		}
@@ -207,14 +207,14 @@ void SetStreak(int winningTeam)
 		float decayAmount = cvar_DecayAmount.FloatValue;
 		int winnerIndex = winningTeam - 2;
 		int loserIndex 	= (winningTeam + 1) % 2;
-		++g_iStreak[winnerIndex];
+		++g_fTeamWinStreak[winnerIndex];
 		if (cvar_UseDecay.BoolValue)
 		{
-			g_iStreak[loserIndex] = (g_iStreak[loserIndex] > decayAmount) ? (g_iStreak[loserIndex] - decayAmount) : 0.0;
+			g_fTeamWinStreak[loserIndex] = (g_fTeamWinStreak[loserIndex] > decayAmount) ? (g_fTeamWinStreak[loserIndex] - decayAmount) : 0.0;
 		}
 		else
 		{
-			g_iStreak[loserIndex] = 0.0;
+			g_fTeamWinStreak[loserIndex] = 0.0;
 		}
 	}
 }
@@ -237,11 +237,11 @@ int SortCloseSums(int outliers)
 	while(tCount < bigTeamSize && ctCount < bigTeamSize)
 	{
 		client = g_iClient[i];
-		if (client && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_iClientOutlier[client])
+		if (client && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_bClientIsOutlier[client])
 		{
 			if (tSum < ctSum)
 			{
-				tSum += g_iClientScore[client];
+				tSum += g_fClientScore[client];
 				++tCount;
 				if (GetClientTeam(client) == TEAM_CT)
 				{
@@ -250,7 +250,7 @@ int SortCloseSums(int outliers)
 			}
 			else
 			{
-				ctSum += g_iClientScore[client];
+				ctSum += g_fClientScore[client];
 				++ctCount;
 				if (GetClientTeam(client) == TEAM_T)
 				{
@@ -263,7 +263,7 @@ int SortCloseSums(int outliers)
 	while(i < sizeof(g_iClient))
 	{
 		client = g_iClient[i];
-		if (client && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_iClientOutlier[client])
+		if (client && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && !g_bClientIsOutlier[client])
 		{
 			if (tCount < smallTeamSize)
 			{
@@ -317,8 +317,8 @@ int Sort_Scores(int client1, int client2, const int[] array, Handle hndl)
 			return 0;
 		}
 	}
-	float client1Score = g_iClientScore[client1];
-	float client2Score = g_iClientScore[client2];
+	float client1Score = g_fClientScore[client1];
+	float client2Score = g_fClientScore[client2];
 	if(client1Score == client2Score)
 	{
 		return 0;
@@ -345,10 +345,10 @@ void FixMissingScores()
 		int client = g_iClient[i];
 		if (client && IsClientInGame(client) && !IsClientSourceTV(client))
 		{
-			if (g_iClientScore[client] == -1.0)
+			if (g_fClientScore[client] == -1.0)
 			{
-				g_iClientScoreUpdated[client] = true;
-				g_iClientScore[client] = g_LastAverageScore;
+				g_bClientScoreUpdated[client] = true;
+				g_fClientScore[client] = g_LastAverageScore;
 			}
 		}
 	}

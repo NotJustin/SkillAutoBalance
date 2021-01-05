@@ -4,6 +4,7 @@
 #include <clientprefs>
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
+#include <afk_manager>
 #define REQUIRE_PLUGIN
 
 #define SAB_PLUGIN_VARIANT " Regular"
@@ -62,14 +63,14 @@ public void OnLibraryRemoved(const char[] name)
 void GetScore(int client)
 {
 	float kills, deaths;
-	g_iClientScore[client] = -1.0;
+	g_fClientScore[client] = -1.0;
 	kills = float(GetClientFrags(client));
 	deaths = float(GetClientDeaths(client));
 	deaths = deaths < 1.0 ? 1.0 : deaths;
-	g_iClientScore[client] = kills / deaths;
+	g_fClientScore[client] = kills / deaths;
 	if (kills <= 10)
 	{
-		g_iClientScore[client] = g_iClientScore[client] / 2.0;
+		g_fClientScore[client] = g_fClientScore[client] / 2.0;
 	}
 	CreateTimer(CHECKSCORE_DELAY, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }

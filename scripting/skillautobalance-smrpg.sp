@@ -77,10 +77,10 @@ public void OnLibraryRemoved(const char[] name)
 }
 void GetScore(int client)
 {
-	g_iClientScore[client] = -1.0;
+	g_fClientScore[client] = -1.0;
 	if (g_UsingSMRPG)
 	{
-		g_iClientScore[client] = float(SMRPG_GetClientLevel(client));
+		g_fClientScore[client] = float(SMRPG_GetClientLevel(client));
 		CreateTimer(CHECKSCORE_DELAY, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else

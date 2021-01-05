@@ -3,10 +3,10 @@ Action Timer_CheckScore(Handle timer, int userId)
 	int client = GetClientOfUserId(userId);
 	if (client && IsClientInGame(client) && !IsClientSourceTV(client))
 	{
-		if (g_iClientScore[client] == -1.0)
+		if (g_fClientScore[client] == -1.0)
 		{
-			g_iClientScoreUpdated[client] = true;
-			g_iClientScore[client] = g_LastAverageScore;
+			g_bClientScoreUpdated[client] = true;
+			g_fClientScore[client] = g_LastAverageScore;
 		}
 		if (g_Balancing)
 		{
@@ -37,7 +37,7 @@ Action Timer_KickClient(Handle timer, int userId)
 Action Timer_UnpacifyPlayer(Handle timer, int userID)
 {
 	int client = GetClientOfUserId(userID);
-	g_iClientFrozen[client] = false;
+	g_bClientIsFrozen[client] = false;
 	if(client && IsClientInGame(client))
 	{
 		SetEntityRenderColor(client, 255, 255, 255, 255);

@@ -50,7 +50,7 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 	for (int i = 0; i < sizeof(g_iClient); i++)
 	{
 		client = g_iClient[i];
-		g_iClientScoreUpdated[client] = false;
+		g_bClientScoreUpdated[client] = false;
 	}
 	g_AllowSpawn = false;
 	if (!IsWarmupActive())
@@ -74,8 +74,8 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 			else
 			{
 				UpdateScores();
-				g_iStreak[0] = 0.0;
-				g_iStreak[1] = 0.0;
+				g_fTeamWinStreak[0] = 0.0;
+				g_fTeamWinStreak[1] = 0.0;
 				g_PlayerCountChange = 0;
 			}
 		}
@@ -90,8 +90,8 @@ void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 	{
 		return;
 	}
-	g_iClientConnectFull[client] = true;
-	if (g_iClientPostAdminCheck[client])
+	g_bClientConnectFull[client] = true;
+	if (g_bClientPostAdminCheck[client])
 	{
 		InitializeClient(client);
 	}

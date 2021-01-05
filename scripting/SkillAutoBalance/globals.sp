@@ -1,7 +1,7 @@
 #define SAB_PLUGIN_NAME "SkillAutoBalance" ... SAB_PLUGIN_VARIANT
 #define SAB_PLUGIN_AUTHOR "Justin (ff)"
 #define SAB_PLUGIN_DESCRIPTION "A configurable automated team manager"
-#define SAB_PLUGIN_VERSION "3.2.4"
+#define SAB_PLUGIN_VERSION "3.2.5"
 #define SAB_PLUGIN_URL "https://steamcommunity.com/id/NameNotJustin/"
 
 #define UNASSIGNED 0
@@ -12,15 +12,15 @@
 #define CHECKSCORE_DELAY 1.0
 
 bool
-	g_iClientScoreUpdated[MAXPLAYERS + 1] = {false, false, ...},
-	g_iClientPostAdminCheck[MAXPLAYERS + 1] = {false, false, ...},
-	g_iClientConnectFull[MAXPLAYERS + 1] = {false, false, ...},
+	g_bClientScoreUpdated[MAXPLAYERS + 1] = {false, false, ...},
+	g_bClientPostAdminCheck[MAXPLAYERS + 1] = {false, false, ...},
+	g_bClientConnectFull[MAXPLAYERS + 1] = {false, false, ...},
 	g_AllowSpawn = true,
 	g_ForceBalance,
 	g_Balancing,
-	g_iClientFrozen[MAXPLAYERS + 1],
-	g_iClientOutlier[MAXPLAYERS + 1],
-	g_iClientForceJoin[MAXPLAYERS + 1],
+	g_bClientIsFrozen[MAXPLAYERS + 1],
+	g_bClientIsOutlier[MAXPLAYERS + 1],
+	g_bClientForceJoin[MAXPLAYERS + 1],
 	g_SetTeamHooked = false,
 	g_ForceBalanceHooked = false,
 	g_LateLoad = false,
@@ -64,8 +64,8 @@ ConVar
 ;
 
 float
-	g_iClientScore[MAXPLAYERS + 1],
-	g_iStreak[2],
+	g_fClientScore[MAXPLAYERS + 1],
+	g_fTeamWinStreak[2],
 	g_LastAverageScore = 1000.0
 ;
 

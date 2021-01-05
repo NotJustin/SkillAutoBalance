@@ -77,10 +77,10 @@ public void OnLibraryRemoved(const char[] name)
 }
 void GetScore(int client)
 {
-	g_iClientScore[client] = -1.0;
+	g_fClientScore[client] = -1.0;
 	if (g_UsingNCRPG)
 	{
-		g_iClientScore[client] = NCRPG_GetSkillSum(client);
+		g_fClientScore[client] = NCRPG_GetSkillSum(client);
 		CreateTimer(CHECKSCORE_DELAY, Timer_CheckScore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else

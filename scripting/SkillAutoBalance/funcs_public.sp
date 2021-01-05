@@ -16,8 +16,8 @@ public void OnClientPostAdminCheck(int client)
 			ColorPrintToChat(client, "Not Kicked Because Admin");
 		}
 	}
-	g_iClientPostAdminCheck[client] = true;
-	if (g_iClientConnectFull[client])
+	g_bClientPostAdminCheck[client] = true;
+	if (g_bClientConnectFull[client])
 	{
 		InitializeClient(client);
 	}
@@ -38,13 +38,13 @@ public void OnClientCookiesCached(int client)
 public void OnClientDisconnect(int client)
 {
 	g_iClientTeam[client] = TEAM_SPEC;
-	g_iClientScoreUpdated[client] = false;
-	g_iClientScore[client] = -1.0;
-	g_iClientFrozen[client] = false;
-	g_iClientOutlier[client] = false;
+	g_bClientScoreUpdated[client] = false;
+	g_fClientScore[client] = -1.0;
+	g_bClientIsFrozen[client] = false;
+	g_bClientIsOutlier[client] = false;
 	g_iClientForceJoinPreference[client] = 0;
-	g_iClientPostAdminCheck[client] = false;
-	g_iClientConnectFull[client] = false;
+	g_bClientPostAdminCheck[client] = false;
+	g_bClientConnectFull[client] = false;
 	++g_PlayerCountChange;
 	if (!AreTeamsEmpty())
 	{
@@ -76,12 +76,12 @@ public void OnMapStart()
 	{
 		GameRules_SetProp("m_bIsQueuedMatchmaking", 1);
 	}
-	g_iStreak[0] = 0.0;
-	g_iStreak[1] = 0.0;
+	g_fTeamWinStreak[0] = 0.0;
+	g_fTeamWinStreak[1] = 0.0;
 }
 public Action OnPlayerRunCmd(int client, int &buttons)
 {
-	if (g_iClientFrozen[client])
+	if (g_bClientIsFrozen[client])
 	{
 		buttons &= ~IN_ATTACK2;
 		buttons &= ~IN_ATTACK;

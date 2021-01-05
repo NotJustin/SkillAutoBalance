@@ -17,22 +17,7 @@ Action Command_Join(int client, int args)
 	int team;
 	if (cvar_ChatChangeTeam.BoolValue && (cvar_BlockTeamSwitch.IntValue != 2) && client && IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_T && team != TEAM_CT)
 	{
-		if (g_iClientTeam[client] == TEAM_SPEC || g_iClientTeam[client] == UNASSIGNED)
-		{
-			SwapPlayer(client, GetSmallestTeam(), "Auto Join");
-		}
-		else if (CanJoin(client, g_iClientTeam[client], false))
-		{
-			SwapPlayer(client, g_iClientTeam[client], "Auto Join");
-		}
-		else if (g_iClientTeam[client] == TEAM_T)
-		{
-			SwapPlayer(client, TEAM_CT, "Auto Join");
-		}
-		else
-		{
-			SwapPlayer(client, TEAM_T, "Auto Join");
-		}
+		PutClientOnATeam(client);
 	}
 	return Plugin_Handled;
 }
@@ -125,9 +110,9 @@ Action CommandList_JoinTeam(int client, const char[] command, int argc)
 	{
 		return Plugin_Continue;
 	}
-	if (g_iClientForceJoin[client])
+	if (g_bClientForceJoin[client])
 	{
-		g_iClientForceJoin[client] = false;
+		g_bClientForceJoin[client] = false;
 		return Plugin_Continue;
 	}
 	if (cvar_BlockTeamSwitch.IntValue == 2)
