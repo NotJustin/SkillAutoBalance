@@ -18,9 +18,10 @@ bool
 	g_AllowSpawn = true,
 	g_ForceBalance,
 	g_Balancing,
-	g_bClientIsFrozen[MAXPLAYERS + 1],
-	g_bClientIsOutlier[MAXPLAYERS + 1],
-	g_bClientForceJoin[MAXPLAYERS + 1],
+	g_bClientSwapPending[MAXPLAYERS + 1] = {false, false, ...},
+	g_bClientIsFrozen[MAXPLAYERS + 1] = {false, false, ...},
+	g_bClientIsOutlier[MAXPLAYERS + 1] = {false, false, ...},
+	g_bClientForceJoin[MAXPLAYERS + 1] = {false, false, ...},
 	g_SetTeamHooked = false,
 	g_ForceBalanceHooked = false,
 	g_LateLoad = false,
@@ -34,6 +35,11 @@ char
 ;
 
 ConVar
+	cvar_AutoTeamBalance,
+	cvar_LimitTeams,
+	cvar_MaxRounds,
+	cvar_NoBalanceLastNMinutes,
+	cvar_NoBalanceLastNRounds,
 	cvar_BalanceAfterNPlayersChange,
 	cvar_BalanceAfterNRounds,
 	cvar_BalanceEveryRound,

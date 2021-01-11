@@ -18,6 +18,16 @@ void UpdateConfigs()
 	UpdatePrefixColor(cvar_PrefixColor, str, str);
 	UpdateMessageType(cvar_MessageType, str, str);
 	UpdateBlockTeamSwitch(cvar_BlockTeamSwitch, str, str);
+	UpdateAutoTeamBalance(cvar_AutoTeamBalance, str, str);
+	UpdateLimitTeams(cvar_LimitTeams, str, str);
+}
+void UpdateAutoTeamBalance(ConVar convar, char [] oldValue, char [] newValue)
+{
+	convar.IntValue = 0;
+}
+void UpdateLimitTeams(ConVar convar, char [] oldValue, char [] newValue)
+{
+	convar.IntValue = 0;
 }
 void UpdateForceBalance(ConVar convar, char [] oldValue, char [] newValue)
 {

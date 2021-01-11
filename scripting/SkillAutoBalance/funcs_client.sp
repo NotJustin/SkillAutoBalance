@@ -63,7 +63,6 @@ void PacifyPlayer(int client)
 	{
 		ColorPrintToChat(client, "Pacified Client");
 	}
-	CS_UpdateClientModel(client);
 	g_bClientIsFrozen[client] = true;
 	SetEntityRenderColor(client, 0, 170, 174, 255);
 	SetEntProp(client, Prop_Data, "m_takedamage", 0, 1);

@@ -46,12 +46,6 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 }
 void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
-	int client;
-	for (int i = 0; i < sizeof(g_iClient); i++)
-	{
-		client = g_iClient[i];
-		g_bClientScoreUpdated[client] = false;
-	}
 	g_AllowSpawn = false;
 	if (!IsWarmupActive())
 	{
@@ -59,10 +53,17 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 	}
 	if(GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT) >= cvar_MinPlayers.IntValue)
 	{
-		SetStreak((event.GetInt("winner") == TEAM_T) ? TEAM_T : TEAM_CT);
-		if(g_ForceBalance || BalanceSkillNeeded() || !AreTeamsEvenlySized())
+		SetStreak(event.GetInt("winner"));
+		if(BalanceSkillNeeded())
 		{
 			g_Balancing = true;
+			int client;
+			for (int i = 0; i < sizeof(g_iClient); i++)
+			{
+				client = g_iClient[i];
+				g_bClientScoreUpdated[client] = false;
+				g_bClientSwapPending[client] = false;
+			}
 			if (cvar_Scramble.BoolValue)
 			{
 				if (cvar_DisplayChatMessages.BoolValue)
@@ -74,10 +75,10 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 			else
 			{
 				UpdateScores();
-				g_fTeamWinStreak[0] = 0.0;
-				g_fTeamWinStreak[1] = 0.0;
-				g_PlayerCountChange = 0;
 			}
+			g_fTeamWinStreak[0] = 0.0;
+			g_fTeamWinStreak[1] = 0.0;
+			g_PlayerCountChange = 0;
 		}
 	}
 	g_ForceBalance = false;

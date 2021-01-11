@@ -1,5 +1,15 @@
 void CreateConVars()
 {
+	cvar_AutoTeamBalance = FindConVar("mp_autoteambalance");
+	cvar_GraceTime = FindConVar("mp_join_grace_time");
+	cvar_LimitTeams = FindConVar("mp_limitteams");
+	cvar_MaxRounds = FindConVar("mp_maxrounds");
+	cvar_RoundRestartDelay = FindConVar("mp_round_restart_delay");
+	cvar_RoundTime = FindConVar("mp_roundtime");
+
+	cvar_NoBalanceLastNMinutes = CreateConVar("sab_nobalancelastnminutes", "0", "0 = Disabled. Otherwise, this is the amount of time remaining before the map ends where balancing is turned off.");
+	cvar_NoBalanceLastNRounds = CreateConVar("sab_nobalancelastnrounds", "0", "0 = Disabled. Otherwise, this is the amount of rounds remaining before the map ends where balancing is turned off.");
+
 	cvar_BalanceAfterNRounds = CreateConVar("sab_balanceafternrounds", "0", "0 = Disabled. Otherwise, after map change balance teams when 'N' rounds pass. Then balance based on team win streaks", _, true, 0.0);
 	cvar_BalanceAfterNPlayersChange = CreateConVar("sab_balanceafternplayerschange", "0", "0 = Disabled. Otherwise, balance  teams when 'N' players join/leave the server. Requires sab_balanceafternrounds to be enabled", _, true, 0.0);
 	cvar_BalanceEveryRound = CreateConVar("sab_balanceeveryround", "0", "If enabled, teams will be rebalanced at the end of every round", _, true, 0.0, true, 1.0);
@@ -11,7 +21,6 @@ void CreateConVars()
 	cvar_EnablePlayerTeamMessage = CreateConVar("sab_enableplayerteammessage", "0", "Show the messages in chat when a player switches team?", _, true, 0.0, true, 1.0);
 	cvar_ForceBalance = CreateConVar("sab_forcebalance", "0", "Add 'force balance' to 'server commands' in generic admin menu", _, true, 0.0, true, 1.0);
 	cvar_ForceJoinTeam = CreateConVar("sab_forcejointeam", "0", "0 = Disabled, 1 = Optional (!settings), 2 = Forced. Force clients to join a team upon connecting to the server. Always enabled if both sab_chatchangeteam and sab_teammenu are disabled", _, true, 0.0, true, 2.0);
-	cvar_GraceTime = FindConVar("mp_join_grace_time");
 	cvar_KeepPlayersAlive = CreateConVar("sab_keepplayersalive", "1", "Living players are kept alive when their teams are changed", _, true, 0.0, true, 1.0);
 	cvar_MaxTeamSize = CreateConVar("sab_maxteamsize", "0", "0 = Unlimited. Max players allowed on each team. If both teams reach this amount, new non-admin players are kicked. Only works if sab_blockteamswitch is 2.", _, true, 0.0);
 	cvar_MessageColor = CreateConVar("sab_messagecolor", "white", "See sab_messagetype for info");
@@ -20,8 +29,6 @@ void CreateConVars()
 	cvar_MinStreak = CreateConVar("sab_minstreak", "6", "Amount of wins in a row a team needs before autobalance occurs", _, true, 0.0);
 	cvar_Prefix = CreateConVar("sab_prefix", "[SAB]", "The prefix for messages this plugin writes in the server");
 	cvar_PrefixColor = CreateConVar("sab_prefixcolor", "white", "See sab_messagetype for info");
-	cvar_RoundRestartDelay = FindConVar("mp_round_restart_delay");
-	cvar_RoundTime = FindConVar("mp_roundtime");
 	cvar_Scale = CreateConVar("sab_scale", "1.5", "Value to multiply IQR by. If your points have low spread keep this number. If your points have high spread change this to a lower number, like 0.5", _, true, 0.1);
 	cvar_Scramble = CreateConVar("sab_scramble", "0", "Randomize teams instead of using a skill formula", _, true, 0.0, true, 1.0);
 	cvar_SetTeam = CreateConVar("sab_setteam", "0", "Add 'set player team' to 'player commands' in generic admin menu", _, true, 0.0, true, 1.0);
@@ -39,4 +46,6 @@ void AddChangeHooks()
 	cvar_SetTeam.AddChangeHook(UpdateSetTeam);
 	cvar_TeamMenu.AddChangeHook(UpdateTeamMenu);
 	cvar_BlockTeamSwitch.AddChangeHook(UpdateBlockTeamSwitch);
+	cvar_AutoTeamBalance.AddChangeHook(UpdateAutoTeamBalance);
+	cvar_LimitTeams.AddChangeHook(UpdateLimitTeams);
 }

@@ -54,6 +54,8 @@ public void OnClientDisconnect(int client)
 }
 public void OnConfigsExecuted()
 {
+	cvar_AutoTeamBalance.SetInt(0);
+	cvar_LimitTeams.SetInt(0);
 	UpdateConfigs();
 	CheckIfLibrariesExist();
 }

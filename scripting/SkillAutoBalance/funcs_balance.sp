@@ -1,7 +1,37 @@
+void SwapFewestPlayers()
+{
+	int wrongTeam = 0, correctTeam = 0;
+	int teams[2] = {TEAM_T, TEAM_CT};
+	int team;
+	for (int client = 0; client < sizeof(g_bClientSwapPending); ++client)
+	{
+		if (client && IsClientInGame(client))
+		{
+			if (g_bClientSwapPending[client])
+			{
+				++wrongTeam;
+			}
+			else
+			{
+				++correctTeam;
+			}
+		}
+	}
+	for (int client = 0; client < sizeof(g_bClientSwapPending); ++client)
+	{
+		if (IsClientInGame(client) && (team = GetClientTeam(client) != TEAM_SPEC && team != UNASSIGNED))
+		{
+			if ((wrongTeam > correctTeam) ^ g_bClientSwapPending[client])
+			{
+				SwapPlayer(client, teams[(team + 1) % 2], "Client Skill Balance");
+			}
+		}
+	}
+}
 void AddOutliers(int sizes[2])
 {
 	int client, team;
-	int teams[2] = {2, 3};
+	int teams[2] = {TEAM_T, TEAM_CT};
 	int nextTeam = (sizes[0] <= sizes[1] ? 0 : 1);
 	for (int i = 0; i < sizeof(g_iClient); ++i)
 	{
@@ -10,7 +40,8 @@ void AddOutliers(int sizes[2])
 		{
 			if (GetClientTeam(client) != teams[nextTeam])
 			{
-				SwapPlayer(client, teams[nextTeam], "Client Skill Balance");
+				g_bClientSwapPending[client] = true;
+				//SwapPlayer(client, teams[nextTeam], "Client Skill Balance");
 			}
 			nextTeam = (nextTeam + 1) % 2;
 		}
@@ -31,32 +62,41 @@ void BalanceSkill()
 	{
 		AddOutliers(sizes);
 	}
+	SwapFewestPlayers();
 }
 bool BalanceSkillNeeded()
 {
-	int time;
-	GetMapTimeLeft(time);
-	int minStreak = cvar_MinStreak.IntValue;
-	if (time > (cvar_RoundTime.FloatValue * 60 + cvar_RoundRestartDelay.FloatValue + 1))
+	if (g_ForceBalance)
 	{
-		if (cvar_BalanceEveryRound.BoolValue || g_fTeamWinStreak[0] >= minStreak || g_fTeamWinStreak[1] >= minStreak)
-		{
-			return true;
-		}
-		else if(cvar_BalanceAfterNRounds.BoolValue)
-		{
-			if (g_RoundCount == cvar_BalanceAfterNRounds.IntValue)
-			{
-				return true;
-			}
-			else if (cvar_BalanceAfterNPlayersChange.BoolValue && g_RoundCount >= cvar_BalanceAfterNRounds.IntValue)
-			{
-				if (g_PlayerCountChange >= cvar_BalanceAfterNPlayersChange.IntValue)
-				{
-					return true;
-				}
-			}
-		}
+		return true;
+	}
+	int timeLeft;
+	GetMapTimeLeft(timeLeft);
+	float roundTimeMinutes = cvar_RoundTime.FloatValue * 60 + cvar_RoundRestartDelay.FloatValue + 1;
+	float noBalanceTimeMinutes = cvar_NoBalanceLastNMinutes.FloatValue;
+	float minTime = roundTimeMinutes <= noBalanceTimeMinutes ? roundTimeMinutes : noBalanceTimeMinutes;
+	if (timeLeft < minTime || GetTeamScore(TEAM_T) + GetTeamScore(TEAM_CT) >= (cvar_MaxRounds.IntValue - cvar_NoBalanceLastNRounds.IntValue))
+	{
+		return false;
+	}
+	if (!AreTeamsEvenlySized())
+	{
+		return true;
+	}
+	int minStreak = cvar_MinStreak.IntValue;
+	if (cvar_BalanceEveryRound.BoolValue || g_fTeamWinStreak[0] >= minStreak || g_fTeamWinStreak[1] >= minStreak)
+	{
+		return true;
+	}
+	int balanceAfterNRounds = cvar_BalanceAfterNRounds.IntValue;
+	if(balanceAfterNRounds && balanceAfterNRounds == g_RoundCount)
+	{
+		return true;
+	}
+	int balanceAfterNPlayersChange = cvar_BalanceAfterNPlayersChange.IntValue;
+	if (balanceAfterNPlayersChange && balanceAfterNPlayersChange <= g_PlayerCountChange)
+	{
+		return true;
 	}
 	return false;
 }
@@ -183,7 +223,7 @@ int RemoveOutliers()
 void ScrambleTeams()
 {
 	SortIntegers(g_iClient, sizeof(g_iClient), Sort_Random);
-	int teams[2] = {2, 3};
+	int teams[2] = {TEAM_T, TEAM_CT};
 	int nextTeam = GetSmallestTeam() - 2;
 	int client, team;
 	for (int i = 0; i < sizeof(g_iClient); ++i)
@@ -245,7 +285,8 @@ int SortCloseSums(int outliers)
 				++tCount;
 				if (GetClientTeam(client) == TEAM_CT)
 				{
-					SwapPlayer(client, TEAM_T, "Client Skill Balance");
+					g_bClientSwapPending[client] = true;
+					//SwapPlayer(client, TEAM_T, "Client Skill Balance");
 				}
 			}
 			else
@@ -254,7 +295,8 @@ int SortCloseSums(int outliers)
 				++ctCount;
 				if (GetClientTeam(client) == TEAM_T)
 				{
-					SwapPlayer(client, TEAM_CT, "Client Skill Balance");
+					g_bClientSwapPending[client] = true;
+					//SwapPlayer(client, TEAM_CT, "Client Skill Balance");
 				}
 			}
 		}
@@ -270,7 +312,8 @@ int SortCloseSums(int outliers)
 				++tCount;
 				if (GetClientTeam(client) == TEAM_CT)
 				{
-					SwapPlayer(client, TEAM_T, "Client Skill Balance");
+					g_bClientSwapPending[client] = true;
+					//SwapPlayer(client, TEAM_T, "Client Skill Balance");
 				}
 			}
 			else if (ctCount < smallTeamSize)
@@ -278,7 +321,8 @@ int SortCloseSums(int outliers)
 				++ctCount;
 				if(GetClientTeam(client) == TEAM_T)
 				{
-					SwapPlayer(client, TEAM_CT, "Client Skill Balance");
+					g_bClientSwapPending[client] = true;
+					//SwapPlayer(client, TEAM_CT, "Client Skill Balance");
 				}
 			}
 		}
