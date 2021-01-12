@@ -2,9 +2,10 @@ void SwapFewestPlayers()
 {
 	int wrongTeam = 0, correctTeam = 0;
 	int teams[2] = {TEAM_T, TEAM_CT};
-	int team;
-	for (int client = 0; client < sizeof(g_bClientSwapPending); ++client)
+	int team, client;
+	for (int i = 0; i < sizeof(g_iClient); ++i)
 	{
+		client = g_iClient[i];
 		if (client && IsClientInGame(client))
 		{
 			if (g_bClientSwapPending[client])
@@ -17,14 +18,12 @@ void SwapFewestPlayers()
 			}
 		}
 	}
-	for (int client = 0; client < sizeof(g_bClientSwapPending); ++client)
+	for (int i = 0; i < sizeof(g_iClient); ++i)
 	{
-		if (IsClientInGame(client) && (team = GetClientTeam(client) != TEAM_SPEC && team != UNASSIGNED))
+		client = g_iClient[i];
+		if (IsClientInGame(client) && (team = GetClientTeam(client)) != TEAM_SPEC && team != UNASSIGNED && ((wrongTeam > correctTeam) ^ g_bClientSwapPending[client]))
 		{
-			if ((wrongTeam > correctTeam) ^ g_bClientSwapPending[client])
-			{
-				SwapPlayer(client, teams[(team + 1) % 2], "Client Skill Balance");
-			}
+			SwapPlayer(client, teams[(team + 1) % 2], "Client Skill Balance");
 		}
 	}
 }
