@@ -73,8 +73,12 @@ bool BalanceSkillNeeded()
 	GetMapTimeLeft(timeLeft);
 	float roundTimeMinutes = cvar_RoundTime.FloatValue * 60 + cvar_RoundRestartDelay.FloatValue + 1;
 	float noBalanceTimeMinutes = cvar_NoBalanceLastNMinutes.FloatValue;
-	float minTime = roundTimeMinutes <= noBalanceTimeMinutes ? roundTimeMinutes : noBalanceTimeMinutes;
-	if (timeLeft < minTime || GetTeamScore(TEAM_T) + GetTeamScore(TEAM_CT) >= (cvar_MaxRounds.IntValue - cvar_NoBalanceLastNRounds.IntValue))
+	float minTime = roundTimeMinutes >= noBalanceTimeMinutes ? roundTimeMinutes : noBalanceTimeMinutes;
+	if (timeLeft < minTime)
+	{
+		return false;
+	}
+	if (cvar_NoBalanceLastNRounds.BoolValue && GetTeamScore(TEAM_T) + GetTeamScore(TEAM_CT) >= (cvar_MaxRounds.IntValue - cvar_NoBalanceLastNRounds.IntValue))
 	{
 		return false;
 	}
