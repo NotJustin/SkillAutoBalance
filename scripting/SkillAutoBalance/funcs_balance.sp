@@ -69,6 +69,11 @@ void BalanceSkill()
 {
 	ArrayList sortedPlayers = GetSortedPlayers();
 	int outliers = FindOutliers(sortedPlayers);
+	if (outliers == -1)
+	{
+		// Cancel balance because some player(s) left(?), and not enough are on server to properly balance.
+		return;
+	}
 	int sizes[2];
 	sizes = AssignPlayersToTeams(sortedPlayers, outliers);
 	if (outliers > 0)
@@ -172,6 +177,11 @@ int FindOutliers(ArrayList sortedPlayers)
 {
 	int outliers = 0;
 	int size = GetTeamClientCount(CS_TEAM_T) + GetTeamClientCount(CS_TEAM_CT);
+	if (size < 2)
+	{
+		// Cancel balance because some player(s) left(?), and not enough are on server to properly balance.
+		return -1;
+	}
 	int q1Start = 0;
 	int q3End = size - 1;
 	float q1Med, q3Med, IQR;
