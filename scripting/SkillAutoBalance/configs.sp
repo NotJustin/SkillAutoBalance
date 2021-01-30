@@ -14,22 +14,20 @@ void UpdateConfigs()
 	UpdateTeamMenu(cvar_TeamMenu, str, str);
 	UpdateSetTeam(cvar_SetTeam, str, str);
 	UpdateForceBalance(cvar_ForceBalance, str, str);
-	UpdatePrefix(cvar_Prefix, str, str);
-	UpdatePrefixColor(cvar_PrefixColor, str, str);
-	UpdateMessageType(cvar_MessageType, str, str);
 	UpdateBlockTeamSwitch(cvar_BlockTeamSwitch, str, str);
 	UpdateAutoTeamBalance(cvar_AutoTeamBalance, str, str);
 	UpdateLimitTeams(cvar_LimitTeams, str, str);
+	UpdateScoreType(cvar_ScoreType, str, str);
 }
-void UpdateAutoTeamBalance(ConVar convar, char [] oldValue, char [] newValue)
+void UpdateAutoTeamBalance(ConVar convar, char[] oldValue, char[] newValue)
 {
 	convar.IntValue = 0;
 }
-void UpdateLimitTeams(ConVar convar, char [] oldValue, char [] newValue)
+void UpdateLimitTeams(ConVar convar, char[] oldValue, char[] newValue)
 {
 	convar.IntValue = 0;
 }
-void UpdateForceBalance(ConVar convar, char [] oldValue, char [] newValue)
+void UpdateForceBalance(ConVar convar, char[] oldValue, char[] newValue)
 {
 	if (g_UsingAdminmenu && !g_ForceBalanceHooked && convar.BoolValue)
 	{
@@ -43,48 +41,7 @@ void UpdateForceBalance(ConVar convar, char [] oldValue, char [] newValue)
 		}
 	}
 }
-void UpdateMessageColor(ConVar convar, char [] oldValue, char [] newValue)
-{
-	char sMessageColor[20];
-	GetConVarString(convar, sMessageColor, sizeof(sMessageColor));
-	int messageType = cvar_MessageType.IntValue;
-	if (messageType == 0 || messageType == 1)
-	{
-		g_MessageColor = "\x01";
-	}
-	else if(messageType == 2 || messageType == 3)
-	{
-		SetColor(g_MessageColor, sMessageColor);
-	}
-}
-void UpdateMessageType(ConVar convar, char [] oldValue, char [] newValue)
-{
-	char str[20];
-	GetConVarString(cvar_MessageColor, str, sizeof(str));
-	UpdateMessageColor(cvar_MessageColor, str, str);
-	str[0] = '\0';
-	GetConVarString(cvar_PrefixColor, str, sizeof(str));
-	UpdatePrefixColor(cvar_PrefixColor, str, str);
-}
-void UpdatePrefix(ConVar convar, char [] oldValue, char [] newValue)
-{
-	GetConVarString(convar, g_Prefix, sizeof(g_Prefix));
-}
-void UpdatePrefixColor(ConVar convar, char [] oldValue, char [] newValue)
-{
-	char sPrefixColor[20];
-	GetConVarString(convar, sPrefixColor, sizeof(sPrefixColor));
-	int messageType = cvar_MessageType.IntValue;
-	if (messageType == 0 || messageType == 2)
-	{
-		g_PrefixColor = "\x01";
-	}
-	else if(messageType == 1 || messageType == 3)
-	{
-		SetColor(g_PrefixColor, sPrefixColor);
-	}
-}
-void UpdateSetTeam(ConVar convar, char [] oldValue, char [] newValue)
+void UpdateSetTeam(ConVar convar, char[] oldValue, char[] newValue)
 {
 	if (g_UsingAdminmenu && !g_SetTeamHooked && convar.BoolValue)
 	{
@@ -98,7 +55,55 @@ void UpdateSetTeam(ConVar convar, char [] oldValue, char [] newValue)
 		}
 	}
 }
-void UpdateTeamMenu(ConVar convar, char [] oldValue, char [] newValue)
+void UpdateScoreType(ConVar convar, char[] oldValue, char[] newValue)
+{
+	SABScoreType scoreType = view_as<SABScoreType>(convar.IntValue);
+	switch(scoreType)
+	{
+		case ScoreType_Auto:
+		{
+			scoreType = FindScoreType();
+			if (scoreType != ScoreType_Invalid)
+			{
+				g_ScoreType = scoreType;
+			}
+			else
+			{
+				LogError("There are no scoretypes loaded on server.");
+			}
+		}
+		case ScoreType_gameME:
+		{
+			OnLibraryAdded("gameme");
+		}
+		case ScoreType_HLstatsX:
+		{
+			OnLibraryAdded("hlstatsx_api");
+		}
+		case ScoreType_KentoRankMe:
+		{
+			OnLibraryAdded("kento_rankme");
+		}
+		case ScoreType_LevelsRanks:
+		{
+			OnLibraryAdded("levelsranks");
+		}
+		case ScoreType_NCRPG:
+		{
+			OnLibraryAdded("NCRPG");
+		}
+		case ScoreType_SABRating:
+		{
+			OnLibraryAdded("sab_rating");
+		}
+		case ScoreType_SMRPG:
+		{
+			OnLibraryAdded("smrpg");
+		}
+	}
+}
+
+void UpdateTeamMenu(ConVar convar, char[] oldValue, char[] newValue)
 {
 	if (g_MapLoaded)
 	{

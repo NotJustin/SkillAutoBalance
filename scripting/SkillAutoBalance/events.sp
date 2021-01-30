@@ -20,19 +20,13 @@ void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	}
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	int team = event.GetInt("team");
-	if (client && client < MaxClients && IsClientInGame(client) && (team == TEAM_T || team == TEAM_CT))
+	if (client > 0 && client <= MaxClients && IsClientInGame(client) && (team == CS_TEAM_T || team == CS_TEAM_CT))
 	{
-		g_iClientTeam[client] = team;
+		g_Players[client].team = team;
 	}
 }
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-	if (cvar_DisplayChatMessages.BoolValue && cvar_ChatChangeTeam.BoolValue)
-	{
-		PrintHowToJoinForSpectators();
-	}
-	g_PlayerCount = 0;
-	g_Balancing = false;
 	if (IsWarmupActive())
 	{
 		g_AllowSpawn = true;
@@ -51,35 +45,20 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 	{
 		++g_RoundCount;
 	}
-	if(GetTeamClientCount(TEAM_T) + GetTeamClientCount(TEAM_CT) >= cvar_MinPlayers.IntValue)
+	balanceReason = BalanceSkillNeeded();
+	if(balanceReason != SAB_NoBalance)
 	{
 		SetStreak(event.GetInt("winner"));
-		if(BalanceSkillNeeded())
+		for (int client = 1; client <= MaxClients; ++client)
 		{
-			g_Balancing = true;
-			int client;
-			for (int i = 0; i < sizeof(g_iClient); i++)
-			{
-				client = g_iClient[i];
-				g_bClientScoreUpdated[client] = false;
-				g_bClientSwapPending[client] = false;
-			}
-			if (cvar_Scramble.BoolValue)
-			{
-				if (cvar_DisplayChatMessages.BoolValue)
-				{
-					ColorPrintToChatAll("Global Scramble Teams");
-				}
-				ScrambleTeams();
-			}
-			else
-			{
-				UpdateScores();
-			}
-			g_fTeamWinStreak[0] = 0.0;
-			g_fTeamWinStreak[1] = 0.0;
-			g_PlayerCountChange = 0;
+			g_Players[client].scoreUpdated = false;
+			g_Players[client].pendingSwap = false;
 		}
+		UpdateScores();
+		CreateTimer(1.0, Timer_DelayBalance);
+		g_fTeamWinStreak[0] = 0.0;
+		g_fTeamWinStreak[1] = 0.0;
+		g_PlayerCountChange = 0;
 	}
 	g_ForceBalance = false;
 }
@@ -91,8 +70,8 @@ void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
 	{
 		return;
 	}
-	g_bClientConnectFull[client] = true;
-	if (g_bClientPostAdminCheck[client])
+	g_Players[client].fullyConnected = true;
+	if (g_Players[client].postAdminChecked)
 	{
 		InitializeClient(client);
 	}

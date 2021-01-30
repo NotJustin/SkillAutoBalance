@@ -1,5 +1,6 @@
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
+	RegPluginLibrary("skillautobalance");
 	g_LateLoad = late;
 	return APLRes_Success;
 }
@@ -7,17 +8,18 @@ public void OnClientPostAdminCheck(int client)
 {
 	if (AreTeamsFull())
 	{
-		if (!CheckCommandAccess(client, "", ADMFLAG_GENERIC, true))
+		bool admin = CheckCommandAccess(client, "", ADMFLAG_GENERIC, true);
+		if (!admin)
 		{
 			CreateTimer(0.1, Timer_KickClient, GetClientUserId(client));
 		}
-		else
-		{
-			ColorPrintToChat(client, "Not Kicked Because Admin");
-		}
+		Call_StartForward(g_ClientKickForward);
+		Call_PushCell(client);
+		Call_PushCell(admin);
+		Call_Finish();
 	}
-	g_bClientPostAdminCheck[client] = true;
-	if (g_bClientConnectFull[client])
+	g_Players[client].postAdminChecked = true;
+	if (g_Players[client].fullyConnected)
 	{
 		InitializeClient(client);
 	}
@@ -28,23 +30,23 @@ public void OnClientCookiesCached(int client)
 	GetClientCookie(client, g_hForceSpawn, buffer, sizeof(buffer));
 	if (strlen(buffer) > 0)
 	{
-		g_iClientForceJoinPreference[client] = StringToInt(buffer);
+		g_Players[client].forceJoinPreference = StringToInt(buffer);
 	}
 	else
 	{
-		g_iClientForceJoinPreference[client] = 0;
+		g_Players[client].forceJoinPreference = 0;
 	}
 }
 public void OnClientDisconnect(int client)
 {
-	g_iClientTeam[client] = TEAM_SPEC;
-	g_bClientScoreUpdated[client] = false;
-	g_fClientScore[client] = -1.0;
-	g_bClientIsFrozen[client] = false;
-	g_bClientIsOutlier[client] = false;
-	g_iClientForceJoinPreference[client] = 0;
-	g_bClientPostAdminCheck[client] = false;
-	g_bClientConnectFull[client] = false;
+	g_Players[client].team = CS_TEAM_SPECTATOR;
+	g_Players[client].scoreUpdated = false;
+	g_Players[client].score = -1.0;
+	g_Players[client].isPassive = false;
+	g_Players[client].isOutlier = false;
+	g_Players[client].forceJoinPreference = 0;
+	g_Players[client].postAdminChecked = false;
+	g_Players[client].fullyConnected = false;
 	++g_PlayerCountChange;
 	if (!AreTeamsEmpty())
 	{
@@ -57,7 +59,6 @@ public void OnConfigsExecuted()
 	cvar_AutoTeamBalance.SetInt(0);
 	cvar_LimitTeams.SetInt(0);
 	UpdateConfigs();
-	CheckIfLibrariesExist();
 }
 public void OnMapEnd()
 {
@@ -67,7 +68,6 @@ public void OnMapStart()
 {
 	g_AllowSpawn = true;
 	g_MapLoaded = true;
-	g_PlayerCount = 0;
 	g_PlayerCountChange = 0;
 	g_RoundCount = 0;
 	if (cvar_TeamMenu.BoolValue)
@@ -83,7 +83,7 @@ public void OnMapStart()
 }
 public Action OnPlayerRunCmd(int client, int &buttons)
 {
-	if (g_bClientIsFrozen[client])
+	if (g_Players[client].isPassive)
 	{
 		buttons &= ~IN_ATTACK2;
 		buttons &= ~IN_ATTACK;
@@ -93,8 +93,8 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 }
 public void OnPluginStart()
 {
-	InitColorStringMap();
 	CreateConVars();
+	CreateForwards();
 	AddChangeHooks();
 	HookEvents();
 	RegCommands();
@@ -112,11 +112,15 @@ public void OnPluginStart()
 	if (g_LateLoad)
 	{
 		OnConfigsExecuted();
-		for (int i = 0; i < MaxClients; ++i)
+		for (int client = 1; client <= MaxClients; ++client)
 		{
-			if (IsClientInGame(g_iClient[i]))
+			if (IsClientInGame(client) && !IsClientSourceTV(client))
 			{
-				g_iClientTeam[i] = GetClientTeam(g_iClient[i]);
+				g_Players[client].team = GetClientTeam(client);
+				if (AreClientCookiesCached(client))
+				{
+					OnClientCookiesCached(client);
+				}
 			}
 		}	
 	}

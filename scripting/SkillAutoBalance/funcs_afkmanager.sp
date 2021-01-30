@@ -1,14 +1,13 @@
-void AFKM_OnClientBack(int client)
+public void AFKM_OnClientBack(int client)
 {
-	if (cvar_BlockTeamSwitch.IntValue == 2 && client && IsClientInGame(client))
+	if (cvar_BlockTeamSwitch.IntValue == 2 && client > 0 && client <= MaxClients && IsClientInGame(client))
 	{
 		int team = GetClientTeam(client);
-		if (team != TEAM_T && team != TEAM_CT)
+		if (team != CS_TEAM_T && team != CS_TEAM_CT)
 		{
-			if (cvar_DisplayChatMessages.BoolValue)
-			{
-				ColorPrintToChat(client, "AFK Return");
-			}
+			Call_StartForward(g_AFKReturnForward);
+			Call_PushCell(client);
+			Call_Finish();
 			PutClientOnATeam(client);
 		}
 	}

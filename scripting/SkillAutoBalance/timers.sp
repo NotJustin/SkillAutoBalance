@@ -1,26 +1,3 @@
-Action Timer_CheckScore(Handle timer, int userId)
-{
-	int client = GetClientOfUserId(userId);
-	if (client && IsClientInGame(client) && !IsClientSourceTV(client))
-	{
-		if (g_fClientScore[client] == -1.0)
-		{
-			g_bClientScoreUpdated[client] = true;
-			g_fClientScore[client] = g_LastAverageScore;
-		}
-		if (g_Balancing)
-		{
-			++g_PlayerCount;
-			if (g_PlayerCount == GetClientCountMinusSourceTV())
-			{
-				FixMissingScores();
-				BalanceSkill();
-				g_PlayerCount = 0;
-			}
-		}
-	}
-	return Plugin_Handled;
-}
 Action Timer_GraceTimeOver(Handle timer)
 {
 	g_AllowSpawn = false;
@@ -29,19 +6,39 @@ Action Timer_GraceTimeOver(Handle timer)
 Action Timer_KickClient(Handle timer, int userId)
 {
 	int client = GetClientOfUserId(userId);
-	if (client && client < MaxClients && IsClientInGame(client))
+	if (client > 0 && client <= MaxClients && IsClientInGame(client))
 	{
-		KickClient(client, "%T", "Kicked Because Teams Full");
+		KickClient(client, "%t", "Kicked Because Teams Full");
 	}
 }
 Action Timer_UnpacifyPlayer(Handle timer, int userID)
 {
 	int client = GetClientOfUserId(userID);
-	g_bClientIsFrozen[client] = false;
-	if(client && IsClientInGame(client))
+	g_Players[client].isPassive = false;
+	if(client > 0 && client <= MaxClients && IsClientInGame(client))
 	{
 		SetEntityRenderColor(client, 255, 255, 255, 255);
-		SetEntProp(client, Prop_Data, "m_takedamage", 2, 1);
+		/*
+		 * delaying god removal to prevent players from being killed in last frame.
+		 * I worry this makes them immortal very briefly on round start.
+		 * However, I don't think it is normal for players to die immediately when they spawn anyway.
+		**/
+		RequestFrame(RemoveGod, userID);
 	}
 	return Plugin_Handled;
+}
+
+Action Timer_DelayBalance(Handle timer)
+{
+	FixMissingScores();
+	BalanceSkill();
+}
+
+void RemoveGod(int userID)
+{
+	int client = GetClientOfUserId(userID);
+	if (client > 0 && client <= MaxClients && IsClientInGame(client))
+	{
+		SetEntProp(client, Prop_Data, "m_takedamage", 2, 1);
+	}
 }

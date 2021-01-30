@@ -1,20 +1,55 @@
+void GetClientScore(int client)
+{
+	switch(g_ScoreType)
+	{
+		case ScoreType_gameME:
+		{
+			QueryGameMEStats("playerinfo", client, GameMEStatsCallback, 1);
+		}
+		case ScoreType_HLstatsX:
+		{
+			HLStatsX_Api_GetStats("playerinfo", client, HLStatsXStatsCallback, 0);
+		}
+		case ScoreType_KentoRankMe:
+		{
+			g_Players[client].score = float(RankMe_GetPoints(client));
+		}
+		case ScoreType_LevelsRanks:
+		{
+			g_Players[client].score = float(LR_GetClientInfo(client, ST_EXP));
+		}
+		case ScoreType_NCRPG:
+		{
+			g_Players[client].score = NCRPG_GetSkillSum(client);
+		}
+		case ScoreType_SABRating:
+		{
+			g_Players[client].score = SABRating_GetScore(client);
+		}
+		case ScoreType_SMRPG:
+		{
+			g_Players[client].score = float(SMRPG_GetClientLevel(client));
+		}
+	}
+}
+
 void PutClientOnATeam(int client)
 {
-	if (g_iClientTeam[client] == TEAM_SPEC || g_iClientTeam[client] == UNASSIGNED)
+	if (g_Players[client].team == CS_TEAM_SPECTATOR || g_Players[client].team == CS_TEAM_NONE)
 	{
-		SwapPlayer(client, GetSmallestTeam(), "Auto Join");
+		SwapPlayer(client, GetSmallestTeam(), SAB_AutoJoin);
 	}
-	else if (CanJoin(client, g_iClientTeam[client], false))
+	else if (CanJoin(client, g_Players[client].team))
 	{
-		SwapPlayer(client, g_iClientTeam[client], "Auto Join");
+		SwapPlayer(client, g_Players[client].team, SAB_AutoJoin);
 	}
-	else if (g_iClientTeam[client] == TEAM_T)
+	else if (g_Players[client].team == CS_TEAM_T)
 	{
-		SwapPlayer(client, TEAM_CT, "Auto Join");
+		SwapPlayer(client, CS_TEAM_CT, SAB_AutoJoin);
 	}
 	else
 	{
-		SwapPlayer(client, TEAM_T, "Auto Join");
+		SwapPlayer(client, CS_TEAM_T, SAB_AutoJoin);
 	}
 }
 
@@ -24,57 +59,63 @@ void InitializeClient(int client)
 	{
 		OnClientCookiesCached(client);
 	}
-	g_iClientTeam[client] = TEAM_SPEC;
-	g_bClientScoreUpdated[client] = false;
-	g_fClientScore[client] = -1.0;
-	g_bClientIsFrozen[client] = false;
-	g_bClientIsOutlier[client] = false;
+	g_Players[client].team = CS_TEAM_SPECTATOR;
+	g_Players[client].scoreUpdated = false;
+	g_Players[client].score = -1.0;
+	g_Players[client].isPassive = false;
+	g_Players[client].isOutlier = false;
 	++g_PlayerCountChange;
-	if (!cvar_TeamMenu.BoolValue && cvar_DisplayChatMessages.BoolValue)
+	bool teamMenuEnabled = cvar_TeamMenu.BoolValue;
+	bool autoJoin = false;
+	bool autoJoinSuccess = false;
+	if ((cvar_ForceJoinTeam.IntValue == 1 && g_Players[client].forceJoinPreference == 1) || cvar_ForceJoinTeam.IntValue == 2 || (!cvar_ChatChangeTeam.BoolValue && !teamMenuEnabled && cvar_BlockTeamSwitch.BoolValue))
 	{
-		ColorPrintToChat(client, "Team Menu Disabled");
-	}
-	if ((cvar_ForceJoinTeam.IntValue == 1 && g_iClientForceJoinPreference[client] == 1) || cvar_ForceJoinTeam.IntValue == 2 || (!cvar_ChatChangeTeam.BoolValue && !cvar_TeamMenu.BoolValue && cvar_BlockTeamSwitch.IntValue > 0))
-	{
+		autoJoin = true;
 		if (!AreTeamsFull())
 		{
-			g_bClientForceJoin[client] = true;
+			autoJoinSuccess = true;
+			g_Players[client].pendingForceJoin = true;
 			int team = GetSmallestTeam();
 			ClientCommand(client, "jointeam 0 %i", team);
-			if (!IsPlayerAlive(client) && (GetClientTeam(client) == TEAM_T || GetClientTeam(client) == TEAM_CT) && (g_AllowSpawn || AreTeamsEmpty()))
+			if (!IsPlayerAlive(client) && (GetClientTeam(client) == CS_TEAM_T || GetClientTeam(client) == CS_TEAM_CT) && (g_AllowSpawn || AreTeamsEmpty()))
 			{
 				CS_RespawnPlayer(client);
 			}
 		}
 		else
 		{
-			ColorPrintToChat(client, "Teams Are Full");
 			ClientCommand(client, "spectate");
 		}
 	}
 	else
 	{
-		g_bClientForceJoin[client] = false;
+		g_Players[client].pendingForceJoin = false;
 	}
+	Call_StartForward(g_ClientInitializedForward);
+	Call_PushCell(client);
+	Call_PushCell(teamMenuEnabled);
+	Call_PushCell(autoJoin);
+	Call_PushCell(autoJoinSuccess);
+	Call_Finish();
 }
 void PacifyPlayer(int client)
 {
-	if(cvar_DisplayChatMessages.BoolValue)
-	{
-		ColorPrintToChat(client, "Pacified Client");
-	}
-	g_bClientIsFrozen[client] = true;
+	Call_StartForward(g_PacifyForward);
+	Call_PushCell(client);
+	Call_Finish();
+	g_Players[client].isPassive = true;
 	SetEntityRenderColor(client, 0, 170, 174, 255);
 	SetEntProp(client, Prop_Data, "m_takedamage", 0, 1);
 	CreateTimer((cvar_RoundRestartDelay.FloatValue - CHECKSCORE_DELAY), Timer_UnpacifyPlayer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }
-void SwapPlayer(int client, int team, char reason[50])
+void SwapPlayer(int client, int team, SABChangeTeamReason reason)
 {
-	if (cvar_DisplayChatMessages.BoolValue)
-	{
-		ColorPrintToChat(client, reason);
-	}
-	if(team != TEAM_SPEC && team != UNASSIGNED)
+	Call_StartForward(g_SwapForward);
+	Call_PushCell(client);
+	Call_PushCell(team);
+	Call_PushCell(reason);
+	Call_Finish();
+	if(team != CS_TEAM_SPECTATOR && team != CS_TEAM_NONE)
 	{
 		if (IsPlayerAlive(client) && cvar_KeepPlayersAlive.BoolValue)
 		{
@@ -90,39 +131,27 @@ void SwapPlayer(int client, int team, char reason[50])
 	{
 		ForcePlayerSuicide(client);
 	}
-	ChangeClientTeam(client, TEAM_SPEC);
+	ChangeClientTeam(client, CS_TEAM_SPECTATOR);
 }
-bool CanJoin(int client, int team, bool printMessage)
+SABJoinTeamResult CanJoin(int client, int team)
 {
 	int count[2];
-	count[0] = GetTeamClientCount(TEAM_T);
-	count[1] = GetTeamClientCount(TEAM_CT);
+	count[0] = GetTeamClientCount(CS_TEAM_T);
+	count[1] = GetTeamClientCount(CS_TEAM_CT);
 	int newTeamCount = count[team - 2];
 	int otherTeamCount = count[(team + 1) % 2];
 	int currentTeam = GetClientTeam(client);
 	if (newTeamCount > otherTeamCount)
 	{
-		if (cvar_DisplayChatMessages.BoolValue && printMessage)
-		{
-			ColorPrintToChat(client, "Team Has More Players");
-		}
-		return false;
+		return SAB_NewTeamHasMorePlayers;
 	}
-	else if (newTeamCount == otherTeamCount && g_iClientTeam[client] == team)
+	else if (newTeamCount == otherTeamCount && g_Players[client].team == team)
 	{
-		if (cvar_DisplayChatMessages.BoolValue && printMessage)
-		{
-			ColorPrintToChat(client, "Must Join Previous Team");
-		}
-		return true;
+		return SAB_JoinTeamSuccess;
 	}
-	else if (newTeamCount < otherTeamCount && currentTeam != TEAM_T && currentTeam != TEAM_CT)
+	else if (newTeamCount < otherTeamCount && currentTeam != CS_TEAM_T && currentTeam != CS_TEAM_CT)
 	{
-		if (cvar_DisplayChatMessages.BoolValue && printMessage)
-		{
-			ColorPrintToChat(client, "Must Join Previous Team");
-		}
-		return true;
+		return SAB_JoinTeamSuccess;
 	}
-	return false;
+	return SAB_MustJoinPreviousTeam;
 }
