@@ -27,9 +27,12 @@ void SwapFewestPlayers()
 	}
 	for (int client = 1; client <= MaxClients; ++client)
 	{
-		if (IsClientInGame(client) && (team = GetClientTeam(client)) != CS_TEAM_SPECTATOR && team != CS_TEAM_NONE && ((wrongTeam > correctTeam) ^ g_Players[client].pendingSwap))
+		if (IsClientInGame(client) && (team = GetClientTeam(client)) != CS_TEAM_SPECTATOR && team != CS_TEAM_NONE)
 		{
-			SwapPlayer(client, teams[(team + 1) % 2], SAB_SkillBalance);
+			if ((wrongTeam > correctTeam) ^ g_Players[client].pendingSwap)
+			{
+				SwapPlayer(client, teams[(team + 1) % 2], SAB_SkillBalance);
+			}
 		}
 	}
 }
@@ -71,6 +74,7 @@ void BalanceSkill()
 	int outliers = FindOutliers(sortedPlayers);
 	if (outliers == -1)
 	{
+		LogError("canceled balance because there is a -1 integer in outliers");
 		// Cancel balance because some player(s) left(?), and not enough are on server to properly balance.
 		return;
 	}
@@ -241,7 +245,7 @@ void SetStreak(int winningTeam)
 		float decayAmount = cvar_DecayAmount.FloatValue;
 		int winnerIndex = winningTeam - 2;
 		int loserIndex 	= (winningTeam + 1) % 2;
-		++g_fTeamWinStreak[winnerIndex];
+		g_fTeamWinStreak[winnerIndex] = g_fTeamWinStreak[winnerIndex] + 1.0;
 		if (cvar_UseDecay.BoolValue)
 		{
 			g_fTeamWinStreak[loserIndex] = (g_fTeamWinStreak[loserIndex] > decayAmount) ? (g_fTeamWinStreak[loserIndex] - decayAmount) : 0.0;

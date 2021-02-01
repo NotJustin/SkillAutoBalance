@@ -46,9 +46,9 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 		++g_RoundCount;
 	}
 	balanceReason = BalanceSkillNeeded();
+	SetStreak(event.GetInt("winner"));
 	if(balanceReason != SAB_NoBalance)
 	{
-		SetStreak(event.GetInt("winner"));
 		for (int client = 1; client <= MaxClients; ++client)
 		{
 			g_Players[client].scoreUpdated = false;

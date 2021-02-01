@@ -1,9 +1,9 @@
-#pragma newdecls required
-#pragma semicolon 1
-
 #include <sourcemod>
 #include <skillautobalance>
-#include <skillautobalance-rating>
+#include <sab_rating>
+
+#pragma newdecls required
+#pragma semicolon 1
 
 #define BALANCE_CACHE_SIZE 2
 
@@ -16,14 +16,11 @@ public Plugin myinfo =
 	url = SAB_PLUGIN_URL
 }
 
-ConVar cvar_GraceTime;
-
 bool g_bClientSpawned[MAXPLAYERS + 1];
 
 int 
 	g_iClientKillsThisRound[MAXPLAYERS + 1],
 	g_iClientRounds[MAXPLAYERS + 1],
-	g_iClientStartingTeam[MAXPLAYERS + 1],
 	g_iClientBalanceIndex[MAXPLAYERS + 1]
 ;
 
@@ -31,8 +28,6 @@ float
 	g_fClientKPR[MAXPLAYERS + 1][BALANCE_CACHE_SIZE],
 	g_fClientScore[MAXPLAYERS + 1]
 ;
-
-char g_Path[PLATFORM_MAX_PATH];
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char [] error, int err_max)
 {
@@ -67,7 +62,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 {
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int victim = GetClientOfUserId(event.GetInt("userid"));
-	if (victim && victim <= MaxClients && IsClientInGame(victim) && attacker && attacker <= MaxClients && IsClientInGame(attacker))
+	if (victim > 0 && victim <= MaxClients && IsClientInGame(victim) && attacker && attacker <= MaxClients && IsClientInGame(attacker))
 	{
 		++g_iClientKillsThisRound[attacker];
 	}
@@ -84,19 +79,16 @@ Action CheckIfClientSpawned(Handle timer, int userId)
 }
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-	float time = cvar_GraceTime.FloatValue < 0.2 ? 0.2 : cvar_GraceTime.FloatValue;
-	CreateTimer(time, Timer_GraceTimeOver);
 	for(int client = 1; client <= MaxClients; ++client)
 	{
 		if (IsClientInGame(client))
 		{
 			g_bClientSpawned[client] = false;
 			g_iClientKillsThisRound[client] = 0;
-			g_iClientStartingTeam[client] = GetClientTeam(client);
 		}
 	}
 }
-public void SAB_OnSkillBalance(SABReason &reason)
+public void SAB_OnSkillBalance(SABBalanceReason reason)
 {
 	for (int client = 1; client <= MaxClients; ++client)
 	{
@@ -138,7 +130,7 @@ void UpdateScore(int client)
 		if (g_fClientKPR[client][index] != -1)
 		{
 			kprSum += multiplier * g_fClientKPR[client][index];
-			multiplierSum += multiplier
+			multiplierSum += multiplier;
 		}
 		++multiplier;
 		index = (index + 1) % BALANCE_CACHE_SIZE;
