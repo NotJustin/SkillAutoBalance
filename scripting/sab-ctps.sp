@@ -1,5 +1,5 @@
 #include <sourcemod>
-#include <skillautobalance>
+#include <skillautobalance/core>
 
 #pragma newdecls required
 #pragma semicolon 1
@@ -30,7 +30,7 @@ ConVar cvar_Scale;
 public void OnPluginStart()
 {
 	cvar_Scale = CreateConVar("sab_scale", "1.5", "Value to multiply IQR by. If your points have low spread keep this number. If your points have high spread change this to a lower number, like 0.5", _, true, 0.1);
-	AutoExecConfig(true, "sab-scale");
+	AutoExecConfig(true, "sab-ctps");
 }
 
 public void OnConfigsExecuted()

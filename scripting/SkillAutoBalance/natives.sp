@@ -1,8 +1,8 @@
 // Whenever this native is used, a team balance will occur at the end of the round.
 any Native_Balance(Handle plugin, int args)
 {
-	char reason[50];
-	int error = GetNativeString(1, reason, sizeof(reason));
+	g_sBalanceReason[0] = '\0';
+	int error = GetNativeString(1, g_sBalanceReason, sizeof(g_sBalanceReason));
 	if (error != SP_ERROR_NONE)
 	{
 		ThrowNativeError(error, "Error with 'reason' parameter");

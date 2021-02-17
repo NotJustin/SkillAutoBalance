@@ -1,5 +1,5 @@
 #include <sourcemod>
-#include <skillautobalance>
+#include <skillautobalance/core>
 
 #pragma newdecls required
 #pragma semicolon 1
@@ -57,9 +57,9 @@ public void OnPluginStart()
 	cvar_Prefix.AddChangeHook(UpdatePrefix);
 	cvar_PrefixColor.AddChangeHook(UpdatePrefixColor);
 
-	LoadTranslations("skillautobalance.phrases");
+	LoadTranslations("sab.phrases");
 
-	AutoExecConfig(true, "SkillAutoBalance-Messages");
+	AutoExecConfig(true, "sab-messages");
 }
 
 public void OnConfigsExecuted()

@@ -49,7 +49,7 @@ public void OnPluginStart()
 	g_AMTeamSelect = new GlobalForward("SAB_OnAdminMenuTeamSelect", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
 	g_AMClientSelectFail = new GlobalForward("SAB_OnAdminMenuClientSelectFail", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
 	g_BalanceCommandForward = new GlobalForward("SAB_OnBalanceCommand", ET_Ignore, Param_Cell);
-	g_SetTeamForward = new GlobalForward("SAB_OnSetTeam", ET_Ignore, Param_Cell, Param_Cell);
+	g_SetTeamForward = new GlobalForward("SAB_OnSetTeam", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
 	
 	// Used only for FindTarget
 	LoadTranslations("common.phrases");

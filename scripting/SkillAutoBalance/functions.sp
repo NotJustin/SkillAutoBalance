@@ -62,10 +62,15 @@ void BalanceSkill()
 	InitSortedArray(sortedPlayers);
 	
 	Call_StartForward(g_BalanceForward);
-	Call_PushCell(sortedPlayers);
-	Call_PushCell(balanceReason);
+	Call_PushCellRef(sortedPlayers); // Do not delete the arraylist :D
+	Call_PushString(g_sBalanceReason);
 	Call_Finish();
 	
+	if (sortedPlayers == null)
+	{
+		LogError("The sortedPlayers arraylist was deleted by another plugin, when it should not have been.");
+		return;
+	}
 	sortedPlayers.Clear();
 	delete sortedPlayers;
 }
@@ -262,10 +267,11 @@ Action Timer_UnpacifyPlayer(Handle timer, int userID)
 
 Action Timer_DelayBalance(Handle timer)
 {
-	if (GetTeamClientCount(CS_TEAM_T) + GetTeamClientCount(CS_TEAM_CT) < 2)
+	if (!g_bBalanceNeeded || (GetTeamClientCount(CS_TEAM_T) + GetTeamClientCount(CS_TEAM_CT) < 2))
 	{
 		return;
 	}
+	g_bBalanceNeeded = false;
 	FixMissingScores();
 	BalanceSkill();
 }

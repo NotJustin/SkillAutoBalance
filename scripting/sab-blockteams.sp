@@ -72,6 +72,7 @@ GlobalForward
 
 public void OnPluginStart()
 {
+	LoadTranslations("sab.phrases");
 	// Existing convars
 	cvar_GraceTime = FindConVar("mp_join_grace_time");
 	
@@ -111,7 +112,6 @@ public void OnPluginStart()
 	
 	if (g_bLateLoad)
 	{
-		OnConfigsExecuted();
 		for (int client = 1; client <= MaxClients; ++client)
 		{
 			if (!IsClientInGame(client) || IsClientSourceTV(client))
@@ -294,7 +294,7 @@ Action Command_Join(int client, int args)
 	int team;
 	bool success = true;
 	// When the join command is used, we verify that the client is allowed to join a team before automatically putting them on a team.
-	if (!AreTeamsFull() || client == 0 || !cvar_ChatChangeTeam.BoolValue || cvar_BlockTeamSwitch.IntValue == 2 || (team = GetClientTeam(client)) == CS_TEAM_T || team != CS_TEAM_CT)
+	if (AreTeamsFull() || client == 0 || !cvar_ChatChangeTeam.BoolValue || cvar_BlockTeamSwitch.IntValue == 2 || (team = GetClientTeam(client)) == CS_TEAM_T || team == CS_TEAM_CT)
 	{
 		success = false;
 	}

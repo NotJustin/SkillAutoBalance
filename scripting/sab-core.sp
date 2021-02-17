@@ -25,16 +25,15 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("SAB_Balance", Native_Balance);
 	CreateNative("SAB_GetClientScore", Native_GetClientScore);
 	CreateNative("SAB_SwapPlayer", Native_SwapPlayer);
-	RegPluginLibrary("skillautobalance");
-	g_bLateLoad = late;
+	RegPluginLibrary("sab-core");
 	return APLRes_Success;
 }
 
 public void OnPluginStart()
 {
-	cvar_AutoTeamBalance.AddChangeHook(UpdateAutoTeamBalance);
-	cvar_LimitTeams.AddChangeHook(UpdateLimitTeams);
-	cvar_ScoreType.AddChangeHook(UpdateScoreType);
+	cvar_AutoTeamBalance = FindConVar("mp_autoteambalance");
+	cvar_LimitTeams = FindConVar("mp_limitteams");
+	cvar_RoundRestartDelay = FindConVar("mp_round_restart_delay");
 	
 	cvar_BotsArePlayers = CreateConVar("sab_botsareplayers", "0", "When teams are being balanced, 1 = Bots are players (bots have points/KDR), 0 = Bots are outliers (bots do not have points/KDR)", _, true, 0.0, true, 1.0);
 	cvar_KeepPlayersAlive = CreateConVar("sab_keepplayersalive", "1", "Living players are kept alive when their teams are changed", _, true, 0.0, true, 1.0);
@@ -42,20 +41,17 @@ public void OnPluginStart()
 	CreateConVar("sab_minplayers", "7", "The amount of players not in spectate must be at least this number for a balance to occur", _, true, 3.0);
 	cvar_ScoreType = CreateConVar("sab_scoretype", "0", "0 = Auto detect scoretype. Only change this if you have multiple types loaded. 1 = gameME, 2 = HLstatsX, 3 = Kento-RankMe, 4 = LevelsRanks, 5 = NCRPG, 6 = kpr_rating, 7 = SMRPG", _, true, 0.0, true, 7.0);
 	
-	g_BalanceForward = new GlobalForward("SAB_OnSkillBalance", ET_Ignore, Param_Cell);
+	cvar_AutoTeamBalance.AddChangeHook(UpdateAutoTeamBalance);
+	cvar_LimitTeams.AddChangeHook(UpdateLimitTeams);
+	cvar_ScoreType.AddChangeHook(UpdateScoreType);
+	
+	g_BalanceForward = new GlobalForward("SAB_OnSkillBalance", ET_Ignore, Param_CellByRef, Param_String);
 	g_PacifyForward = new GlobalForward("SAB_OnClientPacified", ET_Ignore, Param_Cell);
 	g_SwapForward = new GlobalForward("SAB_OnClientTeamChanged", ET_Ignore, Param_Cell, Param_Cell, Param_String);
 	
 	HookEvent("round_end", Event_RoundEnd);
 
 	AutoExecConfig(true, "sab-core");
-
-	LoadTranslations("skillautobalance.phrases");
-
-	if (g_bLateLoad)
-	{
-		OnConfigsExecuted();
-	}
 }
 
 public void OnLibraryAdded(const char[] name)
@@ -153,8 +149,7 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	UpdateScores();
-	if (g_bBalanceNeeded) CreateTimer(1.0, Timer_DelayBalance);
-	g_bBalanceNeeded = false;
+	CreateTimer(1.0, Timer_DelayBalance);
 }
 
 void UpdateAutoTeamBalance(ConVar convar, char[] oldValue, char[] newValue)

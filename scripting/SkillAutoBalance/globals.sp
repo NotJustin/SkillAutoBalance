@@ -13,10 +13,8 @@ enum struct SABClientData
 
 SABClientData g_ClientData[MAXPLAYERS + 1];
 
-bool 
-	g_bLateLoad,
-	g_bBalanceNeeded
-;
+bool g_bBalanceNeeded;
+char g_sBalanceReason[50];
 
 // Existing convars
 ConVar
@@ -39,7 +37,5 @@ GlobalForward
 	g_PacifyForward,
 	g_SwapForward
 ;
-
-SABBalanceReason balanceReason;
 
 SABScoreType g_ScoreType;
