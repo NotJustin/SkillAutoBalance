@@ -1,38 +1,45 @@
-enum struct SABPlayerData 
+enum struct SABClientData
 {
-	int team;
-	int forceJoinPreference;
-
-	bool fullyConnected;
 	bool isPassive;
-	bool isOutlier;
-	bool pendingSwap;
-	bool pendingForceJoin;
-	bool postAdminChecked;
 	bool scoreUpdated;
-
 	float score;
+	void Reset()
+	{
+		this.isPassive = false;
+		this.scoreUpdated = false;
+		this.score = -1.0;
+	}
 }
 
-SABPlayerData g_Players[MAXPLAYERS + 1];
+SABClientData g_ClientData[MAXPLAYERS + 1];
 
-bool
-	g_AllowSpawn = true,
-	g_ForceBalance,
-	g_SetTeamHooked,
-	g_ForceBalanceHooked,
-	g_LateLoad,
-	g_MapLoaded
+bool 
+	g_bLateLoad,
+	g_bBalanceNeeded
 ;
 
-float
-	g_fTeamWinStreak[2],
-	g_LastAverageScore = 1000.0
+// Existing convars
+ConVar
+	cvar_AutoTeamBalance,
+	cvar_LimitTeams,
+	cvar_RoundRestartDelay
 ;
 
-Handle g_hForceSpawn;
-
-int
-	g_PlayerCountChange,
-	g_RoundCount
+// Custom convars
+ConVar
+	cvar_BotsArePlayers,
+	cvar_KeepPlayersAlive,
+	cvar_ScoreType
 ;
+
+float g_LastAverageScore = 1000.0;
+
+GlobalForward
+	g_BalanceForward,
+	g_PacifyForward,
+	g_SwapForward
+;
+
+SABBalanceReason balanceReason;
+
+SABScoreType g_ScoreType;

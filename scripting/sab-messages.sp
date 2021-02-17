@@ -23,12 +23,15 @@ StringMap colors;
 char
 	joinTeamFailReasons[JOINTEAMATTEMPT_RESULT_SIZE][50] = {"Team Has More Players", "Must Join Previous Team"},
 	menuSwapTeamFailReasons[MENUFAIL_REASON_SIZE][50] = {"Client Not Found", "Cannot Target Player"},
-	swapTeamReasons[SWAP_REASON_SIZE][50] = {"Admin Join", "Client Skill Balance", "Auto Join"},
+	//swapTeamReasons[SWAP_REASON_SIZE][50] = {"Admin Join", "Client Skill Balance", "Auto Join"},
 	teamChangeResults[TEAMCHANGE_RESULT_SIZE][50] = {"Incorrect SetTeam Usage", "Client Not Found", "Admin Client Swapped"},
 	g_MessageColor[4],
 	g_PrefixColor[4],
 	g_Prefix[20]
 ;
+
+// Existing convars
+ConVar cvar_ChatChangeTeam;
 
 ConVar
 	cvar_MessageType,
@@ -43,6 +46,7 @@ public void OnPluginStart()
 
 	HookEvent("round_start", Event_RoundStart);
 
+	// A lot of what this plugin does is summed up in the convar description for messagetype.
 	cvar_MessageColor = CreateConVar("sab_messagecolor", "white", "See sab_messagetype for info");
 	cvar_MessageType = CreateConVar("sab_messagetype", "0", "How this plugin's messages will be colored in chat. 0 = no color, 1 = color only prefix with sab_prefixcolor, 2 = color entire message with sab_messagecolor, 3 = color prefix and message with both sab_prefixcolor and sab_messagecolor", _, true, 0.0, true, 3.0);
 	cvar_Prefix = CreateConVar("sab_prefix", "[SAB]", "The prefix for messages this plugin writes in the server");
@@ -54,68 +58,68 @@ public void OnPluginStart()
 	cvar_PrefixColor.AddChangeHook(UpdatePrefixColor);
 
 	LoadTranslations("skillautobalance.phrases");
-	LoadTranslations("common.phrases");
 
 	AutoExecConfig(true, "SkillAutoBalance-Messages");
 }
 
 public void OnConfigsExecuted()
 {
-	char str[1];
-	UpdateMessageColor(cvar_MessageColor, str, str);
-	UpdateMessageType(cvar_MessageType, str, str);
-	UpdatePrefix(cvar_Prefix, str, str);
-	UpdatePrefixColor(cvar_PrefixColor, str, str);
+	// UpdateMessageType updates sab_messagecolor and sab_prefixcolor
+	UpdateMessageType(cvar_MessageType, "", "");
+	cvar_Prefix.GetString(g_Prefix, sizeof(g_Prefix));
+	// Get this convar from skillautobalance-blockteams, if that plugin is loaded.
+	cvar_ChatChangeTeam = FindConVar("sab_chatchangeteam");
 }
 
 void UpdateMessageColor(ConVar convar, char [] oldValue, char [] newValue)
 {
-	char sMessageColor[20];
-	GetConVarString(convar, sMessageColor, sizeof(sMessageColor));
 	int messageType = cvar_MessageType.IntValue;
+	// 0 or 1 means we are not coloring the message.
 	if (messageType == 0 || messageType == 1)
 	{
-		g_MessageColor = "\x01";
+		g_MessageColor = "\x01"; // white
 	}
 	else if(messageType == 2 || messageType == 3)
 	{
-		SetColor(g_MessageColor, sMessageColor);
+		SetColor(g_MessageColor, newValue);
 	}
 }
 
 void UpdateMessageType(ConVar convar, char [] oldValue, char [] newValue)
 {
 	char str[20];
-	GetConVarString(cvar_MessageColor, str, sizeof(str));
-	UpdateMessageColor(cvar_MessageColor, str, str);
+	cvar_MessageColor.GetString(str, sizeof(str));
+	UpdateMessageColor(cvar_MessageColor, "", str);
 	str[0] = '\0';
-	GetConVarString(cvar_PrefixColor, str, sizeof(str));
-	UpdatePrefixColor(cvar_PrefixColor, str, str);
+	cvar_PrefixColor.GetString(str, sizeof(str));
+	UpdatePrefixColor(cvar_PrefixColor, "", str);
 }
 
 void UpdatePrefix(ConVar convar, char [] oldValue, char [] newValue)
 {
-	GetConVarString(convar, g_Prefix, sizeof(g_Prefix));
+	char buffer[20];
+	strcopy(buffer, sizeof(buffer), newValue);
+	g_Prefix = buffer;
 }
 
 void UpdatePrefixColor(ConVar convar, char [] oldValue, char [] newValue)
 {
-	char sPrefixColor[20];
-	GetConVarString(convar, sPrefixColor, sizeof(sPrefixColor));
 	int messageType = cvar_MessageType.IntValue;
+	// 0 or 2 means we are not coloring the prefix (2 particularly means prefix is same color as message)
 	if (messageType == 0 || messageType == 2)
 	{
 		g_PrefixColor = "\x01";
 	}
 	else if(messageType == 1 || messageType == 3)
 	{
-		SetColor(g_PrefixColor, sPrefixColor);
+		SetColor(g_PrefixColor, newValue);
 	}
 }
 
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-	PrintHowToJoinForSpectators();
+	// if sab_chatchangeteam convar exists and is being used, tell spectators to use sm_j or sm_p to join a team.
+	if (cvar_ChatChangeTeam != null && cvar_ChatChangeTeam.BoolValue) PrintHowToJoinForSpectators();
 }
 
 Action PrintHowToJoinForSpectators()
@@ -133,6 +137,7 @@ Action PrintHowToJoinForSpectators()
 	}
 }
 
+// StringMap mapping colors to hex.
 void InitColorStringMap()
 {
 	colors = new StringMap();
@@ -152,13 +157,18 @@ void InitColorStringMap()
 	colors.SetString("grey", "\x08");
 	colors.SetString("grey2", "\x0D");
 }
-void SetColor(char str[4], char color[20])
+
+// Fetches the hex from the stringmap
+void SetColor(char str[4], char[] color)
 {
 	if (!colors.GetString(color, str, sizeof(str)))
 	{
 		str = "\x01";
 	}
 }
+
+// Creates the chat message
+// PrefixColor -> Prefix -> Space -> MessageColor -> Phrase (from translations)
 void AppendDataToString(char str[255])
 {
 	StrCat(str, sizeof(str), g_PrefixColor);
@@ -167,18 +177,24 @@ void AppendDataToString(char str[255])
 	StrCat(str, sizeof(str), g_MessageColor);
 	StrCat(str, sizeof(str), "%t");
 }
+
+// Instead of PrintToChat, we use ColorPrintToChat (only applicable for translations)
 void ColorPrintToChat(int client, char phrase[50])
 {
 	char str[255] = " ";
 	AppendDataToString(str);
 	PrintToChat(client, str, phrase);
 }
+
+// Instead of PrintToChatAll, we use ColorPrintToChatAll (only applicable for translations)
 void ColorPrintToChatAll(char phrase[50])
 {
 	char str[255] = " ";
 	AppendDataToString(str);
 	PrintToChatAll(str, phrase);
 }
+
+// Instead of PrintToServer, we use PrefixPrintToServer (only applicable for translations)
 void PrefixPrintToServer(char phrase[50])
 {
 	char str[255] = " ";
@@ -186,6 +202,7 @@ void PrefixPrintToServer(char phrase[50])
 	PrintToServer(str, phrase);
 }
 
+// These remaining functions use forwards from the other skillautobalance modules.
 public void SAB_OnAdminMenuTeamSelect(int client, int target, int team, bool success)
 {
 	if (client > 0 && client <= MaxClients && IsClientInGame(client))
@@ -252,11 +269,16 @@ public void SAB_OnSetTeam(int client, int target, SABSetTeamResult result)
 	}
 }
 
-public void SAB_OnClientTeamChanged(int client, int team, SABChangeTeamReason reason)
+public void SAB_OnClientTeamChanged(int client, int team, char reason[50])
 {
 	if (client > 0 && client <= MaxClients && IsClientInGame(client))
 	{
-		ColorPrintToChat(client, swapTeamReasons[reason]);
+		if (TranslationPhraseExists(reason)) // In case anyone else adds their own custom reasons/modifies the translations I suppose
+		{
+			ColorPrintToChat(client, reason);
+			return;
+		}
+		ColorPrintToChat(client, "Client Skill Balance");
 	}
 }
 
@@ -268,8 +290,13 @@ public void SAB_OnClientPacified(int client)
 	}
 }
 
-public void SAB_OnSkillBalance(SABBalanceReason reason)
+public void SAB_OnSkillBalance(ArrayList &sortedPlayers, char reason[50])
 {
+	if (TranslationPhraseExists(reason)) // In case anyone else adds their own custom reasons/modifies the translations I suppose
+	{
+		ColorPrintToChatAll(reason);
+		return;
+	}
 	ColorPrintToChatAll("Global Skill Balance");
 }
 
