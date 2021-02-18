@@ -3,7 +3,6 @@
 #include <clientprefs>
 #undef REQUIRE_PLUGIN
 #tryinclude <afk_manager>
-#tryinclude <createcommands>
 #define REQUIRE_PLUGIN
 
 #pragma newdecls required
@@ -136,12 +135,6 @@ public void OnConfigsExecuted()
 	
 	UpdateTeamMenu(cvar_TeamMenu, "", "");
 	UpdateBlockTeamSwitch(cvar_BlockTeamSwitch, "", "");
-	// Createcommands is a plugin I have that allows you to create alternate aliases for commands.
-	// In addition to !setteam you can use !team, !move, or !swap, depending on what you write in the config it generates.
-	// Completely optional, you can compile without the include, and you can choose not to use the plugin.
-#if defined _createcommands_included
-	CC_AddPlugin();
-#endif
 }
 
 void UpdateBlockTeamSwitch(ConVar convar, char [] oldValue, char [] newValue)

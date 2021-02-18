@@ -1,9 +1,6 @@
 #include <sourcemod>
 #include <skillautobalance/core>
 #include <adminmenu>
-#undef REQUIRE_PLUGIN
-#tryinclude <createcommands>
-#define REQUIRE_PLUGIN
 
 #pragma newdecls required
 #pragma semicolon 1
@@ -27,7 +24,6 @@ enum struct PlayerInfo
 PlayerInfo playerinfo[MAXPLAYERS + 1];
 
 bool 
-	g_bCreateCommands,
 	g_bSetTeamMenuAdded,
 	g_bForceBalanceMenuAdded
 ;
@@ -55,36 +51,8 @@ public void OnPluginStart()
 	LoadTranslations("common.phrases");
 }
 
-// Createcommands is a plugin I have that allows you to create alternate aliases for commands.
-// In addition to !setteam you can use !team, !move, or !swap, depending on what you write in the config it generates.
-// Completely optional, you can compile without the include, and you can choose not to use the plugin.
-#if defined _createcommands_included
-public void OnLibraryAdded(const char[] name)
-{
-	if (strcmp(name, "createcommands", false) == 0)
-	{
-		g_bCreateCommands = true;
-	}
-}
-
-public void OnLibraryRemoved(const char[] name)
-{
-	if (strcmp(name, "createcommands", false) == 0)
-	{
-		g_bCreateCommands = false;
-	}
-}
-#endif
-
 public void OnConfigsExecuted()
 {
-#if defined _createcommands_included
-	if (g_bCreateCommands)
-	{
-		CC_AddPlugin();
-	}
-#endif
-	
 	// Checks if we have already added the two commands to the admin menu or not, before attempting to add them.
 	if (!g_bForceBalanceMenuAdded && !g_bSetTeamMenuAdded && (hAdminMenu = GetAdminTopMenu()) != null)
 	{

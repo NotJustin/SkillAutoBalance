@@ -267,11 +267,17 @@ Action Timer_UnpacifyPlayer(Handle timer, int userID)
 
 Action Timer_DelayBalance(Handle timer)
 {
-	if (!g_bBalanceNeeded || (GetTeamClientCount(CS_TEAM_T) + GetTeamClientCount(CS_TEAM_CT) < 2))
+	if (!g_bBalanceNeeded)
 	{
 		return;
 	}
+	// Set balance to false if we are about to balance teams.
 	g_bBalanceNeeded = false;
+	// If there are only 2 players total on teams, there is no need to balance.
+	if (GetTeamClientCount(CS_TEAM_T) + GetTeamClientCount(CS_TEAM_CT) < 3)
+	{
+		return;
+	}
 	FixMissingScores();
 	BalanceSkill();
 }
