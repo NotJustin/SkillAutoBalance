@@ -113,7 +113,8 @@ int FindOutliers(ArrayList sortedPlayers)
 	{
 		client = sortedPlayers.Get(i);
 		// Bots are always marked as outliers, unless sab_botsareplayers is true (meaning, bots have their own scores).
-		if (IsFakeClient(client) && !cvar_BotsArePlayers.BoolValue)
+		// If somehow cvar_BotsArePlayers is null, also assume bots are outliers.
+		if (IsFakeClient(client) && (cvar_BotsArePlayers == null || !cvar_BotsArePlayers.BoolValue))
 		{
 			g_ClientData[client].isOutlier = true;
 			outliers++;

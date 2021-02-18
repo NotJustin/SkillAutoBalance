@@ -49,6 +49,8 @@ public void OnPluginStart()
 	
 	// Used only for FindTarget
 	LoadTranslations("common.phrases");
+	// Used for admin menu.
+	LoadTranslations("sab.phrases");
 }
 
 public void OnConfigsExecuted()

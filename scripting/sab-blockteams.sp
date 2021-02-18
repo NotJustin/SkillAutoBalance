@@ -338,8 +338,19 @@ void PutClientOnATeam(int client)
 /* Command Listeners */
 Action CommandList_JoinTeam(int client, const char[] command, int argc)
 {
+	// If the map is not yet loaded, ignore any 'jointeam' commands. Not sure if this could ever actually happen.
+	if (!g_bMapLoaded)
+	{
+		return Plugin_Stop;
+	}
 	// When the client tries to change team, check if it is allowed.
-	if (cvar_BlockTeamSwitch.IntValue == 0 || (GetTeamClientCount(CS_TEAM_T) + GetTeamClientCount(CS_TEAM_CT)) < cvar_MinPlayers.IntValue)
+	if (cvar_BlockTeamSwitch.IntValue == 0)
+	{
+		return Plugin_Continue;
+	}
+	// If there are less players on team than the minimum, do not block team switching.
+	// If cvar_MinPlayers is null, there is some other issue going on entirely (FindConVar failed on sab_minplayers somehow?)
+	if (cvar_MinPlayers != null && (GetTeamClientCount(CS_TEAM_T) + GetTeamClientCount(CS_TEAM_CT)) < cvar_MinPlayers.IntValue)
 	{
 		return Plugin_Continue;
 	}

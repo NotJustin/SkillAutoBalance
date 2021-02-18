@@ -161,7 +161,8 @@ SABBalanceReason BalanceSkillNeeded(char reason[50])
 		return SAB_Uneven;
 	}
 	// If there are less active players on server than the minimum allowed for balance, we will not balance.
-	if(activePlayers < cvar_MinPlayers.IntValue)
+	// If cvar_MinPlayers is null, there is some other issue going on entirely (FindConVar failed on sab_minplayers somehow?)
+	if(cvar_MinPlayers != null && activePlayers < cvar_MinPlayers.IntValue)
 	{
 		return SAB_NoBalance;
 	}

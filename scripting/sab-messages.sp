@@ -33,6 +33,7 @@ char
 // Existing convars
 ConVar cvar_ChatChangeTeam;
 
+// Custom convars
 ConVar
 	cvar_MessageType,
 	cvar_MessageColor,
