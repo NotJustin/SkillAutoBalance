@@ -108,19 +108,25 @@ Put sab.phrases.txt into your translations directory.<br>
 You need to be using at least one of the point systems, because players need some sort of "rating" for us to balance teams. If you do not use any at the moment, I made a basic one called [kpr_rating](https://github.com/NotJustin/KPR-Rating).<br>
 
 ### Modules
-#### sab-core: (REQUIRED) The core plugin.<br>
+#### sab-core: (REQUIRED) <br>
+##### The core plugin.
 	Corresponding include in addons/sourcemod/includes/skillautobalance/core.inc
 	Generates config in cfg/sourcemod/sab-core.cfg
-#### sab-admin: Adds admin commands sm_balance to trigger a team balance and sm_setteam to change a player's team.<br>
+#### sab-checkbalance: (REQUIRED unless you create a replacement)<br>
+##### Uses sab-core natives to tell sab-core when a balance is needed.<br>
+	Generates config in cfg/sourcemod/sab-checkbalance.inc
+#### sab-ctps: (REQUIRED unless you create a replacement)<br>
+##### Uses sab-core natives to assign players to teams when a balance is needed.<br>
+	Generates config in cfg/sourcemod/sab-ctps.inc
+#### sab-admin:<br>
+##### Adds admin commands sm_balance to trigger a team balance and sm_setteam to change a player's team.<br>
 	Corresponding include in includes/skillautobalance/admin.inc
-#### sab-blockteams: Adds options to disable the team menu and automatically place players on teams. Optionally adds commands sm_j and sm_s to switch between spectating and playing.<br>
+#### sab-blockteams: <br>
+##### Adds options to disable the team menu and automatically place players on teams. Optionally adds commands sm_j and sm_s to switch between spectating and playing.<br>
 	Corresponding include in includes/skillautobalance/blockteams.inc
 	Generates config in cfg/sourcemod/sab-blockteams.inc
-#### sab-checkbalance: (REQUIRED unless you create a replacement) Uses sab-core natives to tell sab-core when a balance is needed.<br>
-	Generates config in cfg/sourcemod/sab-checkbalance.inc
-#### sab-ctps: (REQUIRED unless you create a replacement) Uses sab-core natives to assign players to teams when a balance is needed.<br>
-	Generates config in cfg/sourcemod/sab-ctps.inc
-#### sab-messages: Prints messages to chat when certain forwards occur from core, admin, and blockteams<br>
+#### sab-messages:<br>
+##### Prints messages to chat when certain forwards occur from core, admin, and blockteams<br>
 	Generates config in cfg/sourcemod/sab-messages.inc
 
 ### ConVars
