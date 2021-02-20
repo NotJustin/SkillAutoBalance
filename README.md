@@ -1,9 +1,10 @@
 <p align="center">	
- <img width="630" height="50" src="https://forums.alliedmods.net/image-proxy/bb415b212a80b7a578daa8a01733f35f7cf1b467/68747470733a2f2f63646e2e646973636f72646170702e636f6d2f6174746163686d656e74732f3639303232343333353735393231323734322f3731393634363637343932353931323137342f736b696c6c6175746f62616c616e63652e706e67"><br>	
- A configurable automated team manager.<br>	
- https://forums.alliedmods.net/showthread.php?p=2653016	
-</p><br>	
-#### Table of Contents	
+	<img width="630" height="50" src="https://forums.alliedmods.net/image-proxy/bb415b212a80b7a578daa8a01733f35f7cf1b467/68747470733a2f2f63646e2e646973636f72646170702e636f6d2f6174746163686d656e74732f3639303232343333353735393231323734322f3731393634363637343932353931323137342f736b696c6c6175746f62616c616e63652e706e67"><br>	
+	A configurable automated team manager.<br>	
+	https://forums.alliedmods.net/showthread.php?p=2653016	
+</p><br>
+
+#### Table of Contents<br>
 [Description](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#description)<br>	
 [Credits/Inspiration](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#credits--inspiration)<br>	
 [Changelog](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#changelog)<br>	
