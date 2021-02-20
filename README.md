@@ -31,7 +31,14 @@ For that reason, this plugin relies on any external plugin to provide that conte
 [CSGO Auto Assign Team by SM9](https://forums.alliedmods.net/showthread.php?t=321314)	
 ### Changelog	
 <details>	
- <summary>Expand for changelog</summary>	
+ <summary>Expand for changelog</summary>
+4.1.2 (too many minor changes that were only released in 'beta' between 3.2.5 and 4.1.2) - <br>
+Force mp_autoteambalance and mp_limitteams to both be 0 (Thanks Penalte from alliedmods for the suggestion.<br>
+Add convar sab_nobalancelastnminutes and sab_nobalancelastnrounds (Thanks to Razvann. from alliedmods for the suggestion)<br>
+Fix logic/bugs where the plugin would balance at incorrect times (Thanks to Razvann. from alliedmods for helping me test this issue).<br>
+Massive plugin restructure. Added a bunch of natives and forwards. Made the plugin modular.<br>
+Since the plugin is restructured, you need to reinstall it fully.<br>
+<br>
 3.2.5 - <br>	
 Added afk_manager4 support. The purpose of this is to fix a bug when using sab_forcejointeam "2" where clients would be moved to spectator by afk-manager4 and then be unable to rejoin a team.<br>	
 <br>	
