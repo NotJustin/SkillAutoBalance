@@ -51,10 +51,11 @@ public void SAB_OnSkillBalance(ArrayList &sortedPlayers, char reason[50])
 	// swaps all the players who are NOT marked as needing a team swap, depending on which group of players is smaller.
 	int outliers = FindOutliers(sortedPlayers);
 	int sizes[2];
-	AssignPlayersToTeams(sortedPlayers, outliers, sizes);
+	float sums[2];
+	AssignPlayersToTeams(sortedPlayers, outliers, sizes, sums);
 	if (outliers > 0)
 	{
-		AssignOutliersToTeams(sortedPlayers, sizes);
+		AssignOutliersToTeams(sortedPlayers, sizes, sums);
 	}
 	SwapFewestPlayers(sortedPlayers);
 }
@@ -135,58 +136,49 @@ int FindOutliers(ArrayList sortedPlayers)
 // Reearranges teams so that the sum of the client scores on each team is close.
 // An approximation, not guaranteed to be as close as possible.
 // Also, not necessarily the best way of balancing teams.
-void AssignPlayersToTeams(ArrayList sortedPlayers, int outliers, int sizes[2])
+void AssignPlayersToTeams(ArrayList sortedPlayers, int outliers, int sizes[2], float sums[2])
 {
 	int client;
-	int i = -1;
 	int totalSize = sortedPlayers.Length - outliers;
 	int smallTeamSize = totalSize / 2;
 	int bigTeamSize = totalSize % 2 == 0 ? smallTeamSize : smallTeamSize + 1;
-	float tSum = 0.0;
-	float ctSum = 0.0;
-	// Assigns players to teams until one of the teams reaches the maximum team size.
-	// This is necessary, to avoid uneven team sizes. We want 5v5 or 5v6, not 4v6 or 4v7.
-	while(sizes[0] < bigTeamSize && sizes[1] < bigTeamSize)
+	for (int i = 0; i < sortedPlayers.Length; ++i)
 	{
-		++i;
 		client = sortedPlayers.Get(i);
 		// Skip outliers
 		if (g_ClientData[client].isOutlier)
 		{
 			continue;
 		}
-		// Check which team we want to put this client on, and check if they're already on that team.
-		if (tSum < ctSum)
+		// Assigns players to teams until one of the teams reaches the maximum team size.
+		// This is necessary, to avoid uneven team sizes. We want 5v5 or 5v6, not 4v6 or 4v7.
+		if (sizes[0] < bigTeamSize && sizes[1] < bigTeamSize)
 		{
-			tSum += SAB_GetClientScore(client);
-			++sizes[0];
-			g_ClientData[client].isPendingSwap = GetClientTeam(client) == CS_TEAM_CT;
-		}
-		else
-		{
-			ctSum += SAB_GetClientScore(client);
-			++sizes[1];
-			g_ClientData[client].isPendingSwap = GetClientTeam(client) == CS_TEAM_T;
-		}
-	}
-	// Once one team has reached the maximum team size, dump the remaining players onto the other team.
-	// Usually this loop will only occur once.
-	for(int j = i; j < sortedPlayers.Length; ++j)
-	{
-		client = sortedPlayers.Get(j);
-		// Skip outliers
-		if (g_ClientData[client].isOutlier)
-		{
+			if (sums[0] < sums[1])
+			{
+				sums[0] += SAB_GetClientScore(client);
+				++sizes[0];
+				g_ClientData[client].isPendingSwap = GetClientTeam(client) == CS_TEAM_CT;
+			}
+			else
+			{
+				sums[1] += SAB_GetClientScore(client);
+				++sizes[1];
+				g_ClientData[client].isPendingSwap = GetClientTeam(client) == CS_TEAM_T;
+			}
 			continue;
 		}
-		// Check which team we want to put this client on, and check if they're already on that team.
+		// When one team reaches the maximum team size, dump the remaining players onto the other team.
+		// Usually this will only occur at the final iteration (so, only once).
 		if (sizes[0] < smallTeamSize)
 		{
+			sums[0] += SAB_GetClientScore(client);
 			++sizes[0];
 			g_ClientData[client].isPendingSwap = GetClientTeam(client) == CS_TEAM_CT;
 		}
 		else
 		{
+			sums[1] += SAB_GetClientScore(client);
 			++sizes[1];
 			g_ClientData[client].isPendingSwap = GetClientTeam(client) == CS_TEAM_T;
 		}
@@ -194,11 +186,23 @@ void AssignPlayersToTeams(ArrayList sortedPlayers, int outliers, int sizes[2])
 }
 
 // After rearranging teams, check if the outlier-players need their teams to be changed.
-void AssignOutliersToTeams(ArrayList sortedPlayers, int sizes[2])
+void AssignOutliersToTeams(ArrayList sortedPlayers, int sizes[2], float sums[2])
 {
 	int client;
 	int teams[2] = {CS_TEAM_T, CS_TEAM_CT};
-	int nextTeam = (sizes[0] <= sizes[1] ? 0 : 1);
+	int nextTeam;
+	if (sizes[0] < sizes[1])
+	{
+		nextTeam = sizes[0] < sizes[1] ? 0 : 1;
+	}
+	else if (sums[0] < sums[1])
+	{
+		nextTeam = sums[0] < sums[1] ? 0 : 1;
+	}
+	else
+	{
+		nextTeam = GetRandomInt(0, 1);
+	}
 	for (int i = 0; i < sortedPlayers.Length; ++i)
 	{
 		client = sortedPlayers.Get(i);
