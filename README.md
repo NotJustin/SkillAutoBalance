@@ -4,12 +4,12 @@
 	https://forums.alliedmods.net/showthread.php?p=2653016	
 </p><br>
 
-#### Table of Contents<br>
+### Table of Contents<br>
 [Description](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#description)<br>	
 [Credits/Inspiration](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#credits--inspiration)<br>	
 [Changelog](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#changelog)<br>	
 [Installation](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#installation)<br>
-[Modules](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#modules)
+[Modules](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#modules)<br>
 [ConVars](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#convars)<br>	
 [Dependencies](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#dependencies)<br>	
 [Compatible Plugins](https://github.com/NotJustin/SkillAutoBalance/blob/master/README.md#compatible-plugins)<br>	
@@ -99,63 +99,113 @@ Using gameME, RankMe, LVL Ranks or NC RPG, get client's skill rather than their 
 <br>	
 3.0.0 - I've been making lots of minor changes to this plugin over the last month. In general, it consists of function optimization, improving code readability, adding some features and trying out various solutions to the bug I've been trying to fix for awhile now (see Bugs section).	
 You can see old changelog(s) at the alliedmodders thread.	
-</details>	
-### Installation	
-Put the skillautobalance you want to use into your plugins directory. You only need one.<br>	
-Pick skillautobalance if you do not use any of the other plugins, or if you do not want to balance with those versions.<br>	
-Put skillautobalance.phrases.txt into your translations directory.<br>	
-If you want to compile it yourself, just pick the one you need from scripting. You should not need to take any of the include files if you already have the other plugin installed (eg: if you have rankme installed you should already have all of the kento_rankme includes).<br>
-### Modules
+</details>
 
-### ConVars	
-```	
+### Installation	
+Put the three required plugins in your plugins folder (sab-core, sab-checkbalance, and sab-ctps).<br>	
+Put any additional modules you want to add in your plugins folder (sab-admin, sab-blockteams, sab-messages).<br>	
+Put sab.phrases.txt into your translations directory.<br>	
+You need to be using at least one of the point systems, because players need some sort of "rating" for us to balance teams. If you do not use any at the moment, I made a basic one called [kpr_rating](https://github.com/NotJustin/KPR-Rating).<br>
+
+### Modules
+#### sab-core: (REQUIRED) The core plugin.<br>
+	Corresponding include in addons/sourcemod/includes/skillautobalance/core.inc
+	Generates config in cfg/sourcemod/sab-core.cfg
+#### sab-admin: Adds admin commands sm_balance to trigger a team balance and sm_setteam to change a player's team.<br>
+	Corresponding include in includes/skillautobalance/admin.inc
+#### sab-blockteams: Adds options to disable the team menu and automatically place players on teams. Optionally adds commands sm_j and sm_s to switch between spectating and playing.<br>
+	Corresponding include in includes/skillautobalance/blockteams.inc
+	Generates config in cfg/sourcemod/sab-blockteams.inc
+#### sab-checkbalance: (REQUIRED unless you create a replacement) Uses sab-core natives to tell sab-core when a balance is needed.<br>
+	Generates config in cfg/sourcemod/sab-checkbalance.inc
+#### sab-ctps: (REQUIRED unless you create a replacement) Uses sab-core natives to assign players to teams when a balance is needed.<br>
+	Generates config in cfg/sourcemod/sab-ctps.inc
+#### sab-messages: Prints messages to chat when certain forwards occur from core, admin, and blockteams<br>
+	Generates config in cfg/sourcemod/sab-messages.inc
+
+### ConVars
+#### sab-core
+
+```
+sab_botsareplayers (boolean | default 0)
+"When teams are being balanced, 1 = Bots are players (bots have points/KDR), 0 = Bots are outliers (bots do not have points/KDR)"
+
+sab_keepplayersalive (boolean | default 1)
+"Living players are kept alive when their teams are changed"
+
+sab_minplayers (int | min 2 default 7)
+"The amount of players not in spectate must be at least this number for a balance to occur"
+
+sab_scoretype (int | min 0 max 7 default 0)
+"0 = Auto detect scoretype. Only change this if you have multiple types loaded. 1 = gameME, 2 = HLstatsX, 3 = Kento-RankMe, 4 = LevelsRanks, 5 = NCRPG, 6 = SABRating, 7 = SMRPG"
+```
+#### sab-blockteams
+
+```
+sab_blockteamswitch (int | min 0 max 2 default 0)
+"0 = Don't block. 1 = Block, can join spectate, must rejoin same team. 2 = Block completely (also disables teammenu and chatchangeteam commands like !join !spec)"
+
+sab_chatchangeteam (boolean | default 0)
+"Enable joining teams by chat commands '!join, !play, !j, !p, !spectate, !spec, !s (no picking teams)"
+
+sab_enableplayerteammessage (boolean | default 0)
+"Show the messages in chat when a player switches team"
+
+sab_forcejointeam (int | min 0 max 2 default 0)
+"0 = Disabled, 1 = Optional (!settings), 2 = Forced. Force clients to join a team upon connecting to the server. Always enabled if both sab_chatchangeteam and sab_teammenu are disabled"
+
+sab_maxteamsize (int | min 0 default 0)
+"0 = Unlimited. Max players allowed on each team. If both teams reach this amount, new non-admin players are kicked. Only works if sab_blockteamswitch is 2"
+
+sab_teammenu (boolean | default 1)
+"Whether to enable or disable the join team menu"
+```
+#### sab-checkbalance
+```
 sab_balanceafternplayerschange (int | min 0 default 0)	
-"0 = Disabled. Otherwise, balance  teams when 'N' players join/leave the server. Requires sab_balanceafternrounds to be enabled"	
+"0 = Disabled. Otherwise, balance  teams when 'N' players join/leave the server. Requires sab_balanceafternrounds to be enabled"
+
 sab_balanceafternrounds (int | min 0 default 0)	
 "0 = Disabled. Otherwise, after map change balance teams when 'N' rounds pass. Then balance based on team win streaks"	
+
 sab_balanceeveryround (boolean | default 0)	
-"If enabled, teams will be rebalanced at the end of every round"	
-sab_blockteamswitch (int | min 0 max 2 default 0)	
-"0 = Don't block. 1 = Block, can join spectate, must rejoin same team. 2 = Block completely (also disables teammenu and chatchangeteam commands like !join !spec)"	
-sab_chatchangeteam (boolean | default 0)	
-"Enable joining teams by chat commands '!join, !play, !j, !p, !spectate, !spec, !s (no picking teams)"	
+"If enabled, teams will be rebalanced at the end of every round"
+
 sab_decayamount (float | min 1 default 1.5)	
 "The amount to subtract from a streak if UseDecay is true. In other words, the ratio of a team's round wins to the opposing team's must be greater than this number in order for a team balance to eventually occur"	
-sab_displaychatmessages (boolean | default 1) 	
-"Allow plugin to display messages in the chat"	
-sab_enableplayerteammessage (boolean | default 0)	
-"Show the messages in chat when a player switches team"	
-sab_forcebalance (boolean | default 0)	
-"Add 'force balance' to 'server commands' in generic admin menu"	
-sab_forcejointeam (int | min 0 max 2 default 0)	
-"0 = Disabled, 1 = Optional (!settings), 2 = Forced. Force clients to join a team upon connecting to the server. Always enabled if both sab_chatchangeteam and sab_teammenu are disabled"	
-sab_keepplayersalive (boolean | default 1)	
-"Living players are kept alive when their teams are changed"	
-sab_maxteamsize (int | default 0)	
-"0 = Unlimited. Max players allowed on each team. If both teams reach this amount, new non-admin players are kicked. Only works if sab_blockteamswitch is 2."	
+
+sab_minstreak (int | min 0 default 6)	
+"Amount of wins in a row a team needs before autobalance occurs"
+
+sab_nobalancelastnminutes (int | min 0 default 0)
+"0 = Disabled. Otherwise, this is the amount of time remaining before the map ends where balancing is turned off."
+
+sab_nobalancelastnrounds (int | min 0 default 0)
+"0 = Disabled. Otherwise, this is the amount of rounds remaining before the map ends where balancing is turned off."
+
+sab_usedecay (boolean | default 1)	
+"If 1, subtract sab_decayamount from a team's streak when they lose instead of setting their streak to 0"
+```
+#### sab-ctps
+```
+sab_scale (float | min 0.1 default 1.5)	
+"Value to multiply IQR by. If your points have low spread keep this number. If your points have high spread change this to a lower number, like 0.5"
+```
+#### sab-messages
+```		
 sab_messagecolor (string | default white)	
 "See sab_messagetype for info"	
+
 sab_messagetype (int | min 0 max 3 default 0)	
 "How this plugin's messages will be colored in chat. 0 = no color, 1 = color only prefix with sab_prefixcolor, 2 = color entire message with sab_messagecolor, 3 = color prefix and message with both sab_prefixcolor and sab_messagecolor"	
-sab_minplayers (int | min 2 default 7)	
-"The amount of players not in spectate must be at least this number for a balance to occur"	
-sab_minstreak (int | min 0 default 6)	
-"Amount of wins in a row a team needs before autobalance occurs"	
+
 sab_prefix (string | default [SAB])	
 "The prefix for messages this plugin writes in the server"	
+
 sab_prefixcolor (string | default white)	
-"See sab_messagetype for info"	
-sab_scale (float | min 0.1 default 1.5)	
-"Value to multiply IQR by. If your points have low spread keep this number. If your points have high spread change this to a lower number, like 0.5"	
-sab_scramble (boolean | default 0)	
-"Randomize teams instead of using a skill formula"	
-sab_setteam (boolean | default 0)	
-"Add 'set player team' to 'player commands' in generic admin menu"	
-sab_teammenu (boolean | default 1)	
-"Whether to enable or disable the join team menu"	
-sab_usedecay (boolean | default 1)	
-"If 1, subtract sab_decayamount from a team's streak when they lose instead of setting their streak to 0"	
-```	
+"See sab_messagetype for info"			
+```
+
 ### Dependencies	
 Third party include files you need in order to compile depend on what version you are using. See Installation section.	
  	
@@ -163,8 +213,10 @@ Third party include files you need in order to compile depend on what version yo
 [gameME](https://www.gameme.com/)<br>	
 [RankMe Kento Edition](https://github.com/rogeraabbccdd/Kento-Rankme) untested<br>	
 [LVL Ranks](https://github.com/levelsranks/levels-ranks-core) untested<br>	
-[NCRPG](https://github.com/Rabb1tof/NCRPG)<br>	
-[SMRPG](https://github.com/peace-maker/smrpg)<br> untested	
-[HLStatsX](https://github.com/NomisCZ/hlstatsx-community-edition) untested	
+[NCRPG](https://github.com/Rabb1tof/NCRPG) <br>
+[SMRPG](https://github.com/peace-maker/smrpg) untested <br>
+[HLStatsX](https://github.com/NomisCZ/hlstatsx-community-edition) untested <br>
+[KPR Rating](https://github.com/NotJustin/KPR-Rating)<br>
+
 ### Bugs	
 No bugs, as far as I know.	
