@@ -150,7 +150,7 @@ SABBalanceReason BalanceSkillNeeded(char reason[50])
 	// We are only interested in players who are on terrorist/counter-terrorist teams
 	int activePlayers = GetTeamClientCount(CS_TEAM_T) + GetTeamClientCount(CS_TEAM_CT);
 	// If there are less than 3 players on teams, balance will have absolutely no effect, so we will not balance.
-	if (activePlayers < 3)
+	if (activePlayers < 2)
 	{
 		return SAB_NoBalance;
 	}
