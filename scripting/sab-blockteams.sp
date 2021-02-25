@@ -22,7 +22,6 @@ enum struct SABClientData
 	int team;
 	int forceJoinPreference;
 	
-	bool pendingForceJoin;
 	bool postAdminChecked;
 	bool pendingSwap;
 	bool fullyConnected;
@@ -31,7 +30,6 @@ enum struct SABClientData
 	{
 		this.team = CS_TEAM_SPECTATOR;
 		this.forceJoinPreference = 1;
-		this.pendingForceJoin = false;
 	}
 }
 
@@ -338,10 +336,21 @@ void PutClientOnATeam(int client)
 /* Command Listeners */
 Action CommandList_JoinTeam(int client, const char[] command, int argc)
 {
-	// If the map is not yet loaded, ignore any 'jointeam' commands. Not sure if this could ever actually happen.
-	if (!g_bMapLoaded)
+	// If the map is not yet loaded, or the client is not valid, ignore any 'jointeam' commands.
+	if (!g_bMapLoaded || client <= 0 || client >= MaxClients || !IsClientInGame(client))
 	{
-		return Plugin_Stop;
+		return Plugin_Handled;
+	}
+	// We're going to override the jointeam command.
+	// We will do this by always returning Plugin_Handled;
+	// If we want to change a client's team, we will manually change it with ChangeClientTeam
+	char arg[3];
+	GetCmdArg(1, arg, sizeof(arg));
+	int team = StringToInt(arg);
+	// If they are trying to join a team that we do not allow, prevent it.
+	if (team <= CS_TEAM_NONE || team > CS_TEAM_CT)
+	{
+		return Plugin_Handled;
 	}
 	// When the client tries to change team, check if it is allowed.
 	if (cvar_BlockTeamSwitch.IntValue == 0)
@@ -354,26 +363,12 @@ Action CommandList_JoinTeam(int client, const char[] command, int argc)
 	{
 		return Plugin_Continue;
 	}
-	// If it is not allowed, allow it anyway if we are forcing them to join a team ourselves.
-	if (g_ClientData[client].pendingForceJoin)
-	{
-		g_ClientData[client].pendingForceJoin = false;
-		return Plugin_Continue;
-	}
 	// If we aren't forcing them on a team and we completely block changing teams, do not allow them to change team.
 	if (cvar_BlockTeamSwitch.IntValue == 2)
 	{
-		return Plugin_Stop;
+		return Plugin_Handled;
 	}
-	char arg[5];
-	GetCmdArg(1, arg, sizeof(arg));
-	int team = StringToInt(arg);
-	// If they are trying to join UNASSIGNED somehow, prevent it.
-	if (team == CS_TEAM_NONE)
-	{
-		return Plugin_Stop;
-	}
-	// If they are trying to join spectator, always allow it.
+	// If they are trying to join spectator, allow it.
 	if (team == CS_TEAM_SPECTATOR)
 	{
 		return Plugin_Continue;
@@ -386,51 +381,53 @@ Action CommandList_JoinTeam(int client, const char[] command, int argc)
 		Call_PushCell(client);
 		Call_PushCell(result);
 		Call_Finish();
-		return Plugin_Stop;
+		return Plugin_Handled;
 	}
+	// Passed all other checks. We will allow the client to change team.
 	return Plugin_Continue;
 }
 
 void InitializeClient(int client)
 {
-	bool teamMenuEnabled = cvar_TeamMenu.BoolValue;
-	bool autoJoin = false;
-	bool autoJoinSuccess = false;
 	int forceJoin = cvar_ForceJoinTeam.IntValue;
 	// Check if we must force clients to join a team.
-	bool mustForceJoin = (forceJoin == 2 || (!cvar_ChatChangeTeam.BoolValue && !teamMenuEnabled));
+	bool mustForceJoin = (forceJoin == 2 || (!cvar_ChatChangeTeam.BoolValue && !cvar_TeamMenu.BoolValue));
 	// If we are not forcing clients to join a team,
 	// check if this client wants to be forced on a team.
 	if (!mustForceJoin && (forceJoin == 0 || g_ClientData[client].forceJoinPreference == 2))
 	{
 		return;
 	}
-	autoJoin = true;
-	// If the teams aren't full, force the client to join a team.
-	if (!AreTeamsFull())
+	RequestFrame(Frame_AlternateJoinTeam, GetClientUserId(client));
+}
+
+// Alternate method of forcing clients on a team
+void Frame_AlternateJoinTeam(int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if (client <= 0 || client > MaxClients || !IsClientInGame(client))
 	{
-		// Prepare to switch the client's team by ClientCommand.
-		// Taken from SM9's Auto Assign Team plugin https://forums.alliedmods.net/showthread.php?t=321314
-		g_ClientData[client].pendingForceJoin = true;
-		int team = GetSmallestTeam();
-		ClientCommand(client, "jointeam 0 %i", team);
-		// Respawn the player if spawning is allowed.
-		if (!IsPlayerAlive(client) && ((team = GetClientTeam(client)) == CS_TEAM_T || team == CS_TEAM_CT) && (g_bAllowSpawn || AreTeamsEmpty()))
-		{
-			CS_RespawnPlayer(client);
-		}
-		autoJoinSuccess = true;
-	}
-	else
-	{
-		// Only admins will get here. If teams are full, force the admin to join spectator.
-		ClientCommand(client, "spectate");
+		return;
 	}
 	// Forward used to notify the client that they've been forced to join a team.
+	bool autoJoinSuccess = false;
 	Call_StartForward(g_ClientInitializedForward);
 	Call_PushCell(client);
-	Call_PushCell(teamMenuEnabled);
-	Call_PushCell(autoJoin);
+	Call_PushCell(cvar_TeamMenu.BoolValue);
+	// If teams are not full, move them onto the smallest team. Otherwise, move them to spectator.
+	int team = !AreTeamsFull() ? GetSmallestTeam() : CS_TEAM_SPECTATOR;
+	ChangeClientTeam(client, team);
+	Call_PushCell(true); //autojoin is true if we're inside this function
+	// Respawn the player if spawning is allowed.
+	if (!IsPlayerAlive(client) && ((team = GetClientTeam(client)) == CS_TEAM_T || team == CS_TEAM_CT) && (g_bAllowSpawn || AreTeamsEmpty()))
+	{
+		CS_RespawnPlayer(client);
+	}
+	// Check if we successfully played the client on a team (if they're in spectator, teams are full).
+	if (team != CS_TEAM_SPECTATOR)
+	{
+		autoJoinSuccess = true;
+	}
 	Call_PushCell(autoJoinSuccess);
 	Call_Finish();
 }
