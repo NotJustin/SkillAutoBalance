@@ -191,16 +191,22 @@ void AssignOutliersToTeams(ArrayList sortedPlayers, int sizes[2], float sums[2])
 	int client;
 	int teams[2] = {CS_TEAM_T, CS_TEAM_CT};
 	int nextTeam;
-	if (sizes[0] < sizes[1])
+	if (sizes[0] != sizes[1])
 	{
+		// If one team is bigger than the other at the moment,
+		// put the first outlier on the smaller team.
 		nextTeam = sizes[0] < sizes[1] ? 0 : 1;
 	}
-	else if (sums[0] < sums[1])
+	else if (sums[0] != sums[1])
 	{
+		// If both teams have the same size,
+		// put the first outlier on the team with the smaller point sum.
 		nextTeam = sums[0] < sums[1] ? 0 : 1;
 	}
 	else
 	{
+		// If both teams have the same point sums (incredibly rare),
+		// put the first outlier on a random team.
 		nextTeam = GetRandomInt(0, 1);
 	}
 	for (int i = 0; i < sortedPlayers.Length; ++i)
@@ -211,6 +217,7 @@ void AssignOutliersToTeams(ArrayList sortedPlayers, int sizes[2], float sums[2])
 		{
 			continue;
 		}
+		sizes[nextTeam]++;
 		g_ClientData[client].isPendingSwap = GetClientTeam(client) != teams[nextTeam];
 		nextTeam = (nextTeam + 1) % 2;
 	}

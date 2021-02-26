@@ -6,7 +6,7 @@
 #define SAB_PLUGIN_FILE SAB_PLUGIN_NAME ... ".smx"
 #define SAB_PLUGIN_AUTHOR "Justin (ff)"
 #define SAB_PLUGIN_DESCRIPTION "A configurable automated team manager"
-#define SAB_PLUGIN_VERSION "4.0.0"
+#define SAB_PLUGIN_VERSION "4.1.2"
 #define SAB_PLUGIN_URL "https://steamcommunity.com/id/NameNotJustin/"
 
 #undef REQUIRE_PLUGIN
