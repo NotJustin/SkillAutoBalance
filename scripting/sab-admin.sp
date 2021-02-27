@@ -271,6 +271,10 @@ Action Command_SetTeam(int client, int args)
 			{
 				SAB_SwapPlayer(target, CS_TEAM_SPECTATOR, "Admin Join");
 			}
+			else
+			{
+				result = SAB_SetTeamIncorrectUsage;
+			}
 		}
 	}
 	// Forward used to notify the admin about the result of their setteam command usage.

@@ -405,7 +405,7 @@ void InitializeClient(int client)
 void Frame_AlternateJoinTeam(int userid)
 {
 	int client = GetClientOfUserId(userid);
-	if (client <= 0 || client > MaxClients || !IsClientInGame(client))
+	if (client <= 0 || client > MaxClients || !IsClientInGame(client) || IsClientSourceTV(client))
 	{
 		return;
 	}
