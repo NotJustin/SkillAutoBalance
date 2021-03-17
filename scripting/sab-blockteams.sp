@@ -13,7 +13,7 @@ public Plugin myinfo =
 	name = "skillautobalance blockteams",
 	author = "Justin (ff)",
 	description = "Adds the option to auto assign clients to teams and prevent them from switching.",
-	version = "1.0.0",
+	version = "1.0.1",
 	url = "https://steamcommunity.com/id/namenotjustin"
 }
 
@@ -23,6 +23,7 @@ enum struct SABClientData
 	int forceJoinPreference;
 	
 	bool postAdminChecked;
+	bool pendingForceJoin;
 	bool pendingSwap;
 	bool fullyConnected;
 	
@@ -341,6 +342,13 @@ Action CommandList_JoinTeam(int client, const char[] command, int argc)
 	{
 		return Plugin_Handled;
 	}
+	// If "jointeam" was initiated by this plugin (client is pending forcejoin), continue
+	if (g_ClientData[client].pendingForceJoin)
+	{
+		g_ClientData[client].pendingForceJoin = false;
+		RequestFrame(Frame_CheckClientTeam, GetClientUserId(client));
+		return Plugin_Continue;
+	}
 	// We're going to override the jointeam command.
 	// We will do this by always returning Plugin_Handled;
 	// If we want to change a client's team, we will manually change it with ChangeClientTeam
@@ -398,36 +406,59 @@ void InitializeClient(int client)
 	{
 		return;
 	}
-	RequestFrame(Frame_AlternateJoinTeam, GetClientUserId(client));
+	JoinTeam(client);
 }
 
-// Alternate method of forcing clients on a team
-void Frame_AlternateJoinTeam(int userid)
+// First method of forcing clients on a team
+void JoinTeam(int client)
 {
-	int client = GetClientOfUserId(userid);
-	if (client <= 0 || client > MaxClients || !IsClientInGame(client) || IsClientSourceTV(client))
-	{
-		return;
-	}
-	// Forward used to notify the client that they've been forced to join a team.
-	bool autoJoinSuccess = false;
-	Call_StartForward(g_ClientInitializedForward);
-	Call_PushCell(client);
-	Call_PushCell(cvar_TeamMenu.BoolValue);
+	// We will be using "jointeam", so we need to tell the jointeam commandlistener to allow this team switch.
+	g_ClientData[client].pendingForceJoin = true;
 	// If teams are not full, move them onto the smallest team. Otherwise, move them to spectator.
 	int team = !AreTeamsFull() ? GetSmallestTeam() : CS_TEAM_SPECTATOR;
-	ChangeClientTeam(client, team);
-	Call_PushCell(true); //autojoin is true if we're inside this function
+	ClientCommand(client, "jointeam 0 %i", team);
 	// Respawn the player if spawning is allowed.
-	if (!IsPlayerAlive(client) && ((team = GetClientTeam(client)) == CS_TEAM_T || team == CS_TEAM_CT) && (g_bAllowSpawn || AreTeamsEmpty()))
+	if (!IsPlayerAlive(client) && (team == CS_TEAM_T || team == CS_TEAM_CT) && (g_bAllowSpawn || AreTeamsEmpty()))
 	{
 		CS_RespawnPlayer(client);
 	}
-	// Check if we successfully played the client on a team (if they're in spectator, teams are full).
-	if (team != CS_TEAM_SPECTATOR)
+}
+
+// After attempting to force a client to join a team, check if it was successful.
+// If they're in unassigned team, it is due to the map not having enough spawnpoints.
+// If they're in spectator team, it is due to the convars sab_maxteamsize and sab_blockteamswitch
+// It means this player is an admin (any other players would have been kicked).
+void Frame_CheckClientTeam(int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if (!client)
 	{
-		autoJoinSuccess = true;
+		return;
 	}
+	int team = GetClientTeam(client);
+	bool autoJoinSuccess = true;
+	if (team != CS_TEAM_T && team != CS_TEAM_CT)
+	{
+		autoJoinSuccess = false;
+		if (team != CS_TEAM_SPECTATOR)
+		{
+			ChangeClientTeam(client, CS_TEAM_SPECTATOR);
+			LogError("Failed to assign client to a team, likely because the map did not have enough spawnpoints.");
+		}
+	}
+	else
+	{
+		// Respawn the player if spawning is allowed.
+		if (!IsPlayerAlive(client) && (g_bAllowSpawn || AreTeamsEmpty()))
+		{
+			CS_RespawnPlayer(client);
+		}
+	}
+	// Forward used to notify the client that they've been forced to join a team.
+	Call_StartForward(g_ClientInitializedForward);
+	Call_PushCell(client);
+	Call_PushCell(cvar_TeamMenu.BoolValue);
+	Call_PushCell(true); //autojoin is true if we're inside this function
 	Call_PushCell(autoJoinSuccess);
 	Call_Finish();
 }
