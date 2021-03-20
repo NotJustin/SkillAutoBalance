@@ -409,7 +409,6 @@ void InitializeClient(int client)
 	JoinTeam(client);
 }
 
-// First method of forcing clients on a team
 void JoinTeam(int client)
 {
 	// We will be using "jointeam", so we need to tell the jointeam commandlistener to allow this team switch.
@@ -417,11 +416,6 @@ void JoinTeam(int client)
 	// If teams are not full, move them onto the smallest team. Otherwise, move them to spectator.
 	int team = !AreTeamsFull() ? GetSmallestTeam() : CS_TEAM_SPECTATOR;
 	ClientCommand(client, "jointeam 0 %i", team);
-	// Respawn the player if spawning is allowed.
-	if (!IsPlayerAlive(client) && (team == CS_TEAM_T || team == CS_TEAM_CT) && (g_bAllowSpawn || AreTeamsEmpty()))
-	{
-		CS_RespawnPlayer(client);
-	}
 }
 
 // After attempting to force a client to join a team, check if it was successful.
