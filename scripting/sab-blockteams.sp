@@ -22,6 +22,7 @@ enum struct SABClientData
 	int team;
 	int forceJoinPreference;
 	
+	bool checkTeam;
 	bool postAdminChecked;
 	bool pendingForceJoin;
 	bool pendingSwap;
@@ -89,8 +90,6 @@ public void OnPluginStart()
 	
 	HookEvent("player_connect_full", Event_PlayerConnectFull);
 	HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
-	HookEvent("player_connect", Event_PlayerTeam, EventHookMode_Pre);
-	HookEvent("player_disconnect", Event_PlayerTeam, EventHookMode_Pre);
 	HookEvent("round_end", Event_RoundEnd);
 	HookEvent("round_start", Event_RoundStart);
 	
@@ -237,14 +236,27 @@ public void OnClientDisconnect(int client)
 
 void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
-	event.BroadcastDisabled = !cvar_EnablePlayerTeamMessage.BoolValue;
-	int client = GetClientOfUserId(event.GetInt("userid"));
-	int team = event.GetInt("team");
-	if (team == CS_TEAM_T || team == CS_TEAM_CT)
+	event.SetInt("silent", !cvar_EnablePlayerTeamMessage.BoolValue);
+	int userid = event.GetInt("userid");
+	int client = GetClientOfUserId(userid);
+	if (!client || client > MaxClients || !IsClientInGame(client))
 	{
-		// Whenever the client's team changes to T or CT, cache that team.
-		g_ClientData[client].team = team;
+		return;
 	}
+	int team = event.GetInt("team");
+	if (team != CS_TEAM_T && team != CS_TEAM_CT)
+	{
+		return;
+	}
+	// Whenever the client's team changes to T or CT, cache that team.
+	g_ClientData[client].team = team;
+	// Are we checking if our clientcommand "jointeam" was successful?
+	if (!g_ClientData[client].checkTeam)
+	{
+		return;
+	}
+	g_ClientData[client].checkTeam = false;
+	RequestFrame(Frame_CheckClientTeam, userid);
 }
 
 void Event_PlayerConnectFull(Event event, const char[] name, bool dontBroadcast)
@@ -346,7 +358,8 @@ Action CommandList_JoinTeam(int client, const char[] command, int argc)
 	if (g_ClientData[client].pendingForceJoin)
 	{
 		g_ClientData[client].pendingForceJoin = false;
-		RequestFrame(Frame_CheckClientTeam, GetClientUserId(client));
+		g_ClientData[client].checkTeam = true;
+		CreateTimer(1.0, Timer_CheckTeamTimeout, GetClientUserId(client));
 		return Plugin_Continue;
 	}
 	// We're going to override the jointeam command.
@@ -393,6 +406,18 @@ Action CommandList_JoinTeam(int client, const char[] command, int argc)
 	}
 	// Passed all other checks. We will allow the client to change team.
 	return Plugin_Continue;
+}
+
+Action Timer_CheckTeamTimeout(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if (!client || !g_ClientData[client].checkTeam)
+	{
+		return Plugin_Handled;
+	}
+	LogError("We tried to assign a client to a team while connecting. After 1 second, their team has not changed.");
+	Frame_CheckClientTeam(userid);
+	return Plugin_Handled;
 }
 
 void InitializeClient(int client)
