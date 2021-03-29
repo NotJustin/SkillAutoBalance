@@ -17,17 +17,17 @@ any Native_GetClientScore(Handle plugin, int args)
 	if (client < 0 || client > MaxClients)
 	{
 		ThrowNativeError(SP_ERROR_PARAM, "Client index %d is not valid", client);
-		return -1.0;
+		return SAB_ClientIsInvalid;
 	}
 	if (client == 0)
 	{
 		ThrowNativeError(SP_ERROR_PARAM, "Cannot get score of client index 0");
-		return -1.0;
+		return SAB_ClientIsServer;
 	}
 	if (!IsClientInGame(client))
 	{
 		ThrowNativeError(SP_ERROR_PARAM, "Client index %d is not in game", client);
-		return -1.0;
+		return SAB_ClientIsNotInGame;
 	}
 	return g_ClientData[client].score;
 }

@@ -1,12 +1,10 @@
 enum struct SABClientData
 {
 	bool isPassive;
-	bool scoreUpdated;
 	float score;
 	void Reset()
 	{
 		this.isPassive = false;
-		this.scoreUpdated = false;
 		this.score = -1.0;
 	}
 }
@@ -14,6 +12,7 @@ enum struct SABClientData
 SABClientData g_ClientData[MAXPLAYERS + 1];
 
 bool g_bBalanceNeeded;
+bool g_bConfigsExecuted;
 char g_sBalanceReason[50];
 
 // Existing convars
@@ -30,7 +29,7 @@ ConVar
 	cvar_ScoreType
 ;
 
-float g_LastAverageScore = 1000.0;
+float g_LastAverageScore;
 
 GlobalForward
 	g_BalanceForward,

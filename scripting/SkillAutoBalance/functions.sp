@@ -15,12 +15,14 @@ int GetClientCountMinusSourceTV()
 // If the scoretype is manually set in the config, check if it exists.
 void DoesScoreTypeExist(const char[] name, SABScoreType scoreType)
 {
+	// Set the scoretype to be the new one regardless.
+	// If the scoretype isn't loaded, it shouldn't be this plugin's fault.
+	g_ScoreType = scoreType;
 	if (!LibraryExists(name))
 	{
 		LogError("Attempting to use score from plugin %s, but it is not loaded", name);
 		return;
 	}
-	g_ScoreType = scoreType;
 }
 
 // If for some reason we fail to update some client(s) scores,
@@ -149,7 +151,6 @@ void FixMissingScores()
 		if (g_ClientData[client].score == -1.0)
 		{
 			g_ClientData[client].score = g_LastAverageScore;
-			g_ClientData[client].scoreUpdated = true;
 		}
 	}
 }
@@ -265,6 +266,15 @@ Action Timer_UnpacifyPlayer(Handle timer, int userID)
 	return Plugin_Handled;
 }
 
+void RemoveGod(int userID)
+{
+	int client = GetClientOfUserId(userID);
+	if (client > 0 && client <= MaxClients && IsClientInGame(client))
+	{
+		SetEntProp(client, Prop_Data, "m_takedamage", 2, 1);
+	}
+}
+
 Action Timer_DelayBalance(Handle timer)
 {
 	if (!g_bBalanceNeeded)
@@ -273,22 +283,8 @@ Action Timer_DelayBalance(Handle timer)
 	}
 	// Set balance to false if we are about to balance teams.
 	g_bBalanceNeeded = false;
-	// If there are only 2 players total on teams, there is no need to balance.
-	if (GetTeamClientCount(CS_TEAM_T) + GetTeamClientCount(CS_TEAM_CT) < 3)
-	{
-		return;
-	}
 	FixMissingScores();
 	BalanceSkill();
-}
-
-void RemoveGod(int userID)
-{
-	int client = GetClientOfUserId(userID);
-	if (client > 0 && client <= MaxClients && IsClientInGame(client))
-	{
-		SetEntProp(client, Prop_Data, "m_takedamage", 2, 1);
-	}
 }
 
 SABScoreType FindScoreType()

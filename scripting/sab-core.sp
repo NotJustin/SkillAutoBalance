@@ -120,6 +120,8 @@ public void OnLibraryRemoved(const char[] name)
 
 public void OnConfigsExecuted()
 {
+	// This bool is needed to make sure the scoretype is only updated after all plugins are loaded.
+	g_bConfigsExecuted = true;
 	// This plugin handles teams. We make sure to always disable mp_autoteambalance and mp_limitteams
 	cvar_AutoTeamBalance.SetInt(0);
 	cvar_LimitTeams.SetInt(0);
@@ -164,6 +166,10 @@ void UpdateLimitTeams(ConVar convar, char[] oldValue, char[] newValue)
 
 void UpdateScoreType(ConVar convar, char[] oldValue, char[] newValue)
 {
+	if (!g_bConfigsExecuted)
+	{
+		return;
+	}
 	SABScoreType scoreType = view_as<SABScoreType>(convar.IntValue);
 	switch(scoreType)
 	{

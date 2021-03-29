@@ -1,12 +1,12 @@
-#if defined _skillautobalance_included
+#if defined _skillautobalance_core_included
 	#endinput
 #endif
-#define _skillautobalance_included
+#define _skillautobalance_core_included
 #define SAB_PLUGIN_NAME "sab-core"
 #define SAB_PLUGIN_FILE SAB_PLUGIN_NAME ... ".smx"
 #define SAB_PLUGIN_AUTHOR "Justin (ff)"
 #define SAB_PLUGIN_DESCRIPTION "A configurable automated team manager"
-#define SAB_PLUGIN_VERSION "4.1.2"
+#define SAB_PLUGIN_VERSION "4.1.3"
 #define SAB_PLUGIN_URL "https://steamcommunity.com/id/NameNotJustin/"
 
 #undef REQUIRE_PLUGIN
@@ -22,6 +22,12 @@
 #define REQUIRE_PLUGIN
 
 #define CHECKSCORE_DELAY 1.0
+
+/* SAB_GetClientScoreErrors */
+#define SAB_ClientIsInvalid -4.0
+#define SAB_ClientIsServer -3.0
+#define SAB_ClientIsNotInGame -2.0
+#define SAB_ClientIsMissingScore -1.0
 
 enum SABChangeTeamReason
 {
@@ -91,7 +97,7 @@ native void SAB_Balance(char reason[50]);
  * Retrieves the client's score. Depends on what SAB_ScoreType is active.
  *
  * @param client				Client whose score you are retrieving.
- * @return						The client's score. -1.0 on error.
+ * @return						The client's score. Negative number on error. See SAB_GetClientScoreErrors defines.
  */
 native float SAB_GetClientScore(int client);
 
@@ -106,7 +112,7 @@ native float SAB_GetClientScore(int client);
  */
 native void SAB_SwapPlayer(int client, int team, char reason[50] = "Client Skill Balance");
 
-public SharedPlugin __pl_skillautobalance = 
+public SharedPlugin __pl_skillautobalance_core = 
 {
 	name = SAB_PLUGIN_NAME,
 	file = SAB_PLUGIN_FILE,

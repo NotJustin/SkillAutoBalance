@@ -1,7 +1,7 @@
 // The callback function for gameme, when querying player info.
 Action GameMEStatsCallback(int command, int payload, int client, Handle datapack)
 {
-	if (client <= 0 || client > MaxClients || !IsClientInGame(client) || g_ClientData[client].scoreUpdated)
+	if (client <= 0 || client > MaxClients || !IsClientInGame(client))
 	{
 		return Plugin_Handled;
 	}
@@ -15,7 +15,6 @@ Action GameMEStatsCallback(int command, int payload, int client, Handle datapack
 	{
 		g_ClientData[client].score = -1.0;
 	}
-	g_ClientData[client].scoreUpdated = true;
 	return Plugin_Handled;
 }
 
