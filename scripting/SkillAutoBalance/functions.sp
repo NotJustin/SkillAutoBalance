@@ -21,7 +21,6 @@ void DoesScoreTypeExist(const char[] name, SABScoreType scoreType)
 	if (!LibraryExists(name))
 	{
 		LogError("Attempting to use score from plugin %s, but it is not loaded", name);
-		return;
 	}
 }
 

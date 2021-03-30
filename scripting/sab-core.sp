@@ -67,7 +67,7 @@ public void OnLibraryAdded(const char[] name)
 		{
 			g_ScoreType = ScoreType_HLstatsX;
 		}
-		else if (StrEqual(name, "kento_rankme"))
+		else if (StrEqual(name, "rankme"))
 		{
 			g_ScoreType = ScoreType_KentoRankMe;
 		}
@@ -99,7 +99,7 @@ public void OnLibraryRemoved(const char[] name)
 	// We automatically set scoretype, so check if one has unloaded.
 	if (StrEqual(name, "gameme")
 	|| StrEqual(name, "hlstatsx_api")
-	|| StrEqual(name, "kento_rankme")
+	|| StrEqual(name, "rankme")
 	|| StrEqual(name, "levelsranks")
 	|| StrEqual(name, "NCRPG")
 	|| StrEqual(name, "kpr_rating")
@@ -197,7 +197,7 @@ void UpdateScoreType(ConVar convar, char[] oldValue, char[] newValue)
 		}
 		case ScoreType_KentoRankMe:
 		{
-			DoesScoreTypeExist("kento_rankme", scoreType);
+			DoesScoreTypeExist("rankme", scoreType);
 		}
 		case ScoreType_LevelsRanks:
 		{
